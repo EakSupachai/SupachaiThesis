@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 56e6726159677654cb8110e8b6d9bafe
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: SF Theramin Gothic
+  fontNames:
+  - SF Theramin Gothic
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 12802779f127145418d83e22c1384bf3, type: 3}
+  - {fileID: 12800000, guid: 062ab64bc0b724b4fb18ca481ecc7e1b, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
