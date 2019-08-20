@@ -419,7 +419,11 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        if (Input.GetMouseButtonDown(1) && !g_Aiming)
+        bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
+        bool eyeBlinkStatus = EyeTrackerController.GetBlinkStatus();
+        bool aimCommandIssued = eyeTrackerRunning ? (eyeBlinkStatus && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
+        bool exitAimCommandIssued = eyeTrackerRunning ? (eyeBlinkStatus && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+        if (/*Input.GetMouseButtonDown(1) && !g_Aiming*/ aimCommandIssued)
         {
             g_Aiming = true;
             g_AimInterpolating = true;
@@ -440,7 +444,7 @@ public class FirstPersonController : MonoBehaviour
             g_InterpolatingDistance = Vector3.Distance(g_AimingStartPosition, g_AimingIntendedPosition);
             g_GunController.SwitchCrosshair();
         }
-        else if (Input.GetMouseButtonDown(1) && g_Aiming)
+        else if (/*Input.GetMouseButtonDown(1) && g_Aiming*/ exitAimCommandIssued)
         {
             g_Aiming = false;
             g_AimInterpolating = true;
