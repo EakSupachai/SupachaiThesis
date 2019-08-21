@@ -2,10 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Tobii.StreamEngine;
 
 public class EyeTrackerController : MonoBehaviour
 {
+    [SerializeField] private Image tracker;
+
     private tobii_error_t result;
     private IntPtr deviceContext;
 
@@ -16,7 +19,7 @@ public class EyeTrackerController : MonoBehaviour
     private static Vector2 blinkPoint = new Vector2();
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Debug.Log(Screen.width);
         Debug.Log(Screen.height);
@@ -52,12 +55,13 @@ public class EyeTrackerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         result = Interop.tobii_device_process_callbacks(deviceContext);
+        tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
     }
 
-    void OnGazePoint(ref tobii_gaze_point_t gazePoint)
+    private void OnGazePoint(ref tobii_gaze_point_t gazePoint)
     {
         float x = gazePoint.position.x * 1920f;
         float y = gazePoint.position.y * 1080f;
@@ -76,7 +80,7 @@ public class EyeTrackerController : MonoBehaviour
         Debug.Log("--------------------------");*/
     }
 
-    void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)
+    private void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)
     {
         bool left = gazeOrigin.left_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
         bool right = gazeOrigin.right_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
@@ -108,5 +112,15 @@ public class EyeTrackerController : MonoBehaviour
         bool status = blinkStatus;
         blinkStatus = false;
         return status;
+    }
+
+    public static Vector2 GetCurrentGazePoint()
+    {
+        return currentGazePoint;
+    }
+
+    public static Vector2 GetBlinkPoint()
+    {
+        return blinkPoint;
     }
 }
