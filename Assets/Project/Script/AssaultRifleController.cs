@@ -119,7 +119,7 @@ public class AssaultRifleController : GunController
                     enemyBehavior.TakeDamage(damage, currentMode, fpcCamera.transform.position, hit.point);
                 }
             }
-
+            audioSource.pitch = Time.timeScale;
             audioSource.Play();
             return true;
         }

@@ -75,9 +75,6 @@ public class EyeTrackerController : MonoBehaviour
         {
             currentGazePoint.y = 911;
         }
-        /*Debug.Log(gazePoint.position.x * Screen.width);
-        Debug.Log(gazePoint.position.y * Screen.height);
-        Debug.Log("--------------------------");*/
     }
 
     private void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)

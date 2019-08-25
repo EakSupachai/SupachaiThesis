@@ -10105,7 +10105,6 @@ MonoBehaviour:
     type: 3}
   emergencyAudioPrefab: {fileID: 6938441111628802906, guid: edef6e9dc983ead40bbd418526aa0101,
     type: 3}
-  coreFullHp: 100
   increaseCoreHpPerSec: 20
   decreaseCoreHpPerSec: 10
   smallEnemyDamage: 10

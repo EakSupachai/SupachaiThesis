@@ -38,6 +38,7 @@ public class AudioPrefabFadeOutScript : MonoBehaviour
             }
         }
 
+        audioSource.pitch = Time.timeScale;
         if (fadeOut)
         {
             float volumn = audioSource.volume - decreaseVolumePerFrame;

@@ -118,7 +118,8 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Update()
     {
-        if (gameController != null && GameController.IsPause())
+        Debug.Log(bodyMeshRenderer.isVisible);
+        if (gameController != null && (GameController.IsPause() || GameController.IsGameOver()))
         {
             audioSource.Pause();
             return;

@@ -174,6 +174,7 @@ public class FirstPersonController : MonoBehaviour
         {
             return;
         }
+        m_AudioSource.pitch = Time.timeScale;
         // stop character when hitting the ground
         if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
         {
@@ -187,20 +188,22 @@ public class FirstPersonController : MonoBehaviour
         bool blinkCloseToCrosshair = false;
         bool blinkCloseToGunPanel = false;
         bool blinkCloseToSkillPanel = false;
-        Time.timeScale = 1f;
         if (eyeTrackerRunning)
         {
             Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
             float d1 = Vector2.Distance(gazePoint, crosshairPosition);
             float d2 = Vector2.Distance(gazePoint, gunPanelPosition);
             float d3 = Vector3.Distance(gazePoint, skillPanelPosition);
-            if (d3 <= d1 && d3 <= d2)
+            if (d3 <= d1 && d3 <= d2 && GameController.IsSlowMotionAllowed())
             {
-                Time.timeScale = 0.1f;
+                //Time.timeScale = 0.1f;
+            }
+            else if (GameController.IsSlowMotionAllowed())
+            {
+                Time.timeScale = GameController.defaultTimeScale;
             }
             if (eyeBlinkStatus)
             {
-                Time.timeScale = 1f;
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                 d1 = Vector2.Distance(blinkPoint, crosshairPosition);
                 d2 = Vector2.Distance(blinkPoint, gunPanelPosition);
@@ -253,7 +256,7 @@ public class FirstPersonController : MonoBehaviour
         Ray ray = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         RaycastHit hit;
         Physics.Raycast(ray.origin, ray.direction, out hit);
-        if (hit.transform.gameObject.tag == "Core" && gameController.IsFixingCoreAllowed())
+        if (hit.transform.gameObject.tag == "Core" && GameController.IsFixingCoreAllowed())
         {
             if (!f_IconController.IsFlickering())
             {
@@ -294,7 +297,7 @@ public class FirstPersonController : MonoBehaviour
             }
             StartCoroutine(FlashSkillEffect(Time.time, success));
         }
-        else if (Input.GetKey(KeyCode.F) && hit.transform.gameObject.tag == "Core" && gameController.IsFixingCoreAllowed())
+        else if (Input.GetKey(KeyCode.F) && hit.transform.gameObject.tag == "Core" && GameController.IsFixingCoreAllowed())
         {
             if (fixingCoreAudioPrefab == null)
             {

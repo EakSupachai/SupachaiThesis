@@ -25,6 +25,23 @@ public class AudioPrefabScript : MonoBehaviour
                 audioSource.UnPause();
             }
         }
+        
+        if (!GameController.IsSlowMotionAllowed() && !GameController.IsGameOver())
+        {
+            audioSource.pitch = Time.timeScale + 0.15f;
+        }
+        else
+        {
+            if (GameController.IsGameOver())
+            {
+                audioSource.pitch = GameController.defaultTimeScale;
+            }
+            else
+            {
+                audioSource.pitch = Time.timeScale;
+            }
+        }
+        //audioSource.pitch = Time.timeScale != GameController.defaultTimeScale ? Time.timeScale + 0.1f : Time.timeScale;
         if (!audioSource.isPlaying)
         {
             Destroy(this.gameObject);

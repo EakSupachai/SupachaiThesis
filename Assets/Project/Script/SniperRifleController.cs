@@ -119,6 +119,7 @@ public class SniperRifleController : GunController
                     currentEnemyBehavior.TakeDamage(damage, "ORANGE", fpcCamera.transform.position, impactPoint);
                 }
             }
+            audioSource.pitch = Time.timeScale;
             audioSource.Play();
             return true;
         }

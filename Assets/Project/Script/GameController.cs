@@ -13,7 +13,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject mediumEnemy;
     [SerializeField] private GameObject largeEnemy;
     [SerializeField] private GameObject emergencyAudioPrefab;
-    [SerializeField] private float coreFullHp = 100f;
     [SerializeField] private float increaseCoreHpPerSec = 20f;
     [SerializeField] private float decreaseCoreHpPerSec = 10f;
     [SerializeField] private int smallEnemyDamage = 10;
@@ -38,10 +37,14 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject finishedDecreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject coreDamagedAudioPrefab;
 
+    private static string currentState;
+    private static float coreHp;
+    private static float coreFullHp;
+
     public static bool pause;
     public static bool gameOver;
-    
-    private string currentState;
+    public static float defaultTimeScale;
+
     private bool stateStarted;
     private float currentStateDuration;
     private float previousProgressTime;
@@ -83,8 +86,7 @@ public class GameController : MonoBehaviour
     private float repairNoticeStateDuration;
     private float coreHpToDecrease;
     private int nextWave;
-
-    private float coreHp;
+    
     private float emergencyCoreHp;
     private float coreAudioTimer;
     private float coreAudioTimeStamp;
@@ -105,7 +107,8 @@ public class GameController : MonoBehaviour
         pause = false;
         gameOver = false;
         LockCursor();
-        Time.timeScale = 1f;
+        defaultTimeScale = 1f;
+        Time.timeScale = defaultTimeScale;
 
         currentState = "START";
         previousProgressTime = 0f;
@@ -114,7 +117,7 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 120.9f;
+        wave1_duration = 5.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -141,14 +144,14 @@ public class GameController : MonoBehaviour
         coreDamagedStateDuration = 5.5f;
         repairNoticeStateDuration = 3.25f;
         nextWave = 1;
-        
+
+        coreFullHp = 100f;
         coreHp = coreFullHp;
         emergencyCoreHp = coreFullHp * 0.25f;
         coreHpBar.fillAmount = 1f;
         coreAudioTimeStamp = 10f;
         coreAudioFadeOutTimeStamp = 10f;
         coreAudioTimeInterval = 2f;
-        currentTimeScale = 1f;
         coreAudioSource = core.GetComponent<AudioSource>();
         
         oneLineText.gameObject.SetActive(true);
@@ -186,6 +189,7 @@ public class GameController : MonoBehaviour
                 }
                 pause = !pause;
                 Time.timeScale = pause ? 0 : currentTimeScale;
+                coreAudioSource.pitch = Time.timeScale;
                 Instantiate(pauseAudioPrefab, Vector3.zero, Quaternion.identity);
                 if (pause)
                 {
@@ -259,7 +263,7 @@ public class GameController : MonoBehaviour
                 previousProgressTime = Time.time;
                 if (currentStateDuration <= 0f)
                 {
-                    Time.timeScale = 1f;
+                    Time.timeScale = defaultTimeScale;
                     stateStarted = false;
                     currentState = "CONGRAT";
                 }
@@ -684,13 +688,22 @@ public class GameController : MonoBehaviour
         return coreHp >= coreFullHp;
     }
 
-    public bool IsFixingCoreAllowed()
+    public static bool IsFixingCoreAllowed()
     {
         if (currentState == "WAITING" && coreHp < coreFullHp)
         {
             return true;
         }
         return false;
+    }
+
+    public static bool IsSlowMotionAllowed()
+    {
+        if (currentState == "WAVE COMPLETED")
+        {
+            return false;
+        }
+        return true;
     }
 
     public static bool IsPause()
