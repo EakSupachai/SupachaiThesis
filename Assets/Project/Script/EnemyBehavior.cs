@@ -59,6 +59,7 @@ public class EnemyBehavior : MonoBehaviour
     private ParticleSystem outerFreezeEffectParticle;
     private Vector3 forceDirection;
     private Vector3 forcePosition;
+    private MeshRenderer bodyMeshRenderer;
     private List<MeshRenderer> meshRenderers;
     private List<Material> defaultMaterials;
     private List<ParticleSystemRenderer> thrusts;
@@ -93,6 +94,10 @@ public class EnemyBehavior : MonoBehaviour
 
         foreach (Transform child in transform)
         {
+            if (child.gameObject.name == "Body")
+            {
+                bodyMeshRenderer = child.gameObject.GetComponent<MeshRenderer>();
+            }
             if (child.childCount > 0)
             {
                 foreach (Transform grandChild in child)
@@ -118,7 +123,7 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(bodyMeshRenderer.isVisible);
+        //Debug.Log(bodyMeshRenderer.isVisible);
         if (gameController != null && (GameController.IsPause() || GameController.IsGameOver()))
         {
             audioSource.Pause();
@@ -130,7 +135,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         if (canvas != null && hpBar != null && freezeBar != null)
         {
-            Vector3 hpBarDirection = transform.position - gameController.GetPlayerPosition();
+            Vector3 hpBarDirection = transform.position - gameController.GetPlayerCameraPosition();
             hpBarDirection.y = 0f;
             canvas.transform.rotation = Quaternion.LookRotation(hpBarDirection);
             hpBar.fillAmount = hp / fullHp;
@@ -347,6 +352,99 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
+    private void Explode(bool showScore)
+    {
+        StopFlickering();
+        audioSource.Pause();
+        canvas.gameObject.SetActive(false);
+        gameController.RemoveEnemyOnScreen();
+        if (showScore)
+        {
+            gameController.AddScore(type);
+            Vector3 scorePanelDirection = transform.position - gameController.GetPlayerCameraPosition();
+            scorePanelDirection.y = 0f;
+            GameObject score = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
+            Destroy(score, 2f);
+        }
+        GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+        GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
+        explosion.transform.localScale = new Vector3(explosionScale, explosionScale, explosionScale);
+        Destroy(explosion, 5f);
+        Destroy(explosionAudio, 2f);
+        body.useGravity = true;
+        body.isKinematic = false;
+        foreach (MeshRenderer mr in meshRenderers)
+        {
+            Material m = mr.material;
+            m.SetFloat("_Mode", 2);
+            m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetInt("_ZWrite", 0);
+            m.DisableKeyword("_ALPHATEST_ON");
+            m.EnableKeyword("_ALPHABLEND_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.renderQueue = 3000;
+        }
+        StartCoroutine("FadeOut", Time.time);
+        foreach (ParticleSystemRenderer ps in thrusts)
+        {
+            ps.gameObject.SetActive(false);
+        }
+    }
+
+    private IEnumerator FadeOut(float startTime)
+    {
+        float alpha = 1f;
+        while (Time.time - startTime < fadeOutTime || alpha > 0f)
+        {
+            alpha = 1f - ((Time.time - startTime) / fadeOutTime);
+            foreach (MeshRenderer mr in meshRenderers)
+            {
+                Color color = mr.material.color;
+                color.a = alpha;
+                mr.material.color = color;
+            }
+            if (gameController != null && GameController.IsPause())
+            {
+                yield return null;
+            }
+            yield return null;
+        }
+        Destroy(this.gameObject);
+    }
+
+    private void InitializeDataList(Transform objectTransform)
+    {
+        MeshRenderer mr = objectTransform.gameObject.GetComponent<MeshRenderer>();
+        if (mr != null)
+        {
+            meshRenderers.Add(mr);
+            if (objectTransform.gameObject.tag == "Eye")
+            {
+                if (isRedType)
+                {
+                    mr.material = redTypeMaterial;
+                    defaultMaterials.Add(redTypeMaterial);
+                }
+                else
+                {
+                    mr.material = yellowTypeMaterial;
+                    defaultMaterials.Add(yellowTypeMaterial);
+                }
+            }
+            else
+            {
+                defaultMaterials.Add(mr.material);
+            }
+        }
+        ParticleSystemRenderer ps = objectTransform.gameObject.GetComponent<ParticleSystemRenderer>();
+        if (ps != null && (ps.gameObject.name != "FreezeEffect" && ps.gameObject.name != "OuterFreezeEffect"))
+        {
+            thrusts.Add(ps);
+            defaultParticleMaterial = ps.gameObject.GetComponent<ParticleSystemRenderer>().material;
+        }
+    }
+
     public void TakeDamage(int damage, string ammoType, Vector3 cameraPosition, Vector3 impactPosition)
     {
         if (hp > 0)
@@ -449,99 +547,6 @@ public class EnemyBehavior : MonoBehaviour
         return hp <= 0;
     }
 
-    private void Explode(bool showScore)
-    {
-        StopFlickering();
-        audioSource.Pause();
-        canvas.gameObject.SetActive(false);
-        gameController.RemoveEnemyOnScreen();
-        if (showScore)
-        {
-            gameController.AddScore(type);
-            Vector3 scorePanelDirection = transform.position - gameController.GetPlayerPosition();
-            scorePanelDirection.y = 0f;
-            GameObject score = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
-            Destroy(score, 2f);
-        }
-        GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-        GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
-        explosion.transform.localScale = new Vector3(explosionScale, explosionScale, explosionScale);
-        Destroy(explosion, 5f);
-        Destroy(explosionAudio, 2f);
-        body.useGravity = true;
-        body.isKinematic = false;
-        foreach (MeshRenderer mr in meshRenderers)
-        {
-            Material m = mr.material;
-            m.SetFloat("_Mode", 2);
-            m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            m.SetInt("_ZWrite", 0);
-            m.DisableKeyword("_ALPHATEST_ON");
-            m.EnableKeyword("_ALPHABLEND_ON");
-            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            m.renderQueue = 3000;
-        }
-        StartCoroutine("FadeOut", Time.time);
-        foreach (ParticleSystemRenderer ps in thrusts)
-        {
-            ps.gameObject.SetActive(false);
-        }
-    }
-
-    private IEnumerator FadeOut(float startTime)
-    {
-        float alpha = 1f;
-        while(Time.time - startTime < fadeOutTime || alpha > 0f)
-        {
-            alpha = 1f - ((Time.time - startTime) / fadeOutTime);
-            foreach (MeshRenderer mr in meshRenderers)
-            {
-                Color color = mr.material.color;
-                color.a = alpha;
-                mr.material.color = color;
-            }
-            if (gameController != null && GameController.IsPause())
-            {
-                yield return null;
-            }
-            yield return null;
-        }
-        Destroy(this.gameObject);
-    }
-
-    private void InitializeDataList(Transform objectTransform)
-    {
-        MeshRenderer mr = objectTransform.gameObject.GetComponent<MeshRenderer>();
-        if (mr != null)
-        {
-            meshRenderers.Add(mr);
-            if (objectTransform.gameObject.tag == "Eye")
-            {
-                if (isRedType)
-                {
-                    mr.material = redTypeMaterial;
-                    defaultMaterials.Add(redTypeMaterial);
-                }
-                else
-                {
-                    mr.material = yellowTypeMaterial;
-                    defaultMaterials.Add(yellowTypeMaterial);
-                }
-            }
-            else
-            {
-                defaultMaterials.Add(mr.material);
-            }
-        }
-        ParticleSystemRenderer ps = objectTransform.gameObject.GetComponent<ParticleSystemRenderer>();
-        if (ps != null && (ps.gameObject.name != "FreezeEffect" && ps.gameObject.name != "OuterFreezeEffect"))
-        {
-            thrusts.Add(ps);
-            defaultParticleMaterial = ps.gameObject.GetComponent<ParticleSystemRenderer>().material;
-        }
-    }
-
     public void GiveInstruction(GameController controller, Vector3 deceleration)
     {
         gameController = controller;
@@ -549,5 +554,46 @@ public class EnemyBehavior : MonoBehaviour
         distanceToDeceleration = Vector3.Distance(startPosition, decelerationPosition);
         distanceToDestination = Vector3.Distance(decelerationPosition, destinationPosition);
         isRedType = Random.value > 0.5f;
+    }
+
+    private float angleToCamera = 0f;
+
+    public bool IsInLockedOnVicinity()
+    {
+        Vector3 playerPosition = gameController.GetPlayerCameraPosition();
+        Vector3 enemyDirection = transform.position - gameController.GetPlayerCameraPosition();
+        angleToCamera = Vector3.Angle(gameController.GetPlayerLookingDirection(), enemyDirection);
+        if (angleToCamera <= 20f)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(playerPosition, enemyDirection, out hit))
+            {
+                if (hit.transform.gameObject.tag == "Enemy")
+                {
+                    Debug.Log("---------------------------------------");
+                    return true;
+                }
+            }
+        }
+        /*hpBarDirection.y = 0f;
+        canvas.transform.rotation = Quaternion.LookRotation(hpBarDirection);
+        hpBar.fillAmount = hp / fullHp;
+        if (freezing)
+        {
+            float remainingFreezeTime = freezeTime - (Time.time - freezeStartTime);
+            freezeBar.fillAmount = remainingFreezeTime / freezeTime;
+        }
+        else
+        {
+            freezeBar.fillAmount = 0f;
+        }*/
+        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        return false;
+    }
+
+    public float GetAngleToCamera()
+    {
+        return angleToCamera;
+        //return Vector3.Distance(transform.position, gameController.GetPlayerCameraPosition());
     }
 }

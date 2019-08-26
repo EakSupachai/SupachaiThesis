@@ -1055,4 +1055,14 @@ public class FirstPersonController : MonoBehaviour
     {
         postProcessingProfile.depthOfField.enabled = false;
     }
+
+    public Vector3 GetCameraPosition()
+    {
+        return m_Camera.transform.position;
+    }
+
+    public Vector3 GetLookingDirection()
+    {
+        return m_Camera.transform.forward;
+    }
 }

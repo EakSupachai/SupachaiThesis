@@ -117,7 +117,7 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 5.9f;
+        wave1_duration = 120.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -480,6 +480,8 @@ public class GameController : MonoBehaviour
         nextWave++;
     }
 
+    private List<GameObject> enemies = new List<GameObject>();
+
     private bool ProgressEnemyWave()
     {
         if (previousProgressTime == 0f)
@@ -566,25 +568,67 @@ public class GameController : MonoBehaviour
                     if (canSpawn)
                     {
                         enemyOnScreen++;
+                        GameObject enemy = null;
                         if (rand <= smallEnemySpawnChance)
                         {
-                            GameObject go = Instantiate(smallEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            go.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            enemy = Instantiate(smallEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                         }
                         else if (rand <= mediumEnemySpawnChance)
                         {
-                            GameObject go = Instantiate(mediumEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            go.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            enemy = Instantiate(mediumEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                         }
                         else if (rand <= largeEnemySpawnChance)
                         {
-                            GameObject go = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            go.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                         }
+                        enemies.Add(enemy);
                     }
                 }
             }
             previousProgressTime = Time.time;
+        }
+
+        List<GameObject> enemiesInSight = new List<GameObject>();
+        for (int i = enemies.Count - 1; i >= 0; i--)
+        {
+            if (enemies[i] == null)
+            {
+                enemies.RemoveAt(i);
+            }
+            else
+            {
+                if (enemies[i].GetComponent<EnemyBehavior>().IsInLockedOnVicinity())
+                {
+                    enemiesInSight.Add(enemies[i]);
+                }
+            }
+        }
+        bool lockedTarget = false;
+        int lockedTargetIndex = 0;
+        if (enemiesInSight.Count == 1)
+        {
+            lockedTarget = true;
+            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
+        }
+        else if (enemiesInSight.Count > 1)
+        {
+            lockedTarget = true;
+            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
+            for (int i = 1; i < enemiesInSight.Count; i++)
+            {
+                float angle = enemiesInSight[i].GetComponent<EnemyBehavior>().GetAngleToCamera();
+                if (angle < smallestAngle)
+                {
+                    lockedTargetIndex = i;
+                }
+            }
+        }
+        if (lockedTarget)
+        {
+            enemiesInSight[lockedTargetIndex].GetComponent<EnemyBehavior>().GetAngleToCamera();
         }
 
         if ((currentStateDuration == 0f && enemyOnScreen <= 0) || coreHp == 0f)
@@ -716,9 +760,14 @@ public class GameController : MonoBehaviour
         return gameOver;
     }
 
-    public Vector3 GetPlayerPosition()
+    public Vector3 GetPlayerCameraPosition()
     {
-        return player.transform.position;
+        return player.GetCameraPosition();
+    }
+
+    public Vector3 GetPlayerLookingDirection()
+    {
+        return player.GetLookingDirection();
     }
 
     public void RemoveEnemyOnScreen()
