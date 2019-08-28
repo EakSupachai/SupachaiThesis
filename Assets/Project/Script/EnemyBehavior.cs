@@ -20,9 +20,10 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private GameObject explosionAudioPrefab;
     [SerializeField] private GameObject scoreCanvas;
-    [SerializeField] private Canvas canvas;
+    [SerializeField] private Canvas hpCanvas;
     [SerializeField] private Image hpBar;
     [SerializeField] private Image freezeBar;
+    [SerializeField] private Canvas lockonCanvas;
 
     private bool flickering;
     private bool materialFlag;
@@ -91,6 +92,7 @@ public class EnemyBehavior : MonoBehaviour
         meshRenderers = new List<MeshRenderer>();
         defaultMaterials = new List<Material>();
         thrusts = new List<ParticleSystemRenderer>();
+        lockonCanvas.gameObject.SetActive(false);
 
         foreach (Transform child in transform)
         {
@@ -123,7 +125,6 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Update()
     {
-        //Debug.Log(bodyMeshRenderer.isVisible);
         if (gameController != null && (GameController.IsPause() || GameController.IsGameOver()))
         {
             audioSource.Pause();
@@ -133,22 +134,27 @@ public class EnemyBehavior : MonoBehaviour
         {
             audioSource.UnPause();
         }
-        if (canvas != null && hpBar != null && freezeBar != null)
+        
+        // Rotate canvas
+        Vector3 canvasDirection = transform.position - gameController.GetPlayerCameraPosition();
+        canvasDirection.y = 0f;
+        hpCanvas.transform.rotation = Quaternion.LookRotation(canvasDirection);
+        if (lockonCanvas.gameObject.activeSelf)
         {
-            Vector3 hpBarDirection = transform.position - gameController.GetPlayerCameraPosition();
-            hpBarDirection.y = 0f;
-            canvas.transform.rotation = Quaternion.LookRotation(hpBarDirection);
-            hpBar.fillAmount = hp / fullHp;
-            if (freezing)
-            {
-                float remainingFreezeTime = freezeTime - (Time.time - freezeStartTime);
-                freezeBar.fillAmount = remainingFreezeTime / freezeTime;
-            }
-            else
-            {
-                freezeBar.fillAmount = 0f;
-            }
+            lockonCanvas.transform.rotation = Quaternion.LookRotation(canvasDirection);
         }
+        hpBar.fillAmount = hp / fullHp;
+        if (freezing)
+        {
+            float remainingFreezeTime = freezeTime - (Time.time - freezeStartTime);
+            freezeBar.fillAmount = remainingFreezeTime / freezeTime;
+        }
+        else
+        {
+            freezeBar.fillAmount = 0f;
+        }
+
+
         if (!IsDestroyed() && decelerationPosition != Vector3.zero)
         {
             float timePassed = Time.time - spawnTime;
@@ -356,7 +362,8 @@ public class EnemyBehavior : MonoBehaviour
     {
         StopFlickering();
         audioSource.Pause();
-        canvas.gameObject.SetActive(false);
+        hpCanvas.gameObject.SetActive(false);
+        lockonCanvas.gameObject.SetActive(false);
         gameController.RemoveEnemyOnScreen();
         if (showScore)
         {
@@ -560,6 +567,10 @@ public class EnemyBehavior : MonoBehaviour
 
     public bool IsInLockedOnVicinity()
     {
+        if (IsDestroyed())
+        {
+            return false;
+        }
         Vector3 playerPosition = gameController.GetPlayerCameraPosition();
         Vector3 enemyDirection = transform.position - gameController.GetPlayerCameraPosition();
         angleToCamera = Vector3.Angle(gameController.GetPlayerLookingDirection(), enemyDirection);
@@ -570,30 +581,25 @@ public class EnemyBehavior : MonoBehaviour
             {
                 if (hit.transform.gameObject.tag == "Enemy")
                 {
-                    Debug.Log("---------------------------------------");
                     return true;
                 }
             }
         }
-        /*hpBarDirection.y = 0f;
-        canvas.transform.rotation = Quaternion.LookRotation(hpBarDirection);
-        hpBar.fillAmount = hp / fullHp;
-        if (freezing)
-        {
-            float remainingFreezeTime = freezeTime - (Time.time - freezeStartTime);
-            freezeBar.fillAmount = remainingFreezeTime / freezeTime;
-        }
-        else
-        {
-            freezeBar.fillAmount = 0f;
-        }*/
-        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return false;
     }
 
     public float GetAngleToCamera()
     {
         return angleToCamera;
-        //return Vector3.Distance(transform.position, gameController.GetPlayerCameraPosition());
+    }
+
+    public void TurnOnLockonCanvas()
+    {
+        lockonCanvas.gameObject.SetActive(true);
+    }
+
+    public void TurnOffLockonCanvas()
+    {
+        lockonCanvas.gameObject.SetActive(false);
     }
 }

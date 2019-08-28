@@ -600,7 +600,9 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                if (enemies[i].GetComponent<EnemyBehavior>().IsInLockedOnVicinity())
+                EnemyBehavior eb = enemies[i].GetComponent<EnemyBehavior>();
+                eb.TurnOffLockonCanvas();
+                if (eb.IsInLockedOnVicinity())
                 {
                     enemiesInSight.Add(enemies[i]);
                 }
@@ -628,7 +630,13 @@ public class GameController : MonoBehaviour
         }
         if (lockedTarget)
         {
-            enemiesInSight[lockedTargetIndex].GetComponent<EnemyBehavior>().GetAngleToCamera();
+            EnemyBehavior eb = enemiesInSight[lockedTargetIndex].GetComponent<EnemyBehavior>();
+            eb.TurnOnLockonCanvas();
+            player.SetLockonEnemy(eb);
+        }
+        else
+        {
+            player.ClearLockonEnemy();
         }
 
         if ((currentStateDuration == 0f && enemyOnScreen <= 0) || coreHp == 0f)

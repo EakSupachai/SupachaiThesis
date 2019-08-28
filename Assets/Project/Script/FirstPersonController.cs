@@ -12,9 +12,10 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] AssaultRifleController g_AssaultRifleController;
     [SerializeField] SniperRifleController g_SniperRifleController;
     [SerializeField] FixCoreIconBehavior f_IconController;
+    [SerializeField] Image h_CommandArea;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
-    [SerializeField] Image g_gunPanel;
+    [SerializeField] Image g_gunHUD;
     [SerializeField] Image g_AssaultRifleIcon;
     [SerializeField] Image g_SniperRifleIcon;
     [SerializeField] float g_GunbobAmountX = 0.02f;
@@ -95,7 +96,6 @@ public class FirstPersonController : MonoBehaviour
     private float m_BackupPreviousStepCycle;
     private float m_LastTimeMoving;
     private bool m_Moving;
-    private AudioSource m_AudioSource;
 
     private PostProcessingProfile postProcessingProfile;
 
@@ -106,23 +106,24 @@ public class FirstPersonController : MonoBehaviour
     private float s_FailFadeInTime;
     private float s_FailFadeOutTime;
 
+    private AudioSource audioSource;
     private GameObject fixingCoreAudioPrefab;
 
-
-
-    private Vector3[] gunPanelCorners = new Vector3[4];
+    private EnemyBehavior lockonEnemy;
+       
+    private Vector3[] commandAreaCorners = new Vector3[4];
+    //private Vector2 crosshairPosition = new Vector2();
     private Vector2 gunPanelPosition = new Vector2();
-    private Vector2 crosshairPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
 
     // Use this for initialization
     private void Start()
     {
-        g_gunPanel.rectTransform.GetWorldCorners(gunPanelCorners);
+        h_CommandArea.rectTransform.GetWorldCorners(commandAreaCorners);
         TestPrepareCorners();
-        crosshairPosition.x = Screen.width / 2f;
-        crosshairPosition.y = Screen.height / 2f;
-        SetUIPosition(g_gunPanel.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
+        /*crosshairPosition.x = Screen.width / 2f;
+        crosshairPosition.y = Screen.height / 2f;*/
+        SetUIPosition(g_gunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
         SetUIPosition(s_SkillCooldownHUD.gameObject.GetComponent<RectTransform>(), out skillPanelPosition);
 
         Application.targetFrameRate = 60;
@@ -132,7 +133,7 @@ public class FirstPersonController : MonoBehaviour
         m_OriginalCameraPosition = m_Camera.transform.localPosition;
         m_NextStep = m_StepInterval;
         m_LastTimeMoving = -1f;
-        m_AudioSource = GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
 		m_MouseLook.Init(transform , m_Camera.transform);
 
         SetGunController("AR");
@@ -174,7 +175,7 @@ public class FirstPersonController : MonoBehaviour
         {
             return;
         }
-        m_AudioSource.pitch = Time.timeScale;
+        audioSource.pitch = Time.timeScale;
         // stop character when hitting the ground
         if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
         {
@@ -190,7 +191,7 @@ public class FirstPersonController : MonoBehaviour
         bool blinkCloseToSkillPanel = false;
         if (eyeTrackerRunning)
         {
-            Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            /*Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
             float d1 = Vector2.Distance(gazePoint, crosshairPosition);
             float d2 = Vector2.Distance(gazePoint, gunPanelPosition);
             float d3 = Vector3.Distance(gazePoint, skillPanelPosition);
@@ -201,13 +202,28 @@ public class FirstPersonController : MonoBehaviour
             else if (GameController.IsSlowMotionAllowed())
             {
                 Time.timeScale = GameController.defaultTimeScale;
-            }
+            }*/
             if (eyeBlinkStatus)
             {
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
-                d1 = Vector2.Distance(blinkPoint, crosshairPosition);
-                d2 = Vector2.Distance(blinkPoint, gunPanelPosition);
-                d3 = Vector3.Distance(blinkPoint, skillPanelPosition);
+                float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
+                float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
+                bool blinkInCA = IsBlinkPointInCommandArea(blinkPoint);
+                if (d1 <= d2 && blinkInCA)
+                {
+                    blinkCloseToGunPanel = true;
+                }
+                else if (d2 < d1 && blinkInCA)
+                {
+                    blinkCloseToSkillPanel = true;
+                }
+                else
+                {
+                    blinkCloseToCrosshair = true;
+                }
+                /*float d1 = Vector2.Distance(blinkPoint, crosshairPosition);
+                float d2 = Vector2.Distance(blinkPoint, gunPanelPosition);
+                float d3 = Vector3.Distance(blinkPoint, skillPanelPosition);
                 if (d1 <= d2 && d1 <= d3)
                 {
                     blinkCloseToCrosshair = true;
@@ -219,7 +235,7 @@ public class FirstPersonController : MonoBehaviour
                 else
                 {
                     blinkCloseToSkillPanel = true;
-                }
+                }*/
             }
         }
 
@@ -272,14 +288,12 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // use skill & fix core
-
-
         bool useSkill = eyeTrackerRunning ? (blinkCloseToSkillPanel && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core");
         if (/*Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core"*/ useSkill)
         {
             bool success = false;
-            if (Physics.Raycast(ray.origin, ray.direction, out hit))
+            /*if (Physics.Raycast(ray.origin, ray.direction, out hit))
             {
                 if (hit.transform.gameObject.tag == "Enemy")
                 {
@@ -293,6 +307,18 @@ public class FirstPersonController : MonoBehaviour
                     {
                         success = false;
                     }
+                }
+            }*/
+            if (lockonEnemy != null)
+            {
+                if (!lockonEnemy.IsDestroyed())
+                {
+                    success = true;
+                    lockonEnemy.Freeze();
+                }
+                else
+                {
+                    success = false;
                 }
             }
             StartCoroutine(FlashSkillEffect(Time.time, success));
@@ -782,11 +808,11 @@ public class FirstPersonController : MonoBehaviour
         // pick & play a random footstep sound from the array,
         // excluding sound at index 0
         int n = Random.Range(1, m_FootstepSounds.Length);
-        m_AudioSource.clip = m_FootstepSounds[n];
-        m_AudioSource.PlayOneShot(m_AudioSource.clip);
+        audioSource.clip = m_FootstepSounds[n];
+        audioSource.PlayOneShot(audioSource.clip);
         // move picked sound to index 0 so it's not picked next time
         m_FootstepSounds[n] = m_FootstepSounds[0];
-        m_FootstepSounds[0] = m_AudioSource.clip;
+        m_FootstepSounds[0] = audioSource.clip;
     }
 
     private void GetInput(out float speed)
@@ -1016,18 +1042,17 @@ public class FirstPersonController : MonoBehaviour
 
     private void TestPrepareCorners()
     {
-        gunPanelCorners[0].y = 911 - gunPanelCorners[0].y;
-        gunPanelCorners[1].y = 911 - gunPanelCorners[1].y;
-        gunPanelCorners[2].y = 911 - gunPanelCorners[2].y;
-        gunPanelCorners[3].y = 911 - gunPanelCorners[3].y;
+        commandAreaCorners[0].y = 911 - commandAreaCorners[0].y;
+        commandAreaCorners[1].y = 911 - commandAreaCorners[1].y;
+        commandAreaCorners[2].y = 911 - commandAreaCorners[2].y;
+        commandAreaCorners[3].y = 911 - commandAreaCorners[3].y;
     }
 
-    private bool TestIsInCorners()
+    private bool IsBlinkPointInCommandArea(Vector2 blinkPoint)
     {
-        Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
         int x = (int)blinkPoint.x;
         int y = (int)blinkPoint.y;
-        if (x >= gunPanelCorners[0].x && x <= gunPanelCorners[2].x && y >= gunPanelCorners[1].y && y <= gunPanelCorners[0].y)
+        if (x >= commandAreaCorners[0].x && x <= commandAreaCorners[2].x && y >= commandAreaCorners[1].y && y <= commandAreaCorners[0].y)
         {
             return true;
         }
@@ -1054,6 +1079,16 @@ public class FirstPersonController : MonoBehaviour
     public void TurnOffDOF()
     {
         postProcessingProfile.depthOfField.enabled = false;
+    }
+
+    public void SetLockonEnemy(EnemyBehavior enemy)
+    {
+        lockonEnemy = enemy;
+    }
+
+    public void ClearLockonEnemy()
+    {
+        lockonEnemy = null;
     }
 
     public Vector3 GetCameraPosition()
