@@ -33075,7 +33075,7 @@ MonoBehaviour:
   h_CommandArea: {fileID: 1500910998}
   s_SkillUseEffect: {fileID: 1157494683}
   s_SkillCooldownHUD: {fileID: 1388780542}
-  g_gunHUD: {fileID: 1375063650}
+  g_GunHUD: {fileID: 1375063650}
   g_AssaultRifleIcon: {fileID: 433095010}
   g_SniperRifleIcon: {fileID: 494738018}
   g_GunbobAmountX: 0.02

@@ -13,8 +13,10 @@ public class EyeTrackerController : MonoBehaviour
     private IntPtr deviceContext;
 
     private static bool deviceStatus = false;
-    private static bool blinkStatus = false;
-    private static int blinkStatusCount = 0;
+    //private static bool blinkStatus = false;
+    private static int leftBlinkStatusCount = 0;
+    private static int rightBlinkStatusCount = 0;
+    private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2();
     private static Vector2 blinkPoint = new Vector2();
 
@@ -81,21 +83,40 @@ public class EyeTrackerController : MonoBehaviour
     {
         bool left = gazeOrigin.left_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
         bool right = gazeOrigin.right_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
-        if ((!left && right) || (left && !right))
+        if (!left && right)
         {
-            blinkStatusCount++;
-            if (blinkStatusCount == 1)
+            leftBlinkStatusCount++;
+            rightBlinkStatusCount = 0;
+            if (leftBlinkStatusCount == 1)
             {
                 blinkPoint = currentGazePoint;
             }
-            else if (blinkStatusCount == 5)
+            else if (leftBlinkStatusCount == 5)
             {
-                blinkStatus = true;
+                blinkStatus.blinked = true;
+                blinkStatus.left = true;
+                blinkStatus.right = false;
+            }
+        }
+        else if (left && !right)
+        {
+            rightBlinkStatusCount++;
+            leftBlinkStatusCount = 0;
+            if (rightBlinkStatusCount == 1)
+            {
+                blinkPoint = currentGazePoint;
+            }
+            else if (rightBlinkStatusCount == 5)
+            {
+                blinkStatus.blinked = true;
+                blinkStatus.left = false;
+                blinkStatus.right = true;
             }
         }
         else
         {
-            blinkStatusCount = 0;
+            leftBlinkStatusCount = 0;
+            rightBlinkStatusCount = 0;
         }
     }
 
@@ -104,11 +125,13 @@ public class EyeTrackerController : MonoBehaviour
         return deviceStatus;
     }
 
-    public static bool GetBlinkStatus()
+    public static BlinkStatus GetBlinkStatus()
     {
-        bool status = blinkStatus;
-        blinkStatus = false;
-        return status;
+        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.blinked, blinkStatus.left, blinkStatus.right);
+        blinkStatus.blinked = false;
+        blinkStatus.left = false;
+        blinkStatus.right = false;
+        return tempBlinkStatus;
     }
 
     public static Vector2 GetCurrentGazePoint()

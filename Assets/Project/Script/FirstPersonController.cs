@@ -15,7 +15,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] Image h_CommandArea;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
-    [SerializeField] Image g_gunHUD;
+    [SerializeField] Image g_GunHUD;
     [SerializeField] Image g_AssaultRifleIcon;
     [SerializeField] Image g_SniperRifleIcon;
     [SerializeField] float g_GunbobAmountX = 0.02f;
@@ -112,7 +112,6 @@ public class FirstPersonController : MonoBehaviour
     private EnemyBehavior lockonEnemy;
        
     private Vector3[] commandAreaCorners = new Vector3[4];
-    //private Vector2 crosshairPosition = new Vector2();
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
 
@@ -121,9 +120,7 @@ public class FirstPersonController : MonoBehaviour
     {
         h_CommandArea.rectTransform.GetWorldCorners(commandAreaCorners);
         TestPrepareCorners();
-        /*crosshairPosition.x = Screen.width / 2f;
-        crosshairPosition.y = Screen.height / 2f;*/
-        SetUIPosition(g_gunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
+        SetUIPosition(g_GunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
         SetUIPosition(s_SkillCooldownHUD.gameObject.GetComponent<RectTransform>(), out skillPanelPosition);
 
         Application.targetFrameRate = 60;
@@ -185,25 +182,13 @@ public class FirstPersonController : MonoBehaviour
 
         //check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
-        bool eyeBlinkStatus = EyeTrackerController.GetBlinkStatus();
-        bool blinkCloseToCrosshair = false;
-        bool blinkCloseToGunPanel = false;
-        bool blinkCloseToSkillPanel = false;
+        bool blinkToAim = false;
+        bool blinkToChangeGun = false;
+        bool blinkToUseSkill = false;
+        BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
         {
-            /*Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-            float d1 = Vector2.Distance(gazePoint, crosshairPosition);
-            float d2 = Vector2.Distance(gazePoint, gunPanelPosition);
-            float d3 = Vector3.Distance(gazePoint, skillPanelPosition);
-            if (d3 <= d1 && d3 <= d2 && GameController.IsSlowMotionAllowed())
-            {
-                //Time.timeScale = 0.1f;
-            }
-            else if (GameController.IsSlowMotionAllowed())
-            {
-                Time.timeScale = GameController.defaultTimeScale;
-            }*/
-            if (eyeBlinkStatus)
+            if (blinkStatus.blinked)
             {
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                 float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
@@ -211,31 +196,23 @@ public class FirstPersonController : MonoBehaviour
                 bool blinkInCA = IsBlinkPointInCommandArea(blinkPoint);
                 if (d1 <= d2 && blinkInCA)
                 {
-                    blinkCloseToGunPanel = true;
+                    blinkToChangeGun = true;
                 }
                 else if (d2 < d1 && blinkInCA)
                 {
-                    blinkCloseToSkillPanel = true;
+                    blinkToUseSkill = true;
                 }
                 else
                 {
-                    blinkCloseToCrosshair = true;
+                    if (blinkStatus.left)
+                    {
+                        blinkToAim = true;
+                    }
+                    else if (blinkStatus.right)
+                    {
+                        blinkToUseSkill = true;
+                    }
                 }
-                /*float d1 = Vector2.Distance(blinkPoint, crosshairPosition);
-                float d2 = Vector2.Distance(blinkPoint, gunPanelPosition);
-                float d3 = Vector3.Distance(blinkPoint, skillPanelPosition);
-                if (d1 <= d2 && d1 <= d3)
-                {
-                    blinkCloseToCrosshair = true;
-                }
-                else if (d2 <= d1 && d2 <= d3)
-                {
-                    blinkCloseToGunPanel = true;
-                }
-                else
-                {
-                    blinkCloseToSkillPanel = true;
-                }*/
             }
         }
 
@@ -288,7 +265,7 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // use skill & fix core
-        bool useSkill = eyeTrackerRunning ? (blinkCloseToSkillPanel && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
+        bool useSkill = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core");
         if (/*Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core"*/ useSkill)
         {
@@ -345,7 +322,7 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // change gun
-        bool changeGun = eyeTrackerRunning ? (blinkCloseToGunPanel && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
+        bool changeGun = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
         if (/*Input.GetKeyDown(KeyCode.X) && !g_Switching*/ changeGun)
         {
             BeginLoweringGun();
@@ -507,8 +484,8 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        bool aimCommandIssued = eyeTrackerRunning ? (blinkCloseToCrosshair && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
-        bool exitAimCommandIssued = eyeTrackerRunning ? (blinkCloseToCrosshair && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+        bool aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
+        bool exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
         if (/*Input.GetMouseButtonDown(1) && !g_Aiming*/ aimCommandIssued)
         {
             g_Aiming = true;
