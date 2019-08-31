@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,12 +10,15 @@ public class GameController : MonoBehaviour
     [SerializeField] private List<Transform> decelerationPoints = new List<Transform>();
     [SerializeField] private List<Animator> emergencyLightAnimators = new List<Animator>();
     [SerializeField] private GameObject core;
+    [SerializeField] private GameObject laserFence;
     [SerializeField] private GameObject smallEnemy;
     [SerializeField] private GameObject mediumEnemy;
     [SerializeField] private GameObject largeEnemy;
     [SerializeField] private GameObject emergencyAudioPrefab;
     [SerializeField] private float increaseCoreHpPerSec = 20f;
     [SerializeField] private float decreaseCoreHpPerSec = 10f;
+    [SerializeField] private float laserFenceDuration = 7f;
+    [SerializeField] private int laserFenceAvailable = 2;
     [SerializeField] private int smallEnemyDamage = 10;
     [SerializeField] private int mediumEnemyDamage = 15;
     [SerializeField] private int largeEnemyDamage = 20;
@@ -22,7 +26,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private int mediumEnemyScore = 150;
     [SerializeField] private int largeEnemyScore = 200;
     [SerializeField] private Image coreHpBar;
+    [SerializeField] private Image laserFenceCooldownIcon;
     [SerializeField] private Text waveTimerText;
+    [SerializeField] private Text laserFenceRemainText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text congratText;
     [SerializeField] private Text oneLineText;
@@ -36,6 +42,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject decreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject finishedDecreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject coreDamagedAudioPrefab;
+    [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
+    [SerializeField] private GameObject laserFenceHummingAudioPrefab;
 
     private static string currentState;
     private static float coreHp;
@@ -82,12 +90,13 @@ public class GameController : MonoBehaviour
 
     private float waveCompleteStateDuration;
     private float congratStateDuration;
-    private float coreDamagedStateDuration;
+    private float removeCoreHpStateDuration;
     private float repairNoticeStateDuration;
     private float coreHpToDecrease;
     private int nextWave;
     
     private float emergencyCoreHp;
+    private float laserFenceAvailableTime;
     private float coreAudioTimer;
     private float coreAudioTimeStamp;
     private float coreAudioFadeOutTimeStamp;
@@ -117,7 +126,7 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 120.9f;
+        wave1_duration = 5.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -141,7 +150,7 @@ public class GameController : MonoBehaviour
 
         waveCompleteStateDuration = 0.6f;
         congratStateDuration = 3.25f;
-        coreDamagedStateDuration = 5.5f;
+        removeCoreHpStateDuration = 5.5f;
         repairNoticeStateDuration = 3.25f;
         nextWave = 1;
 
@@ -158,12 +167,16 @@ public class GameController : MonoBehaviour
         twoLineText.gameObject.SetActive(true);
         congratText.gameObject.SetActive(true);
         countdownText.gameObject.SetActive(true);
-        waveTimerText.text = "Stand by...";
+        waveTimerText.text = "W0  0:00";
+        laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
         oneLineText.text = "Prepare for the first wave...";
         twoLineText.text = "";
         congratText.text = "";
         countdownText.text = "" + (int)start_duration;
+
+        laserFence.SetActive(false);
+        laserFenceCooldownIcon.gameObject.SetActive(false);
 
         hudCanvas.gameObject.SetActive(true);
         pauseCanvas.gameObject.SetActive(false);
@@ -274,7 +287,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = congratStateDuration;
                     previousProgressTime = Time.time;
-                    waveTimerText.text = "Stand by...";
+                    //waveTimerText.text = "Stand by...";
                     congratText.text = "Good job!";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
@@ -290,7 +303,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    currentStateDuration = coreDamagedStateDuration;
+                    currentStateDuration = removeCoreHpStateDuration;
                     previousProgressTime = Time.time;
                     coreHpToDecrease = coreHp - (coreHp * 0.3f);
                     currentDecreaseCoreHpAudioPrefab = Instantiate(decreaseCoreHpAudioPrefab, Vector3.zero, Quaternion.identity);
@@ -307,7 +320,16 @@ public class GameController : MonoBehaviour
                 previousProgressTime = Time.time;
                 if (coreHp > coreHpToDecrease)
                 {
-                    DecreaseCoreHp();
+                    if (coreHp > 0f)
+                    {
+                        float fps = 1 / Time.deltaTime;
+                        coreHp -= (decreaseCoreHpPerSec / fps);
+                        if (coreHp < 0f)
+                        {
+                            coreHp = 0f;
+                        }
+                        coreHpBar.fillAmount = coreHp / coreFullHp;
+                    }
                 }
                 else if (coreHp <= coreHpToDecrease && currentDecreaseCoreHpAudioPrefab != null)
                 {
@@ -498,15 +520,15 @@ public class GameController : MonoBehaviour
 
         if (currentState == "WAVE1")
         {
-            waveTimerText.text = "Wave 1   " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = "W1  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
         else if (currentState == "WAVE2")
         {
-            waveTimerText.text = "Wave 2   " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = "W2  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
         else
         {
-            waveTimerText.text = "Wave 3   " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = "W3  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
 
         if (currentStateDuration > 0f)
@@ -721,18 +743,39 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void DecreaseCoreHp()
+    public void ActivateLaserFence()
     {
-        if (coreHp > 0f)
-        {
-            float fps = 1 / Time.deltaTime;
-            coreHp -= (decreaseCoreHpPerSec / fps);
-            if (coreHp < 0f)
-            {
-                coreHp = 0f;
-            }
-            coreHpBar.fillAmount = coreHp / coreFullHp;
+        if (laserFenceAvailable <= 0) {
+            return;
         }
+        laserFenceAvailable--;
+        laserFenceRemainText.text = "" + laserFenceAvailable;
+        StartCoroutine(ActivateLaserFenceAndCooldownIcon());
+    }
+
+    private IEnumerator ActivateLaserFenceAndCooldownIcon()
+    {
+        GameObject hummingAudio = Instantiate(laserFenceHummingAudioPrefab, Vector3.zero, Quaternion.identity);
+        Instantiate(laserFenceActivatedAudioPrefab, Vector3.zero, Quaternion.identity);
+        laserFence.SetActive(true);
+        laserFenceCooldownIcon.gameObject.SetActive(true);
+        float ratio = 1f;
+        laserFenceAvailableTime = Time.time + laserFenceDuration;
+        while (Time.time < laserFenceAvailableTime)
+        {
+            ratio = Mathf.Abs(laserFenceAvailableTime - Time.time) / laserFenceDuration;
+            laserFenceCooldownIcon.fillAmount = ratio;
+            while (IsPause())
+            {
+                yield return null;
+            }
+            yield return null;
+        }
+        hummingAudio.GetComponent<AudioPrefabFadeOutScript>().BeginFadeOut();
+        Instantiate(laserFenceActivatedAudioPrefab, Vector3.zero, Quaternion.identity);
+        laserFence.SetActive(false);
+        laserFenceCooldownIcon.gameObject.SetActive(false);
+        laserFenceCooldownIcon.fillAmount = 1f;
     }
 
     public bool IsCoreHpFull()
@@ -740,9 +783,14 @@ public class GameController : MonoBehaviour
         return coreHp >= coreFullHp;
     }
 
-    public static bool IsFixingCoreAllowed()
+    public bool IsLaserFenceActive()
     {
-        if (currentState == "WAITING" && coreHp < coreFullHp)
+        return laserFence.activeSelf;
+    }
+
+    public bool CanActivateLaserFence()
+    {
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && laserFenceAvailable > 0)
         {
             return true;
         }

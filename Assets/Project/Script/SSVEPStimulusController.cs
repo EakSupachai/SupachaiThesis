@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FixCoreIconBehavior : MonoBehaviour
+public class SSVEPStimulusController : MonoBehaviour
 {
     [SerializeField] private Sprite whiteSprite;
     [SerializeField] private Sprite blackSprite;

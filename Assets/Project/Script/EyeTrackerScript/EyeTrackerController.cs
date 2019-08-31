@@ -13,9 +13,10 @@ public class EyeTrackerController : MonoBehaviour
     private IntPtr deviceContext;
 
     private static bool deviceStatus = false;
-    //private static bool blinkStatus = false;
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
+    private static int validBlinkDuration = 5;
+    private static float validGazeDuration = 0.8f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2();
     private static Vector2 blinkPoint = new Vector2();
@@ -91,7 +92,7 @@ public class EyeTrackerController : MonoBehaviour
             {
                 blinkPoint = currentGazePoint;
             }
-            else if (leftBlinkStatusCount == 5)
+            else if (leftBlinkStatusCount == validBlinkDuration)
             {
                 blinkStatus.blinked = true;
                 blinkStatus.left = true;
@@ -106,7 +107,7 @@ public class EyeTrackerController : MonoBehaviour
             {
                 blinkPoint = currentGazePoint;
             }
-            else if (rightBlinkStatusCount == 5)
+            else if (rightBlinkStatusCount == validBlinkDuration)
             {
                 blinkStatus.blinked = true;
                 blinkStatus.left = false;
@@ -142,5 +143,10 @@ public class EyeTrackerController : MonoBehaviour
     public static Vector2 GetBlinkPoint()
     {
         return blinkPoint;
+    }
+
+    public static float GetValidGazeDuration()
+    {
+        return validGazeDuration;
     }
 }
