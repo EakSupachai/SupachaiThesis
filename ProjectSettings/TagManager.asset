@@ -9,7 +9,8 @@ TagManager:
   - Eye
   - Gun Part
   - Core
-  - DecelerationPoint
+  - Laser Fence
+  - Deceleration Point
   layers:
   - Default
   - TransparentFX

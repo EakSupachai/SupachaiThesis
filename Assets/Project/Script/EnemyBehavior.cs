@@ -7,6 +7,7 @@ public class EnemyBehavior : MonoBehaviour
 {
     // type 1 = small, 2 = medium, 3 = large
     [SerializeField] private int type = 1;
+    [SerializeField] private int score = 100;
     [SerializeField] private float fullHp  = 15;
     [SerializeField] private float speed = 5;
     [SerializeField] private float freezeTime = 7f;
@@ -314,7 +315,7 @@ public class EnemyBehavior : MonoBehaviour
                 gameController.ReduceCoreHp(type);
             }
         }
-        else if (other.gameObject.tag == "DecelerationPoint")
+        else if (other.gameObject.tag == "Deceleration Point")
         {
             spawnTime = Time.time;
             passedDecelerationPoint = true;
@@ -345,7 +346,7 @@ public class EnemyBehavior : MonoBehaviour
                     hp = 0f;
                     forceDirection = fd;
                     forcePosition = fp;
-                    Explode(true);
+                    Explode(true, 2f);
                 }
             }
             else
@@ -353,12 +354,20 @@ public class EnemyBehavior : MonoBehaviour
                 hp = 0f;
                 forceDirection = fd;
                 forcePosition = fp;
-                Explode(true);
+                Explode(true, 2f);
+            }
+        }
+        else if (other.gameObject.tag == "Laser Fence")
+        {
+            if (!IsDestroyed())
+            {
+                hp = 0f;
+                Explode(true, 1.5f);
             }
         }
     }
 
-    private void Explode(bool showScore)
+    private void Explode(bool showScore, float modifier = 1f)
     {
         StopFlickering();
         audioSource.Pause();
@@ -370,8 +379,10 @@ public class EnemyBehavior : MonoBehaviour
             gameController.AddScore(type);
             Vector3 scorePanelDirection = transform.position - gameController.GetPlayerCameraPosition();
             scorePanelDirection.y = 0f;
-            GameObject score = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
-            Destroy(score, 2f);
+            GameObject scorePopUp = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
+            int realScore = (int)(score * modifier);
+            scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + realScore;
+            Destroy(scorePopUp, 2f);
         }
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);

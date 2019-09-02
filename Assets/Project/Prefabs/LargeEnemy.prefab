@@ -20668,6 +20668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 3
+  score: 200
   fullHp: 20
   speed: 3
   freezeTime: 8
@@ -20684,7 +20685,7 @@ MonoBehaviour:
     type: 3}
   explosionAudioPrefab: {fileID: 9180361753633078932, guid: 1d4c12f6d0241ed40ac971261e77a13c,
     type: 3}
-  scoreCanvas: {fileID: 6565101333551496110, guid: 16c73e36f5a5ae14f89d7cf3ea36f4c7,
+  scoreCanvas: {fileID: 5052930345038757584, guid: 131cf8ebaaba6a1429283de50691510d,
     type: 3}
   hpCanvas: {fileID: 8758842845498739544}
   hpBar: {fileID: 1779181525688355950}

@@ -12,8 +12,10 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] AssaultRifleController g_AssaultRifleController;
     [SerializeField] SniperRifleController g_SniperRifleController;
     [SerializeField] SSVEPStimulusController f_StimulusController;
-    [SerializeField] Image f_CommandArea;
-    [SerializeField] Image h_CommandArea;
+    [SerializeField] Image h_LaserCommandArea;
+    [SerializeField] Image h_GunAndSkillCommandArea;
+    [SerializeField] Image h_GunModeCommandArea;
+    [SerializeField] Image h_GunModeAimCommandArea;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
     [SerializeField] Image g_GunHUD;
@@ -112,7 +114,9 @@ public class FirstPersonController : MonoBehaviour
 
     private EnemyBehavior lockonEnemy;
        
-    private Vector3[] commandAreaCorners = new Vector3[4];
+    private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
+    private Vector3[] gunModeCommandAreaCorners = new Vector3[4];
+    private Vector3[] gunModeAimCommandAreaCorners = new Vector3[4];
     private Vector3[] laserFenceStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
@@ -121,9 +125,7 @@ public class FirstPersonController : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
-        h_CommandArea.rectTransform.GetWorldCorners(commandAreaCorners);
-        f_CommandArea.rectTransform.GetWorldCorners(laserFenceStimulusAreaCorners);
-        ModifyHUDCornersForEditorMode();
+        PrepareCommandAreaCorners();
         SetUIPosition(g_GunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
         SetUIPosition(s_SkillCooldownHUD.gameObject.GetComponent<RectTransform>(), out skillPanelPosition);
 
@@ -189,6 +191,7 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
+        bool blinkToChangeMode = false;
         bool gazeToActivateFence = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
@@ -196,16 +199,29 @@ public class FirstPersonController : MonoBehaviour
             if (blinkStatus.blinked)
             {
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
-                float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
-                float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
-                bool blinkInCA = IsBlinkPointInCommandArea(blinkPoint);
-                if (d1 <= d2 && blinkInCA)
+                bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
+                bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
+                bool blinkInGunModeAimCA = IsBlinkPointInCommandArea(blinkPoint, gunModeAimCommandAreaCorners);
+                if (blinkInChangeGunAndSkillCA)
                 {
-                    blinkToChangeGun = true;
+                    float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
+                    float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
+                    if (d1 <= d2)
+                    {
+                        blinkToChangeGun = true;
+                    }
+                    else if (d2 < d1)
+                    {
+                        blinkToUseSkill = true;
+                    }
                 }
-                else if (d2 < d1 && blinkInCA)
+                else if (blinkInGunModeCA && !g_Aiming)
                 {
-                    blinkToUseSkill = true;
+                    blinkToChangeMode = true;
+                }
+                else if (blinkInGunModeAimCA && g_Aiming)
+                {
+                    blinkToChangeMode = true;
                 }
                 else
                 {
@@ -218,7 +234,7 @@ public class FirstPersonController : MonoBehaviour
                         blinkToUseSkill = true;
                     }
                 }
-            }
+                }
             else
             {
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
@@ -291,9 +307,9 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // use skill & fix core
-        bool useSkill = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
+        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core");
-        if (/*Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core"*/ useSkill)
+        if (useSkillCommandIssued)
         {
             bool success = false;
             if (lockonEnemy != null)
@@ -310,6 +326,8 @@ public class FirstPersonController : MonoBehaviour
             }
             StartCoroutine(FlashSkillEffect(Time.time, success));
         }
+        //////////////////////////////////////////
+        //////////////////////////////////////////
         else if (Input.GetKey(KeyCode.F) && hit.transform.gameObject.tag == "Core" && gameController.CanActivateLaserFence())
         {
             if (fixingCoreAudioPrefab == null)
@@ -318,6 +336,7 @@ public class FirstPersonController : MonoBehaviour
             }
             gameController.IncreaseCoreHp();
         }
+        ///////////////////////////////////////////
         else
         {
             if (fixingCoreAudioPrefab != null)
@@ -332,8 +351,8 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // change gun
-        bool changeGun = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
-        if (/*Input.GetKeyDown(KeyCode.X) && !g_Switching*/ changeGun)
+        bool changeGunCommandIssued = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
+        if (changeGunCommandIssued)
         {
             BeginLoweringGun();
             return;
@@ -416,7 +435,8 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // change gun mode
-        if (Input.GetKeyDown(KeyCode.R))
+        bool changeModeCommandIssued = eyeTrackerRunning ? blinkToChangeMode : Input.GetKeyDown(KeyCode.R);
+        if (changeModeCommandIssued)
         {
             g_GunController.SwitchMode();
         }
@@ -496,7 +516,7 @@ public class FirstPersonController : MonoBehaviour
         }
         bool aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
         bool exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
-        if (/*Input.GetMouseButtonDown(1) && !g_Aiming*/ aimCommandIssued)
+        if (aimCommandIssued)
         {
             g_Aiming = true;
             g_AimInterpolating = true;
@@ -517,7 +537,7 @@ public class FirstPersonController : MonoBehaviour
             g_InterpolatingDistance = Vector3.Distance(g_AimingStartPosition, g_AimingIntendedPosition);
             g_GunController.SwitchCrosshair();
         }
-        else if (/*Input.GetMouseButtonDown(1) && g_Aiming*/ exitAimCommandIssued)
+        else if (exitAimCommandIssued)
         {
             g_Aiming = false;
             g_AimInterpolating = true;
@@ -1027,13 +1047,27 @@ public class FirstPersonController : MonoBehaviour
         s_SkillCooldownOverlay.fillAmount = 1f;
     }
 
-    private void ModifyHUDCornersForEditorMode()
+    private void PrepareCommandAreaCorners()
     {
+        h_GunAndSkillCommandArea.rectTransform.GetWorldCorners(gunAndSkillCommandAreaCorners);
+        h_GunModeCommandArea.rectTransform.GetWorldCorners(gunModeCommandAreaCorners);
+        h_GunModeAimCommandArea.rectTransform.GetWorldCorners(gunModeAimCommandAreaCorners);
+        h_LaserCommandArea.rectTransform.GetWorldCorners(laserFenceStimulusAreaCorners);
         #if UNITY_EDITOR
-            commandAreaCorners[0].y = 911 - commandAreaCorners[0].y;
-            commandAreaCorners[1].y = 911 - commandAreaCorners[1].y;
-            commandAreaCorners[2].y = 911 - commandAreaCorners[2].y;
-            commandAreaCorners[3].y = 911 - commandAreaCorners[3].y;
+            gunAndSkillCommandAreaCorners[0].y = 911 - gunAndSkillCommandAreaCorners[0].y;
+            gunAndSkillCommandAreaCorners[1].y = 911 - gunAndSkillCommandAreaCorners[1].y;
+            gunAndSkillCommandAreaCorners[2].y = 911 - gunAndSkillCommandAreaCorners[2].y;
+            gunAndSkillCommandAreaCorners[3].y = 911 - gunAndSkillCommandAreaCorners[3].y;
+
+            gunModeCommandAreaCorners[0].y = 911 - gunModeCommandAreaCorners[0].y;
+            gunModeCommandAreaCorners[1].y = 911 - gunModeCommandAreaCorners[1].y;
+            gunModeCommandAreaCorners[2].y = 911 - gunModeCommandAreaCorners[2].y;
+            gunModeCommandAreaCorners[3].y = 911 - gunModeCommandAreaCorners[3].y;
+
+            gunModeAimCommandAreaCorners[0].y = 911 - gunModeAimCommandAreaCorners[0].y;
+            gunModeAimCommandAreaCorners[1].y = 911 - gunModeAimCommandAreaCorners[1].y;
+            gunModeAimCommandAreaCorners[2].y = 911 - gunModeAimCommandAreaCorners[2].y;
+            gunModeAimCommandAreaCorners[3].y = 911 - gunModeAimCommandAreaCorners[3].y;
 
             laserFenceStimulusAreaCorners[0].y = 911 - laserFenceStimulusAreaCorners[0].y;
             laserFenceStimulusAreaCorners[1].y = 911 - laserFenceStimulusAreaCorners[1].y;
@@ -1042,11 +1076,22 @@ public class FirstPersonController : MonoBehaviour
         #endif
     }
 
-    private bool IsBlinkPointInCommandArea(Vector2 blinkPoint)
+    /*private bool IsBlinkPointInCommandArea(Vector2 blinkPoint)
     {
         int x = (int)blinkPoint.x;
         int y = (int)blinkPoint.y;
-        if (x >= commandAreaCorners[0].x && x <= commandAreaCorners[2].x && y >= commandAreaCorners[1].y && y <= commandAreaCorners[0].y)
+        if (x >= gunAndSkillCommandAreaCorners[0].x && x <= gunAndSkillCommandAreaCorners[2].x && y >= gunAndSkillCommandAreaCorners[1].y && y <= gunAndSkillCommandAreaCorners[0].y)
+        {
+            return true;
+        }
+        return false;
+    }*/
+
+    private bool IsBlinkPointInCommandArea(Vector2 blinkPoint, Vector3[] area)
+    {
+        int x = (int)blinkPoint.x;
+        int y = (int)blinkPoint.y;
+        if (x >= area[0].x && x <= area[2].x && y >= area[1].y && y <= area[0].y)
         {
             return true;
         }

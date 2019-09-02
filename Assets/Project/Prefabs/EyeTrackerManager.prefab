@@ -43,3 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8166ad1b88ba5f4f8b74309369b7611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tracker: {fileID: 0}
+  statusIcon: {fileID: 0}
+  validStatusSprite: {fileID: 21300000, guid: c49c3d93d2170b84d924139b34b1d916, type: 3}
+  invalidStatusSprite: {fileID: 21300000, guid: f0c112a9673f05f45b8dff52ed0aa73b,
+    type: 3}

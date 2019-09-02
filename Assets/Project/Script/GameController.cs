@@ -126,7 +126,7 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 5.9f;
+        wave1_duration = 120.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -211,6 +211,7 @@ public class GameController : MonoBehaviour
                     player.TurnOnDOF();
                     hudCanvas.gameObject.SetActive(false);
                     pauseCanvas.gameObject.SetActive(true);
+                    EyeTrackerController.TurnOffBlinkRecording();
                 }
                 else
                 {
@@ -219,6 +220,7 @@ public class GameController : MonoBehaviour
                     player.TurnOffDOF();
                     hudCanvas.gameObject.SetActive(true);
                     pauseCanvas.gameObject.SetActive(false);
+                    EyeTrackerController.TurnOnBlinkRecording();
                 }
             }
         }

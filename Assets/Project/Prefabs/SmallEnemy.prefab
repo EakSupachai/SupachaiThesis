@@ -5640,6 +5640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  score: 100
   fullHp: 5
   speed: 3
   freezeTime: 12

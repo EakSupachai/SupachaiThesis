@@ -8,52 +8,60 @@ using Tobii.StreamEngine;
 public class EyeTrackerController : MonoBehaviour
 {
     [SerializeField] private Image tracker;
+    [SerializeField] private Image statusIcon;
+    [SerializeField] private Sprite validStatusSprite;
+    [SerializeField] private Sprite invalidStatusSprite;
 
     private tobii_error_t result;
     private IntPtr deviceContext;
 
-    private static bool deviceStatus = false;
+    private static bool deviceReady = false;
+    private static bool recordBlinking = false;
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 5;
     private static float validGazeDuration = 0.8f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
-    private static Vector2 currentGazePoint = new Vector2();
-    private static Vector2 blinkPoint = new Vector2();
+    private static Vector2 currentGazePoint = new Vector2(-1, -1);
+    private static Vector2 blinkPoint = new Vector2(-1, -1);
 
     // Start is called before the first frame update
     private void Start()
     {
-        Debug.Log(Screen.width);
-        Debug.Log(Screen.height);
-        deviceStatus = false;
+        deviceReady = false;
         IntPtr apiContext;
         result = Interop.tobii_api_create(out apiContext, null);
-        Debug.Log("Initialized API: " + (result == tobii_error_t.TOBII_ERROR_NO_ERROR));
+        bool apiCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+        Debug.Log("Initialized API: " + apiCreated);
 
         List<string> urls;
         result = Interop.tobii_enumerate_local_device_urls(apiContext, out urls);
-        Debug.Log("Found Device: " + (result == tobii_error_t.TOBII_ERROR_NO_ERROR));
-        if (urls.Count == 0)
-        {
-            Debug.Log("Error: No device(s) found");
-        }
+        bool deviceFound = (result == tobii_error_t.TOBII_ERROR_NO_ERROR) && (urls.Count > 0);
+        Debug.Log("Found Device: " + deviceFound);
 
         //IntPtr deviceContext;
         result = Interop.tobii_device_create(apiContext, urls[0], out deviceContext);
-        Debug.Log("Create Device: " + (result == tobii_error_t.TOBII_ERROR_NO_ERROR));
+        bool deviceCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+        Debug.Log("Create Device: " + deviceCreated);
 
         tobii_gaze_point_callback_t gpCallback = new tobii_gaze_point_callback_t(OnGazePoint);
         result = Interop.tobii_gaze_point_subscribe(deviceContext, gpCallback);
-        Debug.Log("Subscribing Gaze Point Callback: " + (result == tobii_error_t.TOBII_ERROR_NO_ERROR));
+        bool gazePointSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+        Debug.Log("Subscribing Gaze Point Callback: " + gazePointSubscribed);
 
         tobii_gaze_origin_callback_t goCallback = new tobii_gaze_origin_callback_t(OnGazeOrigin);
         result = Interop.tobii_gaze_origin_subscribe(deviceContext, goCallback);
-        Debug.Log("Subscribing Gaze Origin Callback: " + (result == tobii_error_t.TOBII_ERROR_NO_ERROR));
-        if (result == tobii_error_t.TOBII_ERROR_NO_ERROR)
+        bool gazeOriginSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+        Debug.Log("Subscribing Gaze Origin Callback: " + gazeOriginSubscribed);
+        if (apiCreated && deviceFound && deviceCreated && gazePointSubscribed && gazeOriginSubscribed)
         {
-            deviceStatus = true;
+            deviceReady = true;
+            recordBlinking = true;
             Debug.Log("-----Initialized Eye Tracker Successfully-----");
+        }
+        if (statusIcon != null)
+        {
+            statusIcon.sprite = deviceReady ? validStatusSprite : invalidStatusSprite;
         }
     }
 
@@ -61,7 +69,10 @@ public class EyeTrackerController : MonoBehaviour
     private void Update()
     {
         result = Interop.tobii_device_process_callbacks(deviceContext);
-        tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
+        if (tracker != null && tracker.gameObject.activeSelf)
+        {
+            tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
+        }
     }
 
     private void OnGazePoint(ref tobii_gaze_point_t gazePoint)
@@ -82,48 +93,51 @@ public class EyeTrackerController : MonoBehaviour
 
     private void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)
     {
-        bool left = gazeOrigin.left_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
-        bool right = gazeOrigin.right_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
-        if (!left && right)
+        if (recordBlinking)
         {
-            leftBlinkStatusCount++;
-            rightBlinkStatusCount = 0;
-            if (leftBlinkStatusCount == 1)
+            bool left = gazeOrigin.left_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
+            bool right = gazeOrigin.right_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
+            if (!left && right)
             {
-                blinkPoint = currentGazePoint;
+                leftBlinkStatusCount++;
+                rightBlinkStatusCount = 0;
+                if (leftBlinkStatusCount == 1)
+                {
+                    blinkPoint = currentGazePoint;
+                }
+                else if (leftBlinkStatusCount == validBlinkDuration)
+                {
+                    blinkStatus.blinked = true;
+                    blinkStatus.left = true;
+                    blinkStatus.right = false;
+                }
             }
-            else if (leftBlinkStatusCount == validBlinkDuration)
+            else if (left && !right)
             {
-                blinkStatus.blinked = true;
-                blinkStatus.left = true;
-                blinkStatus.right = false;
+                rightBlinkStatusCount++;
+                leftBlinkStatusCount = 0;
+                if (rightBlinkStatusCount == 1)
+                {
+                    blinkPoint = currentGazePoint;
+                }
+                else if (rightBlinkStatusCount == validBlinkDuration)
+                {
+                    blinkStatus.blinked = true;
+                    blinkStatus.left = false;
+                    blinkStatus.right = true;
+                }
             }
-        }
-        else if (left && !right)
-        {
-            rightBlinkStatusCount++;
-            leftBlinkStatusCount = 0;
-            if (rightBlinkStatusCount == 1)
+            else
             {
-                blinkPoint = currentGazePoint;
+                leftBlinkStatusCount = 0;
+                rightBlinkStatusCount = 0;
             }
-            else if (rightBlinkStatusCount == validBlinkDuration)
-            {
-                blinkStatus.blinked = true;
-                blinkStatus.left = false;
-                blinkStatus.right = true;
-            }
-        }
-        else
-        {
-            leftBlinkStatusCount = 0;
-            rightBlinkStatusCount = 0;
         }
     }
 
     public static bool GetDeviceStatus()
     {
-        return deviceStatus;
+        return deviceReady;
     }
 
     public static BlinkStatus GetBlinkStatus()
@@ -148,5 +162,21 @@ public class EyeTrackerController : MonoBehaviour
     public static float GetValidGazeDuration()
     {
         return validGazeDuration;
+    }
+
+    public static void TurnOnBlinkRecording()
+    {
+        recordBlinking = true;
+    }
+
+    public static void TurnOffBlinkRecording()
+    {
+        leftBlinkStatusCount = 0;
+        rightBlinkStatusCount = 0;
+        blinkPoint = new Vector2(-1, -1);
+        blinkStatus.blinked = false;
+        blinkStatus.left = false;
+        blinkStatus.right = false;
+        recordBlinking = false;
     }
 }

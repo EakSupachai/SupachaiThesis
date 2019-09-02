@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6503362213537750032}
   m_Layer: 0
   m_Name: DecelerationPoint
-  m_TagString: DecelerationPoint
+  m_TagString: Deceleration Point
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
