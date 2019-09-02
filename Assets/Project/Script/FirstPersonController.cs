@@ -560,7 +560,15 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // shooting & recoil
-        bool shoot = g_CurrentGun == "AR" ? Input.GetMouseButton(0) : Input.GetMouseButtonDown(0);
+        bool shoot = false;
+        if (eyeTrackerRunning)
+        {
+            shoot = hit.transform.gameObject.tag == "Enemy";
+        }
+        else
+        {
+            shoot = g_CurrentGun == "AR" ? Input.GetMouseButton(0) : Input.GetMouseButtonDown(0);
+        }
         if (shoot && !g_AimInterpolating)
         {
             bool shootSuccessfully = g_GunController.Shoot();
