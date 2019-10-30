@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Bci2000Api;
+using System;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
@@ -110,7 +113,10 @@ public class GameController : MonoBehaviour
 
     private List<float> spawnTimeLimits = new List<float>();
     private List<float> spawnTimers = new List<float>();
-    
+
+    ///////////
+    private IntPtr testApi;
+
     private void Start()
     {
         pause = false;
@@ -188,6 +194,19 @@ public class GameController : MonoBehaviour
             spawnTimeLimits.Add(0f);
             spawnTimers.Add(0f);
         }
+
+        testApi = Interop.Create();
+        /*IntPtr ii = Interop.Create();
+        bool test1 = Interop.UseIsValueMoreThan(ii, 5);
+        Interop.UseSetValue(ii, 6);
+        bool test2 = Interop.UseIsValueMoreThan(ii, 5);
+        Interop.UseSetValue(ii, 2);
+        bool test3 = Interop.UseIsValueMoreThan(ii, 5);
+        Debug.Log("----------------------------------");
+        Debug.Log(test1);
+        Debug.Log(test2);
+        Debug.Log(test3);
+        Debug.Log("----------------------------------");*/
     }
     
     private void Update()
@@ -245,6 +264,9 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     StartEnemyWave();
+                    /////////
+                    Interop.UseSetState(testApi, 0);
+                    /////////
                 }
                 break;
             case "WAVE1":
