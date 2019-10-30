@@ -58,6 +58,11 @@ public class ButtonController : MonoBehaviour
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(0));
         }
+        else if (command == "quit")
+        {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            StartCoroutine(StallBeforeQuit());
+        }
         else
         {
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
@@ -75,9 +80,15 @@ public class ButtonController : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        yield return new WaitForSecondsRealtime(1f);
-        /*Scene scene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.name);*/
+        yield return new WaitForSecondsRealtime(0.75f);
         SceneManager.LoadScene(scene);
+    }
+
+    private IEnumerator StallBeforeQuit()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        yield return new WaitForSecondsRealtime(0.75f);
+        Application.Quit();
     }
 }
