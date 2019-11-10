@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System;
 using System.Threading;
 using System.Net;
@@ -9,25 +8,20 @@ using System.Text;
 
 public class InputUDP : MonoBehaviour
 {
+    private static bool stopThread = false;
+
     [SerializeField] private Text apiOutput;
-
-    // read Thread
-    Thread readThread;
-
-    // udpclient object
-    UdpClient client;
-
-    // port number
-    private int port = 20321;
-
-    // UDP packet store
+    
+    private Thread readThread;    
+    private UdpClient client;
     private string bufferedInput = ""; // this one has to be cleaned up from time to time
     private object lockObject = new object();
-    private int bufferSize = 5;
     private bool newInputReceived = false;
+    private int port = 20321;
+    private int bufferSize = 5;
 
     // start from unity3d
-    void Start()
+    private void Start()
     {
         // create thread for reading UDP messages
         readThread = new Thread(new ThreadStart(ReceiveData));
@@ -36,21 +30,23 @@ public class InputUDP : MonoBehaviour
     }
 
     // Unity Update Function
-    void Update()
+    private void Update()
     {
-        // check button "q" to abort the read-thread
-        if (Input.GetKeyDown("q"))
-            stopThread();
+        if (stopThread)
+        {
+            stopThread = false;
+            StopThread();
+        }
     }
 
     // Unity Application Quit Function
-    void OnApplicationQuit()
+    private void OnApplicationQuit()
     {
-        stopThread();
+        StopThread();
     }
 
     // Stop reading UDP messages
-    private void stopThread()
+    private void StopThread()
     {
         if (readThread.IsAlive)
         {
@@ -123,5 +119,10 @@ public class InputUDP : MonoBehaviour
             ssvepReceived = true;
         }
         return ssvepReceived;
+    }
+
+    public static void Stop()
+    {
+        stopThread = true;
     }
 }

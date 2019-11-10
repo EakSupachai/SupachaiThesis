@@ -48,6 +48,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
     [SerializeField] private GameObject laserFenceHummingAudioPrefab;
 
+    ///////////
+    public static IntPtr BCI2000API;
+
     private static string currentState;
     private static float coreHp;
     private static float coreFullHp;
@@ -114,11 +117,10 @@ public class GameController : MonoBehaviour
     private List<float> spawnTimeLimits = new List<float>();
     private List<float> spawnTimers = new List<float>();
 
-    ///////////
-    private IntPtr testApi;
-
     private void Start()
     {
+        BCI2000API = Interop.Create();
+
         pause = false;
         gameOver = false;
         LockCursor();
@@ -160,7 +162,7 @@ public class GameController : MonoBehaviour
         repairNoticeStateDuration = 3.25f;
         nextWave = 1;
 
-        coreFullHp = 100f;
+        coreFullHp = 10f;
         coreHp = coreFullHp;
         emergencyCoreHp = coreFullHp * 0.25f;
         coreHpBar.fillAmount = 1f;
@@ -194,19 +196,6 @@ public class GameController : MonoBehaviour
             spawnTimeLimits.Add(0f);
             spawnTimers.Add(0f);
         }
-
-        testApi = Interop.Create();
-        /*IntPtr ii = Interop.Create();
-        bool test1 = Interop.UseIsValueMoreThan(ii, 5);
-        Interop.UseSetValue(ii, 6);
-        bool test2 = Interop.UseIsValueMoreThan(ii, 5);
-        Interop.UseSetValue(ii, 2);
-        bool test3 = Interop.UseIsValueMoreThan(ii, 5);
-        Debug.Log("----------------------------------");
-        Debug.Log(test1);
-        Debug.Log(test2);
-        Debug.Log(test3);
-        Debug.Log("----------------------------------");*/
     }
     
     private void Update()
@@ -264,9 +253,6 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     StartEnemyWave();
-                    /////////
-                    Interop.UseSetState(testApi, 0);
-                    /////////
                 }
                 break;
             case "WAVE1":
@@ -311,7 +297,6 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = congratStateDuration;
                     previousProgressTime = Time.time;
-                    //waveTimerText.text = "Stand by...";
                     congratText.text = "Good job!";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
@@ -420,6 +405,10 @@ public class GameController : MonoBehaviour
                     coreAudioSource.Pause();
                     hudCanvas.gameObject.SetActive(false);
                     gameOverCanvas.gameObject.SetActive(true);
+                    if (Interop.UseIsSendConnectionOpen(BCI2000API))
+                    {
+                        Interop.UseCloseSendConnection(BCI2000API);
+                    }
                 }
                 break;
             case "END":
@@ -434,7 +423,11 @@ public class GameController : MonoBehaviour
                     hudCanvas.gameObject.SetActive(false);
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
-                    gameCompletedCanvas.gameObject.SetActive(true);                    
+                    gameCompletedCanvas.gameObject.SetActive(true);
+                    if (Interop.UseIsSendConnectionOpen(BCI2000API))
+                    {
+                        Interop.UseCloseSendConnection(BCI2000API);
+                    }
                 }
                 break;
             default:
@@ -479,6 +472,15 @@ public class GameController : MonoBehaviour
                     animator.SetBool("isEmergency", false);
                 }
             }
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        EyeTrackerController.CleanUp();
+        if (Interop.UseIsSendConnectionOpen(BCI2000API))
+        {
+            Interop.UseCloseSendConnection(BCI2000API);
         }
     }
 

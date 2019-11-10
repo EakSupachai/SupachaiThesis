@@ -11,9 +11,10 @@ public class EyeTrackerController : MonoBehaviour
     [SerializeField] private Image statusIcon;
     [SerializeField] private Sprite validStatusSprite;
     [SerializeField] private Sprite invalidStatusSprite;
-
-    private tobii_error_t result;
-    private IntPtr deviceContext;
+    
+    private static IntPtr apiContext;
+    private static IntPtr deviceContext;
+    private static tobii_error_t result;
 
     private static bool deviceReady = false;
     private static bool recordBlinking = false;
@@ -29,35 +30,34 @@ public class EyeTrackerController : MonoBehaviour
     private void Start()
     {
         deviceReady = false;
-        IntPtr apiContext;
         result = Interop.tobii_api_create(out apiContext, null);
         bool apiCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        Debug.Log("Initialized API: " + apiCreated);
+        //Debug.Log("Initialized API: " + apiCreated);
 
         List<string> urls;
         result = Interop.tobii_enumerate_local_device_urls(apiContext, out urls);
         bool deviceFound = (result == tobii_error_t.TOBII_ERROR_NO_ERROR) && (urls.Count > 0);
-        Debug.Log("Found Device: " + deviceFound);
+        //Debug.Log("Found Device: " + deviceFound);
 
         //IntPtr deviceContext;
         result = Interop.tobii_device_create(apiContext, urls[0], out deviceContext);
         bool deviceCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        Debug.Log("Create Device: " + deviceCreated);
+        //Debug.Log("Create Device: " + deviceCreated);
 
         tobii_gaze_point_callback_t gpCallback = new tobii_gaze_point_callback_t(OnGazePoint);
         result = Interop.tobii_gaze_point_subscribe(deviceContext, gpCallback);
         bool gazePointSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        Debug.Log("Subscribing Gaze Point Callback: " + gazePointSubscribed);
+        //Debug.Log("Subscribing Gaze Point Callback: " + gazePointSubscribed);
 
         tobii_gaze_origin_callback_t goCallback = new tobii_gaze_origin_callback_t(OnGazeOrigin);
         result = Interop.tobii_gaze_origin_subscribe(deviceContext, goCallback);
         bool gazeOriginSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        Debug.Log("Subscribing Gaze Origin Callback: " + gazeOriginSubscribed);
+        //Debug.Log("Subscribing Gaze Origin Callback: " + gazeOriginSubscribed);
         if (apiCreated && deviceFound && deviceCreated && gazePointSubscribed && gazeOriginSubscribed)
         {
             deviceReady = true;
             recordBlinking = true;
-            Debug.Log("-----Initialized Eye Tracker Successfully-----");
+            //Debug.Log("-----Initialized Eye Tracker Successfully-----");
         }
         if (statusIcon != null)
         {
@@ -68,10 +68,13 @@ public class EyeTrackerController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        result = Interop.tobii_device_process_callbacks(deviceContext);
-        if (tracker != null && tracker.gameObject.activeSelf)
+        if (deviceReady)
         {
-            tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
+            result = Interop.tobii_device_process_callbacks(deviceContext);
+            if (tracker != null && tracker.gameObject.activeSelf)
+            {
+                tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
+            }
         }
     }
 
@@ -178,5 +181,16 @@ public class EyeTrackerController : MonoBehaviour
         blinkStatus.left = false;
         blinkStatus.right = false;
         recordBlinking = false;
+    }
+
+    public static void CleanUp()
+    {
+        if (deviceReady)
+        {
+            deviceReady = false;
+            result = Interop.tobii_gaze_point_unsubscribe(deviceContext);
+            result = Interop.tobii_device_destroy(deviceContext);
+            result = Interop.tobii_api_destroy(apiContext);
+        }
     }
 }

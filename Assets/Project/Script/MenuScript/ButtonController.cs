@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Bci2000Api;
 
 public class ButtonController : MonoBehaviour
 {
@@ -50,6 +51,15 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "retry" || command == "start")
         {
+            if (command == "retry")
+            {
+                InputUDP.Stop();
+                EyeTrackerController.CleanUp();
+                if (Interop.UseIsSendConnectionOpen(GameController.BCI2000API))
+                {
+                    Interop.UseCloseSendConnection(GameController.BCI2000API);
+                }
+            }
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(1));
         }
@@ -80,6 +90,15 @@ public class ButtonController : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        if (scene == 0)
+        {
+            InputUDP.Stop();
+            EyeTrackerController.CleanUp();
+        }
+        if (Interop.UseIsSendConnectionOpen(GameController.BCI2000API))
+        {
+            Interop.UseCloseSendConnection(GameController.BCI2000API);
+        }
         yield return new WaitForSecondsRealtime(0.75f);
         SceneManager.LoadScene(scene);
     }
