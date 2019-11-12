@@ -2,8 +2,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using Bci2000Api;
-using System;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
@@ -47,9 +45,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject coreDamagedAudioPrefab;
     [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
     [SerializeField] private GameObject laserFenceHummingAudioPrefab;
-
-    ///////////
-    public static IntPtr BCI2000API;
 
     private static string currentState;
     private static float coreHp;
@@ -119,8 +114,6 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        BCI2000API = Interop.Create();
-
         pause = false;
         gameOver = false;
         LockCursor();
@@ -245,6 +238,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = start_duration;
                     previousProgressTime = Time.time;
+                    OutputUDP.OpenConnection();
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
                 previousProgressTime = Time.time;
@@ -405,10 +399,7 @@ public class GameController : MonoBehaviour
                     coreAudioSource.Pause();
                     hudCanvas.gameObject.SetActive(false);
                     gameOverCanvas.gameObject.SetActive(true);
-                    if (Interop.UseIsSendConnectionOpen(BCI2000API))
-                    {
-                        Interop.UseCloseSendConnection(BCI2000API);
-                    }
+                    OutputUDP.CloseConnection();
                 }
                 break;
             case "END":
@@ -424,10 +415,7 @@ public class GameController : MonoBehaviour
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
                     gameCompletedCanvas.gameObject.SetActive(true);
-                    if (Interop.UseIsSendConnectionOpen(BCI2000API))
-                    {
-                        Interop.UseCloseSendConnection(BCI2000API);
-                    }
+                    OutputUDP.CloseConnection();
                 }
                 break;
             default:
@@ -475,13 +463,9 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void OnApplicationQuit()
+    private void OnApplicationQuit()
     {
         EyeTrackerController.CleanUp();
-        if (Interop.UseIsSendConnectionOpen(BCI2000API))
-        {
-            Interop.UseCloseSendConnection(BCI2000API);
-        }
     }
 
     private void StartEnemyWave()

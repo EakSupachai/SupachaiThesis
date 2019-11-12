@@ -8,17 +8,15 @@ using System.Text;
 
 public class InputUDP : MonoBehaviour
 {
-    private static bool stopThread = false;
-
     [SerializeField] private Text apiOutput;
     
-    private Thread readThread;    
-    private UdpClient client;
-    private string bufferedInput = ""; // this one has to be cleaned up from time to time
-    private object lockObject = new object();
-    private bool newInputReceived = false;
-    private int port = 20321;
-    private int bufferSize = 5;
+    private static Thread readThread;    
+    private static UdpClient client;
+    private static string bufferedInput = ""; // this one has to be cleaned up from time to time
+    private static object lockObject = new object();
+    private static bool newInputReceived = false;
+    private static int port = 20321;
+    private static int bufferSize = 5;
 
     // start from unity3d
     private void Start()
@@ -29,30 +27,10 @@ public class InputUDP : MonoBehaviour
         readThread.Start();
     }
 
-    // Unity Update Function
-    private void Update()
-    {
-        if (stopThread)
-        {
-            stopThread = false;
-            StopThread();
-        }
-    }
-
     // Unity Application Quit Function
     private void OnApplicationQuit()
     {
-        StopThread();
-    }
-
-    // Stop reading UDP messages
-    private void StopThread()
-    {
-        if (readThread.IsAlive)
-        {
-            readThread.Abort();
-        }
-        client.Close();
+        CloseConnection();
     }
 
     // receive thread function
@@ -96,7 +74,7 @@ public class InputUDP : MonoBehaviour
     }
 
     // return the latest message
-    public bool getLatestPacket()
+    public static bool getSSVEPStatus()
     {
         bool ssvepReceived = false;
         int ssvepCounter = -1;
@@ -121,8 +99,12 @@ public class InputUDP : MonoBehaviour
         return ssvepReceived;
     }
 
-    public static void Stop()
+    public static void CloseConnection()
     {
-        stopThread = true;
+        if (readThread.IsAlive)
+        {
+            readThread.Abort();
+        }
+        client.Close();
     }
 }

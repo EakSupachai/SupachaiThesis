@@ -53,12 +53,9 @@ public class ButtonController : MonoBehaviour
         {
             if (command == "retry")
             {
-                InputUDP.Stop();
+                InputUDP.CloseConnection();
+                OutputUDP.CloseConnection();
                 EyeTrackerController.CleanUp();
-                if (Interop.UseIsSendConnectionOpen(GameController.BCI2000API))
-                {
-                    Interop.UseCloseSendConnection(GameController.BCI2000API);
-                }
             }
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(1));
@@ -90,14 +87,12 @@ public class ButtonController : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        // loading back to the main menu
         if (scene == 0)
         {
-            InputUDP.Stop();
+            InputUDP.CloseConnection();
+            OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
-        }
-        if (Interop.UseIsSendConnectionOpen(GameController.BCI2000API))
-        {
-            Interop.UseCloseSendConnection(GameController.BCI2000API);
         }
         yield return new WaitForSecondsRealtime(0.75f);
         SceneManager.LoadScene(scene);
