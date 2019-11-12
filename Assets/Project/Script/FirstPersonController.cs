@@ -563,7 +563,10 @@ public class FirstPersonController : MonoBehaviour
         bool shoot = false;
         if (eyeTrackerRunning)
         {
-            shoot = hit.transform.gameObject.tag == "Enemy";
+            if (hit.transform.gameObject.tag == "Enemy")
+            {
+                shoot = !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed();
+            }
         }
         else
         {
