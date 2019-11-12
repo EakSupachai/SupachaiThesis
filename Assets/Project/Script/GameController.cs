@@ -155,7 +155,7 @@ public class GameController : MonoBehaviour
         repairNoticeStateDuration = 3.25f;
         nextWave = 1;
 
-        coreFullHp = 10f;
+        coreFullHp = 100f;
         coreHp = coreFullHp;
         emergencyCoreHp = coreFullHp * 0.25f;
         coreHpBar.fillAmount = 1f;

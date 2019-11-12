@@ -25,6 +25,8 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private Image hpBar;
     [SerializeField] private Image freezeBar;
     [SerializeField] private Canvas lockonCanvas;
+    [SerializeField] private Sprite redHpBar;
+    [SerializeField] private Sprite yellowHpBar;
 
     private bool flickering;
     private bool materialFlag;
@@ -572,6 +574,7 @@ public class EnemyBehavior : MonoBehaviour
         distanceToDeceleration = Vector3.Distance(startPosition, decelerationPosition);
         distanceToDestination = Vector3.Distance(decelerationPosition, destinationPosition);
         isRedType = Random.value > 0.5f;
+        hpBar.sprite = isRedType ? redHpBar : yellowHpBar;
     }
 
     private float angleToCamera = 0f;

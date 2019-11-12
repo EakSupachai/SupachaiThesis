@@ -30,6 +30,7 @@ public class EyeTrackerController : MonoBehaviour
     private void Start()
     {
         deviceReady = false;
+        statusIcon.sprite = invalidStatusSprite;
         result = Interop.tobii_api_create(out apiContext, null);
         bool apiCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
         //Debug.Log("Initialized API: " + apiCreated);
@@ -39,29 +40,32 @@ public class EyeTrackerController : MonoBehaviour
         bool deviceFound = (result == tobii_error_t.TOBII_ERROR_NO_ERROR) && (urls.Count > 0);
         //Debug.Log("Found Device: " + deviceFound);
 
-        //IntPtr deviceContext;
-        result = Interop.tobii_device_create(apiContext, urls[0], out deviceContext);
-        bool deviceCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        //Debug.Log("Create Device: " + deviceCreated);
-
-        tobii_gaze_point_callback_t gpCallback = new tobii_gaze_point_callback_t(OnGazePoint);
-        result = Interop.tobii_gaze_point_subscribe(deviceContext, gpCallback);
-        bool gazePointSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        //Debug.Log("Subscribing Gaze Point Callback: " + gazePointSubscribed);
-
-        tobii_gaze_origin_callback_t goCallback = new tobii_gaze_origin_callback_t(OnGazeOrigin);
-        result = Interop.tobii_gaze_origin_subscribe(deviceContext, goCallback);
-        bool gazeOriginSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
-        //Debug.Log("Subscribing Gaze Origin Callback: " + gazeOriginSubscribed);
-        if (apiCreated && deviceFound && deviceCreated && gazePointSubscribed && gazeOriginSubscribed)
+        if (deviceFound)
         {
-            deviceReady = true;
-            recordBlinking = true;
-            //Debug.Log("-----Initialized Eye Tracker Successfully-----");
-        }
-        if (statusIcon != null)
-        {
-            statusIcon.sprite = deviceReady ? validStatusSprite : invalidStatusSprite;
+            //IntPtr deviceContext;
+            result = Interop.tobii_device_create(apiContext, urls[0], out deviceContext);
+            bool deviceCreated = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+            //Debug.Log("Create Device: " + deviceCreated);
+
+            tobii_gaze_point_callback_t gpCallback = new tobii_gaze_point_callback_t(OnGazePoint);
+            result = Interop.tobii_gaze_point_subscribe(deviceContext, gpCallback);
+            bool gazePointSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+            //Debug.Log("Subscribing Gaze Point Callback: " + gazePointSubscribed);
+
+            tobii_gaze_origin_callback_t goCallback = new tobii_gaze_origin_callback_t(OnGazeOrigin);
+            result = Interop.tobii_gaze_origin_subscribe(deviceContext, goCallback);
+            bool gazeOriginSubscribed = result == tobii_error_t.TOBII_ERROR_NO_ERROR;
+            //Debug.Log("Subscribing Gaze Origin Callback: " + gazeOriginSubscribed);
+            if (apiCreated && deviceFound && deviceCreated && gazePointSubscribed && gazeOriginSubscribed)
+            {
+                deviceReady = true;
+                recordBlinking = true;
+                //Debug.Log("-----Initialized Eye Tracker Successfully-----");
+            }
+            if (statusIcon != null && deviceReady)
+            {
+                statusIcon.sprite = validStatusSprite;
+            }
         }
     }
 

@@ -20691,6 +20691,8 @@ MonoBehaviour:
   hpBar: {fileID: 1779181525688355950}
   freezeBar: {fileID: 2795409231563488957}
   lockonCanvas: {fileID: 3747768833218473007}
+  redHpBar: {fileID: 21300000, guid: 5989c644f77acf84882e45d67974d336, type: 3}
+  yellowHpBar: {fileID: 21300000, guid: 6ddbc81b711c12c478a6f2d37bdfab5b, type: 3}
 --- !u!82 &2814594169187823440
 AudioSource:
   m_ObjectHideFlags: 0
