@@ -63,7 +63,7 @@ public class GameController : MonoBehaviour
 
     private float start_duration;
     private float waiting_duration;
-    private bool waiting_alreadyFixed;
+    private bool waiting_alreadyBeginFixing;
 
     private float wave1_minSpawnTime;
     private float wave1_maxSpawnTime;
@@ -108,6 +108,7 @@ public class GameController : MonoBehaviour
     private GameObject currentDecreaseCoreHpAudioPrefab;
 
     private int score;
+    private int fixingCost;
 
     private List<float> spawnTimeLimits = new List<float>();
     private List<float> spawnTimers = new List<float>();
@@ -127,7 +128,7 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 120.9f;
+        wave1_duration = 7.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -163,6 +164,9 @@ public class GameController : MonoBehaviour
         coreAudioFadeOutTimeStamp = 10f;
         coreAudioTimeInterval = 2f;
         coreAudioSource = core.GetComponent<AudioSource>();
+
+        score = 0;
+        fixingCost = 0;
         
         oneLineText.gameObject.SetActive(true);
         twoLineText.gameObject.SetActive(true);
@@ -250,20 +254,35 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "WAVE1":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                }
                 if (ProgressEnemyWave())
                 {
+                    stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "WAVE COMPLETED";
                 }
                 break;
             case "WAVE2":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                }
                 if (ProgressEnemyWave())
                 {
+                    stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "WAVE COMPLETED";
                 }
                 break;
             case "WAVE3":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                }
                 if (ProgressEnemyWave())
                 {
+                    stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "END";
                 }
                 break;
@@ -272,7 +291,7 @@ public class GameController : MonoBehaviour
                 {
                     Time.timeScale = 0.15f;
                     stateStarted = true;
-                    waiting_alreadyFixed = false;
+                    waiting_alreadyBeginFixing = false;
                     currentStateDuration = waveCompleteStateDuration;
                     previousProgressTime = Time.time;
                 }
@@ -316,7 +335,7 @@ public class GameController : MonoBehaviour
                     }
                     else
                     {
-                        twoLineText.text = "The core suffered some damage from overloading.\nRepair it while you can. (cost 500 points)";
+                        twoLineText.text = "The core suffered some damage from overloading.\nRepair it while you can. (cost " + fixingCost + " points)";
                     }
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
@@ -360,7 +379,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = repairNoticeStateDuration;
                     previousProgressTime = Time.time;
-                    oneLineText.text = "Repair it while you can. (cost 500 points)";
+                    oneLineText.text = "Repair it while you can. (cost " + fixingCost + " points)";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
                 previousProgressTime = Time.time;
@@ -735,10 +754,10 @@ public class GameController : MonoBehaviour
 
     public void IncreaseCoreHp()
     {
-        if (!waiting_alreadyFixed)
+        if (!waiting_alreadyBeginFixing)
         {
-            waiting_alreadyFixed = true;
-            score = score - 500 < 0 ? 0 : score - 500;
+            waiting_alreadyBeginFixing = true;
+            score = score - fixingCost;
             scoreText.text = "" + score;
         }
         if (coreHp < coreFullHp)
@@ -800,9 +819,31 @@ public class GameController : MonoBehaviour
 
     public bool CanActivateLaserFence()
     {
-        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && laserFenceAvailable > 0)
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0)
         {
             return true;
+        }
+        return false;
+    }
+
+    public bool CanFixCore()
+    {
+        if (currentState == "WAITING" && stateStarted)
+        {
+            if (waiting_alreadyBeginFixing)
+            {
+                if (coreHp < coreFullHp)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (score >= fixingCost && coreHp < coreFullHp)
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }

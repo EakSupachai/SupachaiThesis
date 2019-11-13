@@ -192,7 +192,7 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
-        bool gazeToActivateFence = false;
+        bool gazeToActivateCoreCommand = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
         {
@@ -244,7 +244,7 @@ public class FirstPersonController : MonoBehaviour
                     gazeDuration += Time.deltaTime;
                     if (gazeDuration >= EyeTrackerController.GetValidGazeDuration() && !gameController.IsLaserFenceActive())
                     {
-                        gazeToActivateFence = true;
+                        gazeToActivateCoreCommand = true;
                     }
                 }
                 else
@@ -287,16 +287,17 @@ public class FirstPersonController : MonoBehaviour
         Ray ray = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         RaycastHit hit;
         Physics.Raycast(ray.origin, ray.direction, out hit);
-        if (hit.transform.gameObject.tag == "Core" && gameController.CanActivateLaserFence())
+        string hitObjectTag = hit.transform.gameObject.tag;
+        if (hitObjectTag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
         {
             if (!f_StimulusController.IsFlickering())
             {
                 f_StimulusController.StartFlickering();
             }
-            if (gazeToActivateFence)
+            /*if (gazeToActivateFence)
             {
                 gameController.ActivateLaserFence();
-            }
+            }*/
         }
         else
         {
@@ -307,7 +308,82 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // use skill & fix core
-        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
+        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime) : 
+            (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime);
+        if (useSkillCommandIssued)
+        {
+            bool useSkillSuccessfully = false;
+            if (lockonEnemy != null)
+            {
+                if (!lockonEnemy.IsDestroyed())
+                {
+                    useSkillSuccessfully = true;
+                    lockonEnemy.Freeze();
+                }
+                else
+                {
+                    useSkillSuccessfully = false;
+                }
+            }
+            StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));
+        }
+
+        // fix core & activate laser
+        if (eyeTrackerRunning)
+        {
+            if (gazeToActivateCoreCommand && f_StimulusController.IsFlickering() && gameController.CanActivateLaserFence())
+            {
+                gameController.ActivateLaserFence();
+            }
+            else if (gazeToActivateCoreCommand && f_StimulusController.IsFlickering() && gameController.CanFixCore())
+            {
+                if (fixingCoreAudioPrefab == null)
+                {
+                    fixingCoreAudioPrefab = Instantiate(f_FixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
+                }
+                gameController.IncreaseCoreHp();
+            }
+            else
+            {
+                if (fixingCoreAudioPrefab != null)
+                {
+                    fixingCoreAudioPrefab.GetComponent<AudioPrefabFadeOutScript>().BeginFadeOut();
+                    fixingCoreAudioPrefab = null;
+                    if (gameController.IsCoreHpFull())
+                    {
+                        Instantiate(f_FinishedFixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.Q) && f_StimulusController.IsFlickering() && gameController.CanActivateLaserFence())
+            {
+                gameController.ActivateLaserFence();
+            }
+            else if (Input.GetKey(KeyCode.Q) && f_StimulusController.IsFlickering() && gameController.CanFixCore())
+            {
+                if (fixingCoreAudioPrefab == null)
+                {
+                    fixingCoreAudioPrefab = Instantiate(f_FixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
+                }
+                gameController.IncreaseCoreHp();
+            }
+            else
+            {
+                if (fixingCoreAudioPrefab != null)
+                {
+                    fixingCoreAudioPrefab.GetComponent<AudioPrefabFadeOutScript>().BeginFadeOut();
+                    fixingCoreAudioPrefab = null;
+                    if (gameController.IsCoreHpFull())
+                    {
+                        Instantiate(f_FinishedFixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
+                    }
+                }
+            }
+        }
+        /*bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core");
         if (useSkillCommandIssued)
         {
@@ -326,7 +402,6 @@ public class FirstPersonController : MonoBehaviour
             }
             StartCoroutine(FlashSkillEffect(Time.time, success));
         }
-        //////////////////////////////////////////
         //////////////////////////////////////////
         else if (Input.GetKey(KeyCode.F) && hit.transform.gameObject.tag == "Core" && gameController.CanActivateLaserFence())
         {
@@ -348,7 +423,7 @@ public class FirstPersonController : MonoBehaviour
                     Instantiate(f_FinishedFixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
                 }
             }
-        }
+        }*/
 
         // change gun
         bool changeGunCommandIssued = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
@@ -563,7 +638,7 @@ public class FirstPersonController : MonoBehaviour
         bool shoot = false;
         if (eyeTrackerRunning)
         {
-            if (hit.transform.gameObject.tag == "Enemy")
+            if (hitObjectTag == "Enemy")
             {
                 shoot = !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed();
             }
