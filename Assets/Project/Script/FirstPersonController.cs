@@ -243,10 +243,10 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-                if (IsGazePointInCoreStimulusArea(gazePoint))
+                if (IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering())
                 {
                     coreGazeDuration += Time.deltaTime;
-                    if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration() && !gameController.IsLaserFenceActive())
+                    if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration())
                     {
                         gazeToActivateCoreCommand = true;
                     }
@@ -255,10 +255,10 @@ public class FirstPersonController : MonoBehaviour
                 {
                     coreGazeDuration = 0f;
                 }
-                if (IsGazePointInSkipStimulusArea(gazePoint))
+                if (IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering())
                 {
                     skipGazeDuration += Time.deltaTime;
-                    if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration() && h_SkipStimulusController.IsFlickering())
+                    if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration())
                     {
                         gazeToActivateSkipCommand = true;
                     }
@@ -340,14 +340,17 @@ public class FirstPersonController : MonoBehaviour
             StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));
         }
 
+        // skip waiting state
+        bool skipCommandIssued = eyeTrackerRunning ? gazeToActivateSkipCommand : Input.GetKey(KeyCode.V);
+
         // fix core & activate laser
         if (eyeTrackerRunning)
         {
-            if (gazeToActivateCoreCommand && h_CoreStimulusController.IsFlickering() && gameController.CanActivateLaserFence())
+            if (gazeToActivateCoreCommand && gameController.CanActivateLaserFence())
             {
                 gameController.ActivateLaserFence();
             }
-            else if (gazeToActivateCoreCommand && h_CoreStimulusController.IsFlickering() && gameController.CanFixCore())
+            else if (gazeToActivateCoreCommand && gameController.CanFixCore())
             {
                 if (fixingCoreAudioPrefab == null)
                 {
