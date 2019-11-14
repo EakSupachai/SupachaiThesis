@@ -784,11 +784,6 @@ public class GameController : MonoBehaviour
         return coreHp >= coreFullHp;
     }
 
-    /*public bool IsLaserFenceActive()
-    {
-        return laserFence.activeSelf;
-    }*/
-
     public bool CanActivateLaserFence()
     {
         if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf)
@@ -872,5 +867,13 @@ public class GameController : MonoBehaviour
             score += largeEnemyScore;
         }
         scoreText.text = "" + score;
+    }
+
+    public void SkipWaitingState()
+    {
+        if (currentState == "WAITING")
+        {
+            currentStateDuration = 0f;
+        }
     }
 }

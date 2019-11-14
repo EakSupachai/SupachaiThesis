@@ -125,6 +125,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector2 skillPanelPosition = new Vector2();
     private float coreGazeDuration;
     private float skipGazeDuration;
+    private float skipPressDuration;
 
     // Use this for initialization
     private void Start()
@@ -190,6 +191,26 @@ public class FirstPersonController : MonoBehaviour
         }
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
 
+        // stimulus start/stop flickering
+        Ray ray = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+        RaycastHit hit;
+        Physics.Raycast(ray.origin, ray.direction, out hit);
+        string hitObjectTag = hit.transform.gameObject.tag;
+        if (hitObjectTag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
+        {
+            if (!h_CoreStimulusController.IsFlickering())
+            {
+                h_CoreStimulusController.StartFlickering();
+            }
+        }
+        else
+        {
+            if (h_CoreStimulusController.IsFlickering())
+            {
+                h_CoreStimulusController.StopFlickering();
+            }
+        }
+
         //check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
         bool blinkToAim = false;
@@ -198,11 +219,14 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeMode = false;
         bool gazeToActivateCoreCommand = false;
         bool gazeToActivateSkipCommand = false;
+        bool pressToActivateSkipCommand = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
         {
             if (blinkStatus.blinked)
             {
+                coreGazeDuration = 0f;
+                skipGazeDuration = 0f;
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                 bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
                 bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
@@ -269,6 +293,21 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            if (Input.GetKey(KeyCode.V) && h_SkipStimulusController.IsFlickering())
+            {
+                skipPressDuration += Time.deltaTime;
+                if (skipPressDuration >= EyeTrackerController.GetValidGazeDuration())
+                {
+                    pressToActivateSkipCommand = true;
+                }
+            }
+            else
+            {
+                skipPressDuration = 0f;
+            }
+        }
 
         // rotate view & scope kick
         if (g_CurrentGun == "SR" && g_Aiming && !g_AimInterpolating)
@@ -299,26 +338,6 @@ public class FirstPersonController : MonoBehaviour
             m_MouseLook.LookRotation(transform, m_Camera.transform);
         }
 
-        // fix core icon
-        Ray ray = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
-        RaycastHit hit;
-        Physics.Raycast(ray.origin, ray.direction, out hit);
-        string hitObjectTag = hit.transform.gameObject.tag;
-        if (hitObjectTag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
-        {
-            if (!h_CoreStimulusController.IsFlickering())
-            {
-                h_CoreStimulusController.StartFlickering();
-            }
-        }
-        else
-        {
-            if (h_CoreStimulusController.IsFlickering())
-            {
-                h_CoreStimulusController.StopFlickering();
-            }
-        }
-
         // use skill & fix core
         bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime) : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime);
@@ -341,7 +360,11 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // skip waiting state
-        bool skipCommandIssued = eyeTrackerRunning ? gazeToActivateSkipCommand : Input.GetKey(KeyCode.V);
+        bool skipCommandIssued = eyeTrackerRunning ? gazeToActivateSkipCommand : pressToActivateSkipCommand;
+        if (skipCommandIssued)
+        {
+            gameController.SkipWaitingState();
+        }
 
         // fix core & activate laser
         if (eyeTrackerRunning)
