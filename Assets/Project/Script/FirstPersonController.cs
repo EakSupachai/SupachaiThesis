@@ -123,7 +123,8 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] skipCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
-    private float gazeDuration;
+    private float coreGazeDuration;
+    private float skipGazeDuration;
 
     // Use this for initialization
     private void Start()
@@ -242,18 +243,29 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-                bool gazeInCA = IsGazePointInCoreStimulusArea(gazePoint);
-                if (gazeInCA)
+                if (IsGazePointInCoreStimulusArea(gazePoint))
                 {
-                    gazeDuration += Time.deltaTime;
-                    if (gazeDuration >= EyeTrackerController.GetValidGazeDuration() && !gameController.IsLaserFenceActive())
+                    coreGazeDuration += Time.deltaTime;
+                    if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration() && !gameController.IsLaserFenceActive())
                     {
                         gazeToActivateCoreCommand = true;
                     }
                 }
                 else
                 {
-                    gazeDuration = 0f;
+                    coreGazeDuration = 0f;
+                }
+                if (IsGazePointInSkipStimulusArea(gazePoint))
+                {
+                    skipGazeDuration += Time.deltaTime;
+                    if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration() && h_SkipStimulusController.IsFlickering())
+                    {
+                        gazeToActivateSkipCommand = true;
+                    }
+                }
+                else
+                {
+                    skipGazeDuration = 0f;
                 }
             }
         }
@@ -298,10 +310,6 @@ public class FirstPersonController : MonoBehaviour
             {
                 h_CoreStimulusController.StartFlickering();
             }
-            /*if (gazeToActivateFence)
-            {
-                gameController.ActivateLaserFence();
-            }*/
         }
         else
         {
