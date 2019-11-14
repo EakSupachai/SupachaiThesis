@@ -11,8 +11,10 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] GameController gameController;
     [SerializeField] AssaultRifleController g_AssaultRifleController;
     [SerializeField] SniperRifleController g_SniperRifleController;
-    [SerializeField] SSVEPStimulusController f_StimulusController;
-    [SerializeField] Image h_LaserCommandArea;
+    [SerializeField] SSVEPStimulusController h_CoreStimulusController;
+    [SerializeField] SSVEPStimulusController h_SkipStimulusController;
+    [SerializeField] Image h_CoreCommandArea;
+    [SerializeField] Image h_SkipCommandArea;
     [SerializeField] Image h_GunAndSkillCommandArea;
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
@@ -117,7 +119,8 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeAimCommandAreaCorners = new Vector3[4];
-    private Vector3[] laserFenceStimulusAreaCorners = new Vector3[4];
+    private Vector3[] coreCommandStimulusAreaCorners = new Vector3[4];
+    private Vector3[] skipCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
     private float gazeDuration;
@@ -193,6 +196,7 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
         bool gazeToActivateCoreCommand = false;
+        bool gazeToActivateSkipCommand = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
         {
@@ -238,7 +242,7 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-                bool gazeInCA = IsGazePointInStimulusArea(gazePoint);
+                bool gazeInCA = IsGazePointInCoreStimulusArea(gazePoint);
                 if (gazeInCA)
                 {
                     gazeDuration += Time.deltaTime;
@@ -290,9 +294,9 @@ public class FirstPersonController : MonoBehaviour
         string hitObjectTag = hit.transform.gameObject.tag;
         if (hitObjectTag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
         {
-            if (!f_StimulusController.IsFlickering())
+            if (!h_CoreStimulusController.IsFlickering())
             {
-                f_StimulusController.StartFlickering();
+                h_CoreStimulusController.StartFlickering();
             }
             /*if (gazeToActivateFence)
             {
@@ -301,9 +305,9 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
-            if (f_StimulusController.IsFlickering())
+            if (h_CoreStimulusController.IsFlickering())
             {
-                f_StimulusController.StopFlickering();
+                h_CoreStimulusController.StopFlickering();
             }
         }
 
@@ -331,11 +335,11 @@ public class FirstPersonController : MonoBehaviour
         // fix core & activate laser
         if (eyeTrackerRunning)
         {
-            if (gazeToActivateCoreCommand && f_StimulusController.IsFlickering() && gameController.CanActivateLaserFence())
+            if (gazeToActivateCoreCommand && h_CoreStimulusController.IsFlickering() && gameController.CanActivateLaserFence())
             {
                 gameController.ActivateLaserFence();
             }
-            else if (gazeToActivateCoreCommand && f_StimulusController.IsFlickering() && gameController.CanFixCore())
+            else if (gazeToActivateCoreCommand && h_CoreStimulusController.IsFlickering() && gameController.CanFixCore())
             {
                 if (fixingCoreAudioPrefab == null)
                 {
@@ -358,11 +362,11 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
-            if (Input.GetKeyDown(KeyCode.Q) && f_StimulusController.IsFlickering() && gameController.CanActivateLaserFence())
+            if (Input.GetKeyDown(KeyCode.Q) && h_CoreStimulusController.IsFlickering() && gameController.CanActivateLaserFence())
             {
                 gameController.ActivateLaserFence();
             }
-            else if (Input.GetKey(KeyCode.Q) && f_StimulusController.IsFlickering() && gameController.CanFixCore())
+            else if (Input.GetKey(KeyCode.Q) && h_CoreStimulusController.IsFlickering() && gameController.CanFixCore())
             {
                 if (fixingCoreAudioPrefab == null)
                 {
@@ -383,47 +387,6 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        /*bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core") : 
-            (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime && hit.transform.gameObject.tag != "Core");
-        if (useSkillCommandIssued)
-        {
-            bool success = false;
-            if (lockonEnemy != null)
-            {
-                if (!lockonEnemy.IsDestroyed())
-                {
-                    success = true;
-                    lockonEnemy.Freeze();
-                }
-                else
-                {
-                    success = false;
-                }
-            }
-            StartCoroutine(FlashSkillEffect(Time.time, success));
-        }
-        //////////////////////////////////////////
-        else if (Input.GetKey(KeyCode.F) && hit.transform.gameObject.tag == "Core" && gameController.CanActivateLaserFence())
-        {
-            if (fixingCoreAudioPrefab == null)
-            {
-                fixingCoreAudioPrefab = Instantiate(f_FixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
-            }
-            gameController.IncreaseCoreHp();
-        }
-        ///////////////////////////////////////////
-        else
-        {
-            if (fixingCoreAudioPrefab != null)
-            {
-                fixingCoreAudioPrefab.GetComponent<AudioPrefabFadeOutScript>().BeginFadeOut();
-                fixingCoreAudioPrefab = null;
-                if (gameController.IsCoreHpFull())
-                {
-                    Instantiate(f_FinishedFixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
-                }
-            }
-        }*/
 
         // change gun
         bool changeGunCommandIssued = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
@@ -1138,40 +1101,47 @@ public class FirstPersonController : MonoBehaviour
         h_GunAndSkillCommandArea.rectTransform.GetWorldCorners(gunAndSkillCommandAreaCorners);
         h_GunModeCommandArea.rectTransform.GetWorldCorners(gunModeCommandAreaCorners);
         h_GunModeAimCommandArea.rectTransform.GetWorldCorners(gunModeAimCommandAreaCorners);
-        h_LaserCommandArea.rectTransform.GetWorldCorners(laserFenceStimulusAreaCorners);
-        #if UNITY_EDITOR
-            gunAndSkillCommandAreaCorners[0].y = 911 - gunAndSkillCommandAreaCorners[0].y;
-            gunAndSkillCommandAreaCorners[1].y = 911 - gunAndSkillCommandAreaCorners[1].y;
-            gunAndSkillCommandAreaCorners[2].y = 911 - gunAndSkillCommandAreaCorners[2].y;
-            gunAndSkillCommandAreaCorners[3].y = 911 - gunAndSkillCommandAreaCorners[3].y;
+        h_CoreCommandArea.rectTransform.GetWorldCorners(coreCommandStimulusAreaCorners);
+        h_SkipCommandArea.rectTransform.GetWorldCorners(skipCommandStimulusAreaCorners);
 
-            gunModeCommandAreaCorners[0].y = 911 - gunModeCommandAreaCorners[0].y;
-            gunModeCommandAreaCorners[1].y = 911 - gunModeCommandAreaCorners[1].y;
-            gunModeCommandAreaCorners[2].y = 911 - gunModeCommandAreaCorners[2].y;
-            gunModeCommandAreaCorners[3].y = 911 - gunModeCommandAreaCorners[3].y;
+#if UNITY_EDITOR
+        gunAndSkillCommandAreaCorners[0].y = 911 - gunAndSkillCommandAreaCorners[0].y;
+        gunAndSkillCommandAreaCorners[1].y = 911 - gunAndSkillCommandAreaCorners[1].y;
+        gunAndSkillCommandAreaCorners[2].y = 911 - gunAndSkillCommandAreaCorners[2].y;
+        gunAndSkillCommandAreaCorners[3].y = 911 - gunAndSkillCommandAreaCorners[3].y;
 
-            gunModeAimCommandAreaCorners[0].y = 911 - gunModeAimCommandAreaCorners[0].y;
-            gunModeAimCommandAreaCorners[1].y = 911 - gunModeAimCommandAreaCorners[1].y;
-            gunModeAimCommandAreaCorners[2].y = 911 - gunModeAimCommandAreaCorners[2].y;
-            gunModeAimCommandAreaCorners[3].y = 911 - gunModeAimCommandAreaCorners[3].y;
+        gunModeCommandAreaCorners[0].y = 911 - gunModeCommandAreaCorners[0].y;
+        gunModeCommandAreaCorners[1].y = 911 - gunModeCommandAreaCorners[1].y;
+        gunModeCommandAreaCorners[2].y = 911 - gunModeCommandAreaCorners[2].y;
+        gunModeCommandAreaCorners[3].y = 911 - gunModeCommandAreaCorners[3].y;
 
-            laserFenceStimulusAreaCorners[0].y = 911 - laserFenceStimulusAreaCorners[0].y;
-            laserFenceStimulusAreaCorners[1].y = 911 - laserFenceStimulusAreaCorners[1].y;
-            laserFenceStimulusAreaCorners[2].y = 911 - laserFenceStimulusAreaCorners[2].y;
-            laserFenceStimulusAreaCorners[3].y = 911 - laserFenceStimulusAreaCorners[3].y;
-        #endif
+        gunModeAimCommandAreaCorners[0].y = 911 - gunModeAimCommandAreaCorners[0].y;
+        gunModeAimCommandAreaCorners[1].y = 911 - gunModeAimCommandAreaCorners[1].y;
+        gunModeAimCommandAreaCorners[2].y = 911 - gunModeAimCommandAreaCorners[2].y;
+        gunModeAimCommandAreaCorners[3].y = 911 - gunModeAimCommandAreaCorners[3].y;
+
+        coreCommandStimulusAreaCorners[0].y = 911 - coreCommandStimulusAreaCorners[0].y;
+        coreCommandStimulusAreaCorners[1].y = 911 - coreCommandStimulusAreaCorners[1].y;
+        coreCommandStimulusAreaCorners[2].y = 911 - coreCommandStimulusAreaCorners[2].y;
+        coreCommandStimulusAreaCorners[3].y = 911 - coreCommandStimulusAreaCorners[3].y;
+
+        skipCommandStimulusAreaCorners[0].y = 911 - skipCommandStimulusAreaCorners[0].y;
+        skipCommandStimulusAreaCorners[1].y = 911 - skipCommandStimulusAreaCorners[1].y;
+        skipCommandStimulusAreaCorners[2].y = 911 - skipCommandStimulusAreaCorners[2].y;
+        skipCommandStimulusAreaCorners[3].y = 911 - skipCommandStimulusAreaCorners[3].y;
+#endif
     }
 
-    /*private bool IsBlinkPointInCommandArea(Vector2 blinkPoint)
+    private void SetUIPosition(RectTransform rectTransform, out Vector2 uiPosition)
     {
-        int x = (int)blinkPoint.x;
-        int y = (int)blinkPoint.y;
-        if (x >= gunAndSkillCommandAreaCorners[0].x && x <= gunAndSkillCommandAreaCorners[2].x && y >= gunAndSkillCommandAreaCorners[1].y && y <= gunAndSkillCommandAreaCorners[0].y)
-        {
-            return true;
-        }
-        return false;
-    }*/
+        Vector2 position = new Vector2(rectTransform.position.x, rectTransform.position.y);
+#if UNITY_EDITOR 
+        position.y = 911 - position.y;
+#else
+        position.y = 1080 - position.y;
+#endif
+        uiPosition = position;
+    }
 
     private bool IsBlinkPointInCommandArea(Vector2 blinkPoint, Vector3[] area)
     {
@@ -1184,23 +1154,28 @@ public class FirstPersonController : MonoBehaviour
         return false;
     }
 
-    private bool IsGazePointInStimulusArea(Vector2 gazePoint)
+    private bool IsGazePointInCoreStimulusArea(Vector2 gazePoint)
     {
         int x = (int)gazePoint.x;
         int y = (int)gazePoint.y;
-        if (x >= laserFenceStimulusAreaCorners[0].x && x <= laserFenceStimulusAreaCorners[2].x && 
-            y >= laserFenceStimulusAreaCorners[1].y && y <= laserFenceStimulusAreaCorners[0].y)
+        if (x >= coreCommandStimulusAreaCorners[0].x && x <= coreCommandStimulusAreaCorners[2].x && 
+            y >= coreCommandStimulusAreaCorners[1].y && y <= coreCommandStimulusAreaCorners[0].y)
         {
             return true;
         }
         return false;
     }
 
-    private void SetUIPosition(RectTransform rectTransform, out Vector2 uiPosition)
+    private bool IsGazePointInSkipStimulusArea(Vector2 gazePoint)
     {
-        Vector2 position = new Vector2(rectTransform.position.x, rectTransform.position.y);
-        position.y = 911 - position.y;
-        uiPosition = position;
+        int x = (int)gazePoint.x;
+        int y = (int)gazePoint.y;
+        if (x >= skipCommandStimulusAreaCorners[0].x && x <= skipCommandStimulusAreaCorners[2].x &&
+            y >= skipCommandStimulusAreaCorners[1].y && y <= skipCommandStimulusAreaCorners[0].y)
+        {
+            return true;
+        }
+        return false;
     }
 
     public bool IsAiming()
@@ -1236,5 +1211,15 @@ public class FirstPersonController : MonoBehaviour
     public Vector3 GetLookingDirection()
     {
         return m_Camera.transform.forward;
+    }
+
+    public void StartSkipStimulus()
+    {
+        h_SkipStimulusController.StartFlickering();
+    }
+
+    public void StopSkipStimulus()
+    {
+        h_SkipStimulusController.StopFlickering();
     }
 }

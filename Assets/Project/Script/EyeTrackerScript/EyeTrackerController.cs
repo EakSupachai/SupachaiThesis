@@ -86,8 +86,20 @@ public class EyeTrackerController : MonoBehaviour
     {
         float x = gazePoint.position.x * 1920f;
         float y = gazePoint.position.y * 1080f;
-        currentGazePoint.x = (int)x - 150;
-        currentGazePoint.y = (int)y - 110;
+        currentGazePoint.x = (int)x;
+        currentGazePoint.y = (int)y;
+
+#if UNITY_EDITOR
+        currentGazePoint.x = currentGazePoint.x - 150;
+        currentGazePoint.y = currentGazePoint.y - 110;
+        if (currentGazePoint.x < 0)
+        {
+            currentGazePoint.x = 0;
+        }
+        if (currentGazePoint.y < 0)
+        {
+            currentGazePoint.y = 0;
+        }
         if (currentGazePoint.x > 1620)
         {
             currentGazePoint.x = 1620;
@@ -96,6 +108,7 @@ public class EyeTrackerController : MonoBehaviour
         {
             currentGazePoint.y = 911;
         }
+#endif
     }
 
     private void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)

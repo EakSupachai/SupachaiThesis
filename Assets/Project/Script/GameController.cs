@@ -63,6 +63,7 @@ public class GameController : MonoBehaviour
 
     private float start_duration;
     private float waiting_duration;
+    private float wave_duration;
     private bool waiting_alreadyBeginFixing;
 
     private float wave1_minSpawnTime;
@@ -92,7 +93,6 @@ public class GameController : MonoBehaviour
     private float waveCompleteStateDuration;
     private float congratStateDuration;
     private float removeCoreHpStateDuration;
-    private float repairNoticeStateDuration;
     private float coreHpToDecrease;
     private int nextWave;
     
@@ -125,6 +125,7 @@ public class GameController : MonoBehaviour
         previousProgressTime = 0f;
         start_duration = 5.9f;
         waiting_duration = 10.9f;
+        wave_duration = 7.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -151,9 +152,8 @@ public class GameController : MonoBehaviour
         wave3_consecutiveSpawnLimit = 2;
 
         waveCompleteStateDuration = 0.6f;
-        congratStateDuration = 3.25f;
-        removeCoreHpStateDuration = 5.5f;
-        repairNoticeStateDuration = 3.25f;
+        congratStateDuration = 3f;
+        removeCoreHpStateDuration = 5.25f;
         nextWave = 1;
 
         coreFullHp = 100f;
@@ -166,7 +166,7 @@ public class GameController : MonoBehaviour
         coreAudioSource = core.GetComponent<AudioSource>();
 
         score = 0;
-        fixingCost = 0;
+        fixingCost = 100;
         
         oneLineText.gameObject.SetActive(true);
         twoLineText.gameObject.SetActive(true);
@@ -310,7 +310,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = congratStateDuration;
                     previousProgressTime = Time.time;
-                    congratText.text = "Good job!";
+                    congratText.text = "WAVE COMPLETED";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
                 previousProgressTime = Time.time;
@@ -329,14 +329,7 @@ public class GameController : MonoBehaviour
                     previousProgressTime = Time.time;
                     coreHpToDecrease = coreHp - (coreHp * 0.3f);
                     currentDecreaseCoreHpAudioPrefab = Instantiate(decreaseCoreHpAudioPrefab, Vector3.zero, Quaternion.identity);
-                    if (nextWave == 2)
-                    {
-                        twoLineText.text = "Unfortunately, this situation caused the core to overload\nand suffer some damage.";
-                    }
-                    else
-                    {
-                        twoLineText.text = "The core suffered some damage from overloading.\nRepair it while you can. (cost " + fixingCost + " points)";
-                    }
+                    twoLineText.text = "We are reducing some core HP.\nFixing it will cost you " + fixingCost + " points.";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
                 previousProgressTime = Time.time;
@@ -363,30 +356,6 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     twoLineText.text = "";
-                    if (nextWave == 2)
-                    {
-                        currentState = "REPAIR NOTICE";
-                    }
-                    else
-                    {
-                        currentState = "WAITING";
-                    }
-                }
-                break;
-            case "REPAIR NOTICE":
-                if (!stateStarted)
-                {
-                    stateStarted = true;
-                    currentStateDuration = repairNoticeStateDuration;
-                    previousProgressTime = Time.time;
-                    oneLineText.text = "Repair it while you can. (cost " + fixingCost + " points)";
-                }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
-                if (currentStateDuration <= 0f)
-                {
-                    stateStarted = false;
-                    oneLineText.text = "";
                     currentState = "WAITING";
                 }
                 break;
@@ -396,6 +365,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = waiting_duration;
                     previousProgressTime = Time.time;
+                    player.StartSkipStimulus();
                     oneLineText.text = "Prepare for the next wave...";
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
@@ -404,6 +374,7 @@ public class GameController : MonoBehaviour
                 if (currentStateDuration <= 0f)
                 {
                     stateStarted = false;
+                    player.StopSkipStimulus();
                     StartEnemyWave();
                 }
                 break;
@@ -510,19 +481,20 @@ public class GameController : MonoBehaviour
         }
         int rand = Random.Range(0, spawnPoints.Count);
         spawnTimeLimits[rand] = Random.Range(3f, 4f);
+        currentStateDuration = wave_duration;
         if (nextWave == 1)
         {
-            currentStateDuration = wave1_duration;
+            //currentStateDuration = wave1_duration;
             currentState = "WAVE1";
         }
         else if (nextWave == 2)
         {
-            currentStateDuration = wave2_duration;
+            //currentStateDuration = wave2_duration;
             currentState = "WAVE2";
         }
         else
         {
-            currentStateDuration = wave3_duration;
+            //currentStateDuration = wave3_duration;
             currentState = "WAVE3";
         }
         previousProgressTime = 0f;
@@ -821,7 +793,10 @@ public class GameController : MonoBehaviour
     {
         if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0)
         {
-            return true;
+            if (wave_duration - currentStateDuration > 1.5f)
+            {
+                return true;
+            }
         }
         return false;
     }
