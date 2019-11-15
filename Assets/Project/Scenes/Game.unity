@@ -34322,6 +34322,7 @@ MonoBehaviour:
   h_SkipStimulusController: {fileID: 1170684014}
   h_CoreCommandArea: {fileID: 831935734}
   h_SkipCommandArea: {fileID: 1855354020}
+  h_ShootCommandArea: {fileID: 1145383926}
   h_GunAndSkillCommandArea: {fileID: 1500910998}
   h_GunModeCommandArea: {fileID: 1480884594}
   h_GunModeAimCommandArea: {fileID: 948443816}

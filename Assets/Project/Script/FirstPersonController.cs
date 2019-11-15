@@ -670,7 +670,7 @@ public class FirstPersonController : MonoBehaviour
             {
                 shoot = true;
             }
-            else
+            else if (g_CurrentGun == "AR" && hitObjectTag == "Enemy")
             {
                 shoot = !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed();
             }
