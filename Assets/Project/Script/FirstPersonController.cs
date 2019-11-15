@@ -15,6 +15,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] SSVEPStimulusController h_SkipStimulusController;
     [SerializeField] Image h_CoreCommandArea;
     [SerializeField] Image h_SkipCommandArea;
+    [SerializeField] Image h_ShootCommandArea;
     [SerializeField] Image h_GunAndSkillCommandArea;
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
@@ -121,11 +122,13 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] gunModeAimCommandAreaCorners = new Vector3[4];
     private Vector3[] coreCommandStimulusAreaCorners = new Vector3[4];
     private Vector3[] skipCommandStimulusAreaCorners = new Vector3[4];
+    private Vector3[] shootCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
     private float coreGazeDuration;
     private float skipGazeDuration;
     private float skipPressDuration;
+    private float shootGazeDuration;
 
     // Use this for initialization
     private void Start()
@@ -211,7 +214,11 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
-        //check eye tracker input
+        // useful variables
+        bool usingSniper = g_CurrentGun == "SR";
+        bool isScoping = usingSniper && g_Aiming && !g_AimInterpolating;
+
+        // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
@@ -219,6 +226,7 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeMode = false;
         bool gazeToActivateCoreCommand = false;
         bool gazeToActivateSkipCommand = false;
+        bool gazeToActivateShootCommand = false;
         bool pressToActivateSkipCommand = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         if (eyeTrackerRunning)
@@ -227,6 +235,7 @@ public class FirstPersonController : MonoBehaviour
             {
                 coreGazeDuration = 0f;
                 skipGazeDuration = 0f;
+                shootGazeDuration = 0f;
                 Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                 bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
                 bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
@@ -266,6 +275,7 @@ public class FirstPersonController : MonoBehaviour
                 }
             else
             {
+                // core command
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
                 if (IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering())
                 {
@@ -279,6 +289,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     coreGazeDuration = 0f;
                 }
+                // skip command
                 if (IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering())
                 {
                     skipGazeDuration += Time.deltaTime;
@@ -290,6 +301,26 @@ public class FirstPersonController : MonoBehaviour
                 else
                 {
                     skipGazeDuration = 0f;
+                }
+                // shoot command
+                if (IsGazePointInEnemyStimulusArea(gazePoint) && hitObjectTag == "Enemy" && isScoping)
+                {
+                    if (!hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed())
+                    {
+                        shootGazeDuration += Time.deltaTime;
+                        if (shootGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                        {
+                            gazeToActivateShootCommand = true;
+                        }
+                    }
+                    else
+                    {
+                        shootGazeDuration = 0f;
+                    }
+                }
+                else
+                {
+                    shootGazeDuration = 0f;
                 }
             }
         }
@@ -310,7 +341,7 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // rotate view & scope kick
-        if (g_CurrentGun == "SR" && g_Aiming && !g_AimInterpolating)
+        if (isScoping)
         {
             if (g_KickingUp)
             {
@@ -431,7 +462,7 @@ public class FirstPersonController : MonoBehaviour
         }
         if (g_Switching)
         {
-            if (g_CurrentGun == "SR" && g_SwitchingFromScope)
+            if (usingSniper && g_SwitchingFromScope)
             {
                 // freeze sniper lowering temp to fade out scope
                 if (g_SniperRifleController.IsScopeActive())
@@ -528,7 +559,7 @@ public class FirstPersonController : MonoBehaviour
             if (interpolatingDistanceFrac > 1f)
             {
                 interpolatingDistanceFrac = 1f;
-                g_AimInterpolating = (g_CurrentGun == "SR" && g_Aiming) ? true : false;
+                g_AimInterpolating = (usingSniper && g_Aiming) ? true : false;
                 if (!g_Aiming)
                 {
                     g_BackingToNormalBobStartTime = Time.time;
@@ -537,7 +568,7 @@ public class FirstPersonController : MonoBehaviour
             }
             g_GunController.transform.localPosition = Vector3.Lerp(g_AimingStartPosition, g_AimingIntendedPosition, interpolatingDistanceFrac);
             // sniper rifle aiming
-            if (g_CurrentGun == "SR")
+            if (usingSniper)
             {
                 if (g_Aiming)
                 {
@@ -594,7 +625,7 @@ public class FirstPersonController : MonoBehaviour
             g_AimInterpolating = true;
             g_IdleInterpolating = false;
             g_AimingStartTime = Time.time;
-            if (g_CurrentGun == "SR")
+            if (usingSniper)
             {
                 g_ScopeFadingStartTime = Time.time;
                 g_AimingStartFOV = m_Camera.fieldOfView;
@@ -615,7 +646,7 @@ public class FirstPersonController : MonoBehaviour
             g_AimInterpolating = true;
             g_IdleInterpolating = false;
             g_AimingStartTime = Time.time;
-            if (g_CurrentGun == "SR")
+            if (usingSniper)
             {
                 g_ScopeFadingStartTime = Time.time;
                 g_AimingStartFOV = m_Camera.fieldOfView;
@@ -635,7 +666,11 @@ public class FirstPersonController : MonoBehaviour
         bool shoot = false;
         if (eyeTrackerRunning)
         {
-            if (hitObjectTag == "Enemy")
+            if (gazeToActivateShootCommand)
+            {
+                shoot = true;
+            }
+            else
             {
                 shoot = !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed();
             }
@@ -1137,6 +1172,7 @@ public class FirstPersonController : MonoBehaviour
         h_GunModeAimCommandArea.rectTransform.GetWorldCorners(gunModeAimCommandAreaCorners);
         h_CoreCommandArea.rectTransform.GetWorldCorners(coreCommandStimulusAreaCorners);
         h_SkipCommandArea.rectTransform.GetWorldCorners(skipCommandStimulusAreaCorners);
+        h_ShootCommandArea.rectTransform.GetWorldCorners(shootCommandStimulusAreaCorners);
 
 #if UNITY_EDITOR
         gunAndSkillCommandAreaCorners[0].y = 911 - gunAndSkillCommandAreaCorners[0].y;
@@ -1163,6 +1199,11 @@ public class FirstPersonController : MonoBehaviour
         skipCommandStimulusAreaCorners[1].y = 911 - skipCommandStimulusAreaCorners[1].y;
         skipCommandStimulusAreaCorners[2].y = 911 - skipCommandStimulusAreaCorners[2].y;
         skipCommandStimulusAreaCorners[3].y = 911 - skipCommandStimulusAreaCorners[3].y;
+
+        shootCommandStimulusAreaCorners[0].y = 911 - shootCommandStimulusAreaCorners[0].y;
+        shootCommandStimulusAreaCorners[1].y = 911 - shootCommandStimulusAreaCorners[1].y;
+        shootCommandStimulusAreaCorners[2].y = 911 - shootCommandStimulusAreaCorners[2].y;
+        shootCommandStimulusAreaCorners[3].y = 911 - shootCommandStimulusAreaCorners[3].y;
 #endif
     }
 
@@ -1206,6 +1247,18 @@ public class FirstPersonController : MonoBehaviour
         int y = (int)gazePoint.y;
         if (x >= skipCommandStimulusAreaCorners[0].x && x <= skipCommandStimulusAreaCorners[2].x &&
             y >= skipCommandStimulusAreaCorners[1].y && y <= skipCommandStimulusAreaCorners[0].y)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsGazePointInEnemyStimulusArea(Vector2 gazePoint)
+    {
+        int x = (int)gazePoint.x;
+        int y = (int)gazePoint.y;
+        if (x >= shootCommandStimulusAreaCorners[0].x && x <= shootCommandStimulusAreaCorners[2].x &&
+            y >= shootCommandStimulusAreaCorners[1].y && y <= shootCommandStimulusAreaCorners[0].y)
         {
             return true;
         }
