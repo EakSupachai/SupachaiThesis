@@ -129,6 +129,7 @@ public class FirstPersonController : MonoBehaviour
     private float skipGazeDuration;
     private float skipPressDuration;
     private float shootGazeDuration;
+    private bool previousSsvepInput;
 
     // Use this for initialization
     private void Start()
@@ -220,6 +221,7 @@ public class FirstPersonController : MonoBehaviour
 
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
+        bool ssvepRunning = InputUDP.GetSsvepInputStatus();
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
@@ -272,8 +274,8 @@ public class FirstPersonController : MonoBehaviour
                         blinkToUseSkill = true;
                     }
                 }
-                }
-            else
+            }
+            else if (!ssvepRunning)
             {
                 // core command
                 Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
@@ -322,6 +324,35 @@ public class FirstPersonController : MonoBehaviour
                 {
                     shootGazeDuration = 0f;
                 }
+            }
+            if (ssvepRunning)
+            {
+                bool ssvepReceived = false;
+                if (InputUDP.IsNewInputReceived())
+                {
+                    ssvepReceived = InputUDP.IsSsvepDetected();
+                    previousSsvepInput = ssvepReceived;
+                }
+                else
+                {
+                    ssvepReceived = previousSsvepInput;
+                }
+                if (ssvepReceived)
+                {
+                    Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
+                    if (IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering())
+                    {
+                        gazeToActivateCoreCommand = true;
+                    }
+                    else if (IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering())
+                    {
+                        gazeToActivateSkipCommand = true;
+                    }
+                    else if (IsGazePointInEnemyStimulusArea(gazePoint) && hitObjectTag == "Enemy" && isScoping)
+                    {
+                        gazeToActivateShootCommand = true;
+                    }
+                } 
             }
         }
         else

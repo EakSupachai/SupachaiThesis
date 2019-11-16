@@ -15,8 +15,10 @@ public class InputUDP : MonoBehaviour
     private static string bufferedInput = ""; // this one has to be cleaned up from time to time
     private static object lockObject = new object();
     private static bool newInputReceived = false;
+    private static bool inputStatus = false;
     private static int port = 20321;
     private static int bufferSize = 5;
+    private static int threshold = 4;
 
     // start from unity3d
     private void Start()
@@ -44,6 +46,7 @@ public class InputUDP : MonoBehaviour
                 // receive bytes
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = client.Receive(ref anyIP);
+                inputStatus = true;
 
                 // encode UTF8-coded bytes to text format
                 string text = Encoding.UTF8.GetString(data);
@@ -74,7 +77,7 @@ public class InputUDP : MonoBehaviour
     }
 
     // return the latest message
-    public static bool getSSVEPStatus()
+    /*public static bool getSSVEPStatus()
     {
         bool ssvepReceived = false;
         int ssvepCounter = -1;
@@ -97,6 +100,36 @@ public class InputUDP : MonoBehaviour
             ssvepReceived = true;
         }
         return ssvepReceived;
+    }*/
+
+    public static bool IsSsvepDetected()
+    {
+        int ssvepCounter = 0;
+        lock (lockObject)
+        {
+            for (int i = 0; i < bufferedInput.Length; i++)
+            {
+                if (bufferedInput[i].Equals('1'))
+                {
+                    ssvepCounter++;
+                }
+            }
+        }
+        if (ssvepCounter >= threshold)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static bool IsNewInputReceived()
+    {
+        lock (lockObject)
+        {
+            bool temp = newInputReceived;
+            newInputReceived = false;
+            return temp;
+        }
     }
 
     public static void CloseConnection()
@@ -106,5 +139,10 @@ public class InputUDP : MonoBehaviour
             readThread.Abort();
         }
         client.Close();
+    }
+
+    public static bool GetSsvepInputStatus()
+    {
+        return inputStatus;
     }
 }
