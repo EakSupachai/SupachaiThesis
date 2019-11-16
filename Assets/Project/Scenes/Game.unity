@@ -10251,6 +10251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e0984d8770c0d94db765e3eb8172b59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  classifyMode: 1
   player: {fileID: 6710741858142577804}
   spawnPoints:
   - {fileID: 1877347638}

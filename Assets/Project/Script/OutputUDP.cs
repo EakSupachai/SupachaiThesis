@@ -23,6 +23,8 @@ public class OutputUDP : MonoBehaviour
     {
         if (Interop.UseIsSendConnectionOpen(BCI2000API))
         {
+            SetClassifyingState(0);
+            SetRecordingState(0);
             Interop.UseCloseSendConnection(BCI2000API);
         }
     }

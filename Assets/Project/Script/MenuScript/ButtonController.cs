@@ -54,6 +54,7 @@ public class ButtonController : MonoBehaviour
             if (command == "retry")
             {
                 InputUDP.CloseConnection();
+                OutputUDP.SetClassifyingState(0);
                 OutputUDP.CloseConnection();
                 EyeTrackerController.CleanUp();
             }
@@ -91,6 +92,7 @@ public class ButtonController : MonoBehaviour
         if (scene == 0)
         {
             InputUDP.CloseConnection();
+            OutputUDP.SetClassifyingState(0);
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
         }

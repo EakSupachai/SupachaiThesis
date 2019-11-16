@@ -82,6 +82,11 @@ public class EyeTrackerController : MonoBehaviour
         }
     }
 
+    private void OnApplicationQuit()
+    {
+        CleanUp();
+    }
+
     private void OnGazePoint(ref tobii_gaze_point_t gazePoint)
     {
         float x = gazePoint.position.x * 1920f;

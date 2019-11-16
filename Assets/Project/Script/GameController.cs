@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] private bool classifyMode;
     [SerializeField] private FirstPersonController player;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
     [SerializeField] private List<Transform> decelerationPoints = new List<Transform>();
@@ -243,6 +244,10 @@ public class GameController : MonoBehaviour
                     currentStateDuration = start_duration;
                     previousProgressTime = Time.time;
                     OutputUDP.OpenConnection();
+                    if (classifyMode)
+                    {
+                        OutputUDP.SetClassifyingState(1);
+                    }
                 }
                 currentStateDuration -= (Time.time - previousProgressTime);
                 previousProgressTime = Time.time;
@@ -389,6 +394,7 @@ public class GameController : MonoBehaviour
                     coreAudioSource.Pause();
                     hudCanvas.gameObject.SetActive(false);
                     gameOverCanvas.gameObject.SetActive(true);
+                    OutputUDP.SetClassifyingState(0);
                     OutputUDP.CloseConnection();
                 }
                 break;
@@ -405,6 +411,7 @@ public class GameController : MonoBehaviour
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
                     gameCompletedCanvas.gameObject.SetActive(true);
+                    OutputUDP.SetClassifyingState(0);
                     OutputUDP.CloseConnection();
                 }
                 break;
@@ -451,11 +458,6 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void OnApplicationQuit()
-    {
-        EyeTrackerController.CleanUp();
     }
 
     private void StartEnemyWave()
