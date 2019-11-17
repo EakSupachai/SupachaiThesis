@@ -10131,6 +10131,8 @@ MonoBehaviour:
     type: 3}
   yellowImpactParticle: {fileID: 4832088905082912183, guid: 1f4a0e121a9f4b8418b06cab86c19ed2,
     type: 3}
+  shotFiredAudioPrefab: {fileID: 35273795434971426, guid: 24ec5de71998c7e409e92298bf67f71d,
+    type: 3}
   rpm: 540
   damage: 1
   redLight: {fileID: 2100000, guid: 0e9dc84823e36f84ba8042f4879a51f3, type: 2}
@@ -10627,6 +10629,8 @@ MonoBehaviour:
   blank: {fileID: 1738000668}
   orangeMuzzleFlash: {fileID: 776703014}
   orangeImpactParticle: {fileID: 6701801521600306705, guid: 2048e9859fd5edb448e429f51d913ccc,
+    type: 3}
+  shotFiredAudioPrefab: {fileID: 6234891434522435330, guid: 995b50092bc7fb8419f59b46418d4e73,
     type: 3}
   rpm: 180
   damage: 50

@@ -12,6 +12,7 @@ public class AssaultRifleController : GunController
     [SerializeField] private ParticleSystem yellowMuzzleFlash;
     [SerializeField] private GameObject redImpactParticle;
     [SerializeField] private GameObject yellowImpactParticle;
+    [SerializeField] private GameObject shotFiredAudioPrefab;
     [SerializeField] private int rpm = 540;
     [SerializeField] private int damage = 1;
     [SerializeField] private Material redLight;
@@ -26,7 +27,6 @@ public class AssaultRifleController : GunController
     private GameObject typeDisplayC;
     private GameObject typeDisplayL;
     private GameObject typeDisplayR;
-    private AudioSource audioSource;
     private Animator crosshairAnimator;
     private RectTransform crosshairRectTransform;
     //private EnemyBehavior currentEnemyBehavior;
@@ -59,8 +59,6 @@ public class AssaultRifleController : GunController
         fpcCamera = Camera.main;
         crosshair.SetActive(true);
         aimCrosshair.gameObject.SetActive(false);
-
-        audioSource = GetComponent<AudioSource>();
 
         crosshairAnimator = crosshair.GetComponent<Animator>();
 
@@ -119,8 +117,7 @@ public class AssaultRifleController : GunController
                     enemyBehavior.TakeDamage(damage, currentMode, fpcCamera.transform.position, hit.point);
                 }
             }
-            audioSource.pitch = Time.timeScale;
-            audioSource.Play();
+            Instantiate(shotFiredAudioPrefab, transform.position, Quaternion.identity);
             return true;
         }
         return false;

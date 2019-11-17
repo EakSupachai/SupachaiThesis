@@ -12,6 +12,7 @@ public class SniperRifleController : GunController
     [SerializeField] private Image blank;
     [SerializeField] private ParticleSystem orangeMuzzleFlash;
     [SerializeField] private GameObject orangeImpactParticle;
+    [SerializeField] private GameObject shotFiredAudioPrefab;
     [SerializeField] private int rpm = 120;
     [SerializeField] private int damage = 50;
     [SerializeField] private float scopeRecoilUp = 5.4f;
@@ -20,7 +21,6 @@ public class SniperRifleController : GunController
     private float spr;
     private float timeLastRound;
     private bool isRaycastHit;
-    private AudioSource audioSource;
     private List<GameObject> gunParts;
     private EnemyBehavior currentEnemyBehavior;
     private Vector3 impactPoint;
@@ -34,7 +34,6 @@ public class SniperRifleController : GunController
         kickUpTime = spr * 0.07f;
         lowerTime = spr * 0.84f;
         timeLastRound = -1f;
-        audioSource = GetComponent<AudioSource>();
         fpcCamera = Camera.main;
         gunParts = new List<GameObject>();
         foreach (Transform gunPart in transform)
@@ -119,8 +118,7 @@ public class SniperRifleController : GunController
                     currentEnemyBehavior.TakeDamage(damage, "ORANGE", fpcCamera.transform.position, impactPoint);
                 }
             }
-            audioSource.pitch = Time.timeScale;
-            audioSource.Play();
+            Instantiate(shotFiredAudioPrefab, transform.position, Quaternion.identity);
             return true;
         }
         return false;
