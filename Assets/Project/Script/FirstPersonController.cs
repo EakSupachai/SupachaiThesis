@@ -199,8 +199,7 @@ public class FirstPersonController : MonoBehaviour
         Ray ray = m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         RaycastHit hit;
         Physics.Raycast(ray.origin, ray.direction, out hit);
-        string hitObjectTag = hit.transform.gameObject.tag;
-        if (hitObjectTag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
+        if (hit.transform.gameObject.tag == "Core" && (gameController.CanActivateLaserFence() || gameController.CanFixCore()))
         {
             if (!h_CoreStimulusController.IsFlickering())
             {
@@ -216,8 +215,9 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // useful variables
+        bool rayHitEnemy = hit.transform.gameObject.tag == "Enemy";
         bool usingSniper = g_CurrentGun == "SR";
-        bool isScoping = usingSniper && g_Aiming && !g_AimInterpolating;
+        bool scoping = usingSniper && g_Aiming && !g_AimInterpolating;
 
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
@@ -226,13 +226,21 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
+        bool gazeInCoreStimulus = false;
+        bool gazeInSkipStimulus = false;
+        bool gazeInEnemyStimulus = false;
         bool gazeToActivateCoreCommand = false;
         bool gazeToActivateSkipCommand = false;
         bool gazeToActivateShootCommand = false;
         bool pressToActivateSkipCommand = false;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
+        Vector2 gazePoint = Vector2.zero;
         if (eyeTrackerRunning)
         {
+            gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            gazeInCoreStimulus = IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering();
+            gazeInSkipStimulus = IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering();
+            gazeInEnemyStimulus = IsGazePointInEnemyStimulusArea(gazePoint) && rayHitEnemy && scoping;
             if (blinkStatus.blinked)
             {
                 coreGazeDuration = 0f;
@@ -278,8 +286,7 @@ public class FirstPersonController : MonoBehaviour
             else if (!ssvepRunning)
             {
                 // core command
-                Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-                if (IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering())
+                if (gazeInCoreStimulus)
                 {
                     coreGazeDuration += Time.deltaTime;
                     if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration())
@@ -292,7 +299,7 @@ public class FirstPersonController : MonoBehaviour
                     coreGazeDuration = 0f;
                 }
                 // skip command
-                if (IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering())
+                if (gazeInSkipStimulus)
                 {
                     skipGazeDuration += Time.deltaTime;
                     if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration())
@@ -305,7 +312,7 @@ public class FirstPersonController : MonoBehaviour
                     skipGazeDuration = 0f;
                 }
                 // shoot command
-                if (IsGazePointInEnemyStimulusArea(gazePoint) && hitObjectTag == "Enemy" && isScoping)
+                if (gazeInEnemyStimulus)
                 {
                     if (!hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed())
                     {
@@ -339,16 +346,15 @@ public class FirstPersonController : MonoBehaviour
                 }
                 if (ssvepReceived)
                 {
-                    Vector2 gazePoint = EyeTrackerController.GetCurrentGazePoint();
-                    if (IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering())
+                    if (gazeInCoreStimulus)
                     {
                         gazeToActivateCoreCommand = true;
                     }
-                    else if (IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering())
+                    else if (gazeInSkipStimulus)
                     {
                         gazeToActivateSkipCommand = true;
                     }
-                    else if (IsGazePointInEnemyStimulusArea(gazePoint) && hitObjectTag == "Enemy" && isScoping)
+                    else if (gazeInEnemyStimulus)
                     {
                         gazeToActivateShootCommand = true;
                     }
@@ -371,8 +377,22 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
+        // trigger slow motion
+        if (eyeTrackerRunning)
+        {
+            if ((scoping && rayHitEnemy) || 
+                (gazeInCoreStimulus && !GameController.IsInWaitingState()))
+            {
+                Time.timeScale = 0.15f;
+            }
+            else if (!GameController.IsInWaveCompletedState() && Time.timeScale != GameController.defaultTimeScale)
+            {
+                Time.timeScale = GameController.defaultTimeScale;
+            }
+        }
+
         // rotate view & scope kick
-        if (isScoping)
+        if (scoping)
         {
             if (g_KickingUp)
             {
@@ -701,7 +721,7 @@ public class FirstPersonController : MonoBehaviour
             {
                 shoot = true;
             }
-            else if (g_CurrentGun == "AR" && hitObjectTag == "Enemy")
+            else if (g_CurrentGun == "AR" && rayHitEnemy)
             {
                 shoot = !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed();
             }

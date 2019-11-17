@@ -26,7 +26,7 @@ public class AudioPrefabScript : MonoBehaviour
             }
         }
         
-        if (!GameController.IsSlowMotionAllowed() && !GameController.IsGameOver())
+        if (GameController.IsInWaveCompletedState() && !GameController.IsGameOver())
         {
             audioSource.pitch = Time.timeScale + 0.15f;
         }

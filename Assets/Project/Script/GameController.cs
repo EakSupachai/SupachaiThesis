@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private bool classifyMode;
+
     [SerializeField] private FirstPersonController player;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
     [SerializeField] private List<Transform> decelerationPoints = new List<Transform>();
@@ -820,13 +821,22 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    public static bool IsSlowMotionAllowed()
+    public static bool IsInWaveCompletedState()
     {
         if (currentState == "WAVE COMPLETED")
         {
-            return false;
+            return true;
         }
-        return true;
+        return false;
+    }
+
+    public static bool IsInWaitingState()
+    {
+        if (currentState == "WAITING")
+        {
+            return true;
+        }
+        return false;
     }
 
     public static bool IsPause()
