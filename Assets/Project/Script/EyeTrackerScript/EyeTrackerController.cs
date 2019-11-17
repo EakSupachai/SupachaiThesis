@@ -184,6 +184,11 @@ public class EyeTrackerController : MonoBehaviour
         return blinkPoint;
     }
 
+    public static float GetScaledValidGazeDuration()
+    {
+        return validGazeDuration * 0.25f;
+    }
+
     public static float GetValidGazeDuration()
     {
         return validGazeDuration;

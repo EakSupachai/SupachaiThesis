@@ -289,7 +289,8 @@ public class FirstPersonController : MonoBehaviour
                 if (gazeInCoreStimulus)
                 {
                     coreGazeDuration += Time.deltaTime;
-                    if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                    float validGazeDuration = GameController.IsInWaitingState() ? EyeTrackerController.GetValidGazeDuration() : EyeTrackerController.GetScaledValidGazeDuration();
+                    if (coreGazeDuration >= validGazeDuration)
                     {
                         gazeToActivateCoreCommand = true;
                     }
@@ -317,7 +318,7 @@ public class FirstPersonController : MonoBehaviour
                     if (!hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed())
                     {
                         shootGazeDuration += Time.deltaTime;
-                        if (shootGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                        if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration())
                         {
                             gazeToActivateShootCommand = true;
                         }
@@ -380,7 +381,7 @@ public class FirstPersonController : MonoBehaviour
         // trigger slow motion
         if (eyeTrackerRunning)
         {
-            if ((scoping && rayHitEnemy) || 
+            if ((scoping && rayHitEnemy && !hit.transform.gameObject.GetComponent<EnemyBehavior>().IsDestroyed()) || 
                 (gazeInCoreStimulus && !GameController.IsInWaitingState()))
             {
                 Time.timeScale = 0.15f;
