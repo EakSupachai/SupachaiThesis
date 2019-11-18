@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private bool classifyMode;
-    [SerializeField] private bool TestMode;
+    [SerializeField] private bool testMode;
 
     [SerializeField] private FirstPersonController player;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -132,7 +132,6 @@ public class GameController : MonoBehaviour
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
-        wave1_duration = 7.9f;
         wave1_smallEnemySpawnChance = 60;
         wave1_mediumEnemySpawnChance = 100;
         wave1_largeEnemySpawnChance = 110;
@@ -140,7 +139,6 @@ public class GameController : MonoBehaviour
 
         wave2_minSpawnTime = 10f;
         wave2_maxSpawnTime = 22f;
-        wave2_duration = 120.9f;
         wave2_smallEnemySpawnChance = 40;
         wave2_mediumEnemySpawnChance = 90;
         wave2_largeEnemySpawnChance = 100;
@@ -148,7 +146,6 @@ public class GameController : MonoBehaviour
 
         wave3_minSpawnTime = 8f;
         wave3_maxSpawnTime = 22f;
-        wave3_duration = 120.9f;
         wave3_smallEnemySpawnChance = 30;
         wave3_mediumEnemySpawnChance = 75;
         wave3_largeEnemySpawnChance = 100;
@@ -178,7 +175,7 @@ public class GameController : MonoBehaviour
         waveTimerText.text = "W0  0:00";
         laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
-        oneLineText.text = "Prepare for the first wave...";
+        oneLineText.text = testMode ? "Prepare for the enemies..." : "Prepare for the first wave...";
         twoLineText.text = "";
         congratText.text = "";
         countdownText.text = "" + (int)start_duration;
@@ -488,17 +485,14 @@ public class GameController : MonoBehaviour
         currentStateDuration = wave_duration;
         if (nextWave == 1)
         {
-            //currentStateDuration = wave1_duration;
             currentState = "WAVE1";
         }
         else if (nextWave == 2)
         {
-            //currentStateDuration = wave2_duration;
             currentState = "WAVE2";
         }
         else
         {
-            //currentStateDuration = wave3_duration;
             currentState = "WAVE3";
         }
         previousProgressTime = 0f;
@@ -511,21 +505,21 @@ public class GameController : MonoBehaviour
 
     private bool ProgressEnemyWave()
     {
-        if (previousProgressTime == 0f)
+        /*if (previousProgressTime == 0f)
         {
             previousProgressTime = Time.time;
-        }
-
-        float deltaTime = Time.time - previousProgressTime;
-        currentStateDuration -= deltaTime;
-        if (currentStateDuration < 0f)
+        }*/
+        //float deltaTime = Time.time - previousProgressTime;
+        //currentStateDuration -= deltaTime;
+        currentStateDuration -= Time.deltaTime;
+        if (currentStateDuration <= 0f)
         {
-            currentStateDuration = 0f;
+            currentStateDuration = testMode ? wave_duration : 0f;
         }
 
         if (currentState == "WAVE1")
         {
-            waveTimerText.text = "W1  " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = testMode ? "W0  0:00" : "W1  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
         else if (currentState == "WAVE2")
         {
@@ -540,7 +534,7 @@ public class GameController : MonoBehaviour
         {
             for (int i = 0; i < spawnPoints.Count; i++)
             {
-                spawnTimers[i] = spawnTimers[i] + deltaTime;
+                spawnTimers[i] = spawnTimers[i] + Time.deltaTime;
                 if (spawnTimers[i] >= spawnTimeLimits[i])
                 {
                     float rand = Random.Range(0, 100);
@@ -615,7 +609,7 @@ public class GameController : MonoBehaviour
                     }
                 }
             }
-            previousProgressTime = Time.time;
+            //previousProgressTime = Time.time;
         }
 
         List<GameObject> enemiesInSight = new List<GameObject>();
@@ -707,7 +701,7 @@ public class GameController : MonoBehaviour
 
     public void ReduceCoreHp(int enemyType)
     {
-        if (TestMode)
+        if (testMode)
         {
             return;
         }
@@ -757,7 +751,10 @@ public class GameController : MonoBehaviour
         if (laserFenceAvailable <= 0) {
             return;
         }
-        laserFenceAvailable--;
+        if (!testMode)
+        {
+            laserFenceAvailable--;
+        }
         laserFenceRemainText.text = "" + laserFenceAvailable;
         StartCoroutine(ActivateLaserFenceAndCooldownIcon());
     }
