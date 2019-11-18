@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private bool classifyMode;
+    [SerializeField] private bool TestMode;
 
     [SerializeField] private FirstPersonController player;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -706,6 +707,10 @@ public class GameController : MonoBehaviour
 
     public void ReduceCoreHp(int enemyType)
     {
+        if (TestMode)
+        {
+            return;
+        }
         if (enemyType == 1)
         {
             coreHp -= smallEnemyDamage;
