@@ -152,7 +152,7 @@ public class GameController : MonoBehaviour
         waveCompleteStateDuration = 0.6f;
         congratStateDuration = 3f;
         removeCoreHpStateDuration = 5.25f;
-        nextWave = 1;
+        nextWave = testMode ? 2 : 1;
 
         coreFullHp = 100f;
         coreHp = coreFullHp;
@@ -504,11 +504,11 @@ public class GameController : MonoBehaviour
         }
         else if (currentState == "WAVE2")
         {
-            waveTimerText.text = "W2  " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = testMode ? "W0  0:00" : "W2  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
         else
         {
-            waveTimerText.text = "W3  " + ConvertSecondToTimeFormat(currentStateDuration);
+            waveTimerText.text = testMode ? "W0  0:00" : "W3  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
 
         if (currentStateDuration > 0f)
