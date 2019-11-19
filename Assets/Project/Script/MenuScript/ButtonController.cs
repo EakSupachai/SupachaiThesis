@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Bci2000Api;
 
 public class ButtonController : MonoBehaviour
 {
@@ -59,7 +58,14 @@ public class ButtonController : MonoBehaviour
                 EyeTrackerController.CleanUp();
             }
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            StartCoroutine(StallBeforeLoadingScene(1));
+            if (SceneManager.GetActiveScene().name == "Test")
+            {
+                StartCoroutine(StallBeforeLoadingScene(2));
+            }
+            else
+            {
+                StartCoroutine(StallBeforeLoadingScene(1));
+            }
         }
         else if (command == "back")
         {
