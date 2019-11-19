@@ -59,7 +59,6 @@ public class GameController : MonoBehaviour
 
     private bool stateStarted;
     private float currentStateDuration;
-    private float previousProgressTime;
     private float previousSpawnTime;
     private int consecutiveSpawn;
     private int enemyOnScreen;
@@ -125,7 +124,6 @@ public class GameController : MonoBehaviour
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
-        previousProgressTime = 0f;
         start_duration = 5.9f;
         waiting_duration = 10.9f;
         wave_duration = 7.9f;
@@ -241,15 +239,13 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     currentStateDuration = start_duration;
-                    previousProgressTime = Time.time;
                     OutputUDP.OpenConnection();
                     if (classifyMode)
                     {
                         OutputUDP.SetClassifyingState(1);
                     }
                 }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
+                currentStateDuration -= Time.deltaTime;
                 countdownText.text = currentStateDuration < 0f ? "0" : "" + (int)currentStateDuration;
                 if (currentStateDuration <= 0f)
                 {
@@ -297,10 +293,8 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     waiting_alreadyBeginFixing = false;
                     currentStateDuration = waveCompleteStateDuration;
-                    previousProgressTime = Time.time;
                 }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
+                currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
                 {
                     Time.timeScale = defaultTimeScale;
@@ -313,11 +307,9 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     currentStateDuration = congratStateDuration;
-                    previousProgressTime = Time.time;
                     congratText.text = "WAVE COMPLETED";
                 }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
+                currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
                 {
                     stateStarted = false;
@@ -330,13 +322,11 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     currentStateDuration = removeCoreHpStateDuration;
-                    previousProgressTime = Time.time;
                     coreHpToDecrease = coreHp - (coreHp * 0.3f);
                     currentDecreaseCoreHpAudioPrefab = Instantiate(decreaseCoreHpAudioPrefab, Vector3.zero, Quaternion.identity);
                     twoLineText.text = "We are reducing some core HP.\nFixing it will cost you " + fixingCost + " points.";
                 }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
+                currentStateDuration -= Time.deltaTime;
                 if (coreHp > coreHpToDecrease)
                 {
                     if (coreHp > 0f)
@@ -368,12 +358,10 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     currentStateDuration = waiting_duration;
-                    previousProgressTime = Time.time;
                     player.StartSkipStimulus();
                     oneLineText.text = "Prepare for the next wave...";
                 }
-                currentStateDuration -= (Time.time - previousProgressTime);
-                previousProgressTime = Time.time;
+                currentStateDuration -= Time.deltaTime;
                 countdownText.text = currentStateDuration < 0f ? "0" : "" + (int)currentStateDuration;
                 if (currentStateDuration <= 0f)
                 {
@@ -495,7 +483,6 @@ public class GameController : MonoBehaviour
         {
             currentState = "WAVE3";
         }
-        previousProgressTime = 0f;
         previousSpawnTime = 0f;
         enemyOnScreen = 0;
         nextWave++;
@@ -505,12 +492,6 @@ public class GameController : MonoBehaviour
 
     private bool ProgressEnemyWave()
     {
-        /*if (previousProgressTime == 0f)
-        {
-            previousProgressTime = Time.time;
-        }*/
-        //float deltaTime = Time.time - previousProgressTime;
-        //currentStateDuration -= deltaTime;
         currentStateDuration -= Time.deltaTime;
         if (currentStateDuration <= 0f)
         {
@@ -609,7 +590,6 @@ public class GameController : MonoBehaviour
                     }
                 }
             }
-            //previousProgressTime = Time.time;
         }
 
         List<GameObject> enemiesInSight = new List<GameObject>();
