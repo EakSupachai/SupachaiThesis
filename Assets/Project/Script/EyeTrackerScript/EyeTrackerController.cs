@@ -21,7 +21,8 @@ public class EyeTrackerController : MonoBehaviour
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 5;
-    private static float validGazeDuration = 0.8f;
+    private static float validGazeDuration = 1f;
+    private static float validGazeDurationForCalibration = 3f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
     private static Vector2 blinkPoint = new Vector2(-1, -1);
@@ -184,13 +185,21 @@ public class EyeTrackerController : MonoBehaviour
         return blinkPoint;
     }
 
-    public static float GetScaledValidGazeDuration()
+    public static float GetScaledValidGazeDuration(bool calibrating = false)
     {
-        return validGazeDuration * 0.25f;
+        if (calibrating)
+        {
+            return validGazeDurationForCalibration * 0.2f;
+        }
+        return validGazeDuration * 0.2f;
     }
 
-    public static float GetValidGazeDuration()
+    public static float GetValidGazeDuration(bool calibrating = false)
     {
+        if (calibrating)
+        {
+            return validGazeDurationForCalibration;
+        }
         return validGazeDuration;
     }
 
