@@ -118,6 +118,7 @@ public class FirstPersonController : MonoBehaviour
     private EnemyBehavior lockedOnEnemy;
     private EnemyBehavior lastEnemyInCrosshair;
     private bool notBlinkDuringShootingEnemy;
+    private float timeSinceLastBlink;
        
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeCommandAreaCorners = new Vector3[4];
@@ -187,6 +188,12 @@ public class FirstPersonController : MonoBehaviour
     {
         if (GameController.IsPause() || GameController.IsGameOver())
         {
+            timeSinceLastBlink = 0f;
+            coreGazeDuration = 0f;
+            skipGazeDuration = 0f;
+            skipPressDuration = 0f;
+            shootGazeDuration = 0f;
+            notBlinkDuringShootingEnemy = false;
             return;
         }
         audioSource.pitch = Time.timeScale;
@@ -264,52 +271,62 @@ public class FirstPersonController : MonoBehaviour
             gazeInCoreStimulus = IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering();
             gazeInEnemyStimulus = IsGazePointInEnemyStimulusArea(gazePoint) && rayHitEnemy && scoping;
-            if (blinkStatus.blinked)
+            if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
             {
+                timeSinceLastBlink = 0f;
                 coreGazeDuration = 0f;
                 skipGazeDuration = 0f;
                 shootGazeDuration = 0f;
                 notBlinkDuringShootingEnemy = false;
-                Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
-                bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
-                bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
-                bool blinkInGunModeAimCA = IsBlinkPointInCommandArea(blinkPoint, gunModeAimCommandAreaCorners);
-                if (blinkInChangeGunAndSkillCA)
+                if (blinkStatus.oneEyedBlink)
                 {
-                    float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
-                    float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
-                    if (d1 <= d2)
+                    Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
+                    bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
+                    bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
+                    bool blinkInGunModeAimCA = IsBlinkPointInCommandArea(blinkPoint, gunModeAimCommandAreaCorners);
+                    if (blinkInChangeGunAndSkillCA)
                     {
-                        blinkToChangeGun = true;
+                        float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
+                        float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
+                        if (d1 <= d2)
+                        {
+                            blinkToChangeGun = true;
+                        }
+                        else if (d2 < d1)
+                        {
+                            blinkToUseSkill = true;
+                        }
                     }
-                    else if (d2 < d1)
+                    else if (blinkInGunModeCA && !g_Aiming)
                     {
-                        blinkToUseSkill = true;
+                        blinkToChangeMode = true;
                     }
-                }
-                else if (blinkInGunModeCA && !g_Aiming)
-                {
-                    blinkToChangeMode = true;
-                }
-                else if (blinkInGunModeAimCA && g_Aiming)
-                {
-                    blinkToChangeMode = true;
-                }
-                else
-                {
-                    if (blinkStatus.left)
+                    else if (blinkInGunModeAimCA && g_Aiming)
                     {
-                        blinkToAim = true;
+                        blinkToChangeMode = true;
                     }
-                    else if (blinkStatus.right)
+                    else
                     {
-                        blinkToUseSkill = true;
+                        if (blinkStatus.left)
+                        {
+                            blinkToAim = true;
+                        }
+                        else if (blinkStatus.right)
+                        {
+                            blinkToUseSkill = true;
+                        }
                     }
                 }
             }
             else if (!ssvepRunning || (ssvepRunning && gameController.IsInCalibrationMode()))
             {
                 bool calibrating = gameController.IsInCalibrationMode();
+                timeSinceLastBlink += Time.deltaTime;
+                if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
+                {
+                    timeSinceLastBlink = 0f;
+                    gameController.IncreaseObjectiveCounter("STEP1");
+                }
                 // core command
                 if (gazeInCoreStimulus)
                 {
@@ -319,7 +336,7 @@ public class FirstPersonController : MonoBehaviour
                     if (coreGazeDuration >= validGazeDuration)
                     {
                         gazeToActivateCoreCommand = true;
-                        gameController.IncreaseObjectiveCounter("STEP2");
+                        gameController.IncreaseObjectiveCounter("STEP3");
                     }
                 }
                 else
@@ -333,7 +350,7 @@ public class FirstPersonController : MonoBehaviour
                     if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(calibrating))
                     {
                         gazeToActivateSkipCommand = true;
-                        gameController.IncreaseObjectiveCounter("STEP3");
+                        gameController.IncreaseObjectiveCounter("STEP4");
                     }
                 }
                 else
@@ -349,6 +366,7 @@ public class FirstPersonController : MonoBehaviour
                         if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
                         {
                             gazeToActivateShootCommand = true;
+                            gameController.IncreaseObjectiveCounter("STEP5");
                         }
                     }
                     else
@@ -818,7 +836,7 @@ public class FirstPersonController : MonoBehaviour
         }
         if (lastEnemyInCrosshair != null && lastEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
         {
-            gameController.IncreaseObjectiveCounter("STEP1");
+            gameController.IncreaseObjectiveCounter("STEP2");
         }
 
         // gun-bob
@@ -1374,6 +1392,21 @@ public class FirstPersonController : MonoBehaviour
     {
         lockedOnEnemy = null;
     }
+    
+    public void StartSkipStimulus()
+    {
+        h_SkipStimulusController.StartFlickering();
+    }
+
+    public void StopSkipStimulus()
+    {
+        h_SkipStimulusController.StopFlickering();
+    }
+
+    public void ResetTimeSinceLastBlink()
+    {
+        timeSinceLastBlink = 0f;
+    }
 
     public Vector3 GetCameraPosition()
     {
@@ -1383,15 +1416,5 @@ public class FirstPersonController : MonoBehaviour
     public Vector3 GetLookingDirection()
     {
         return m_Camera.transform.forward;
-    }
-
-    public void StartSkipStimulus()
-    {
-        h_SkipStimulusController.StartFlickering();
-    }
-
-    public void StopSkipStimulus()
-    {
-        h_SkipStimulusController.StopFlickering();
     }
 }

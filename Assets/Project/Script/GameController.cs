@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
@@ -181,24 +182,22 @@ public class GameController : MonoBehaviour
         laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
         congratText.text = "";
+        twoLineText.text = "";
         objectiveText.text = "";
         objectiveTargetText.text = "";
         if (calibrationMode)
         {
-            oneLineText.text = "";
-            twoLineText.text = "Step 1:\nDestroy 3 enemies without ADS and blinking.";
-            countdownText.text = "";
+            oneLineText.text = "Welcome to the calibration phase.";
+            twoLineText.text = "";
         }
         else if (testMode)
         {
             oneLineText.text = "Prepare for the enemies...";
-            twoLineText.text = "";
             countdownText.text = "" + (int)start_duration;
         }
         else
         {
             oneLineText.text = "Prepare for the first wave...";
-            twoLineText.text = "";
             countdownText.text = "" + (int)start_duration;
         }
 
@@ -277,14 +276,68 @@ public class GameController : MonoBehaviour
                 if (currentStateDuration <= 0f)
                 {
                     stateStarted = false;
-                    StartEnemyWave();
+                    oneLineText.text = "";
+                    twoLineText.text = "";
+                    countdownText.text = "";
+                    if (!calibrationMode)
+                    {
+                        StartEnemyWave();
+                    }
+                    else
+                    {
+                        currentState = "STEP1 INS";
+                    }
                 }
                 break;
             // calibration state
             case "STEP1 INS":
-
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 1:\nTry to walk around without blinking.";
+                    currentStateDuration = start_duration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    currentState = "STEP1";
+                }
                 break;
             case "STEP1":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 7;
+                    objectiveText.text = "Try to walk around without blinking.";
+                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                }
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    stateStarted = false;
+                    objectiveText.text = "";
+                    objectiveTargetText.text = "";
+                    currentState = "STEP2 INS";
+                }
+                break;
+            case "STEP2 INS":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 2:\nDestroy the enemies without ADS and blinking.";
+                    currentStateDuration = start_duration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    StartEnemyWave();
+                }
+                break;
+            case "STEP2":
                 if (!stateStarted)
                 {
                     stateStarted = true;
@@ -299,43 +352,11 @@ public class GameController : MonoBehaviour
                     currentState = "WAVE COMPLETED";
                 }
                 break;
-            case "STEP2 INS":
-                if (!stateStarted)
-                {
-                    stateStarted = true;
-                    twoLineText.text = "Step 2:\nPay attention to the core stimulus.";
-                    currentStateDuration = start_duration;
-                }
-                currentStateDuration -= Time.deltaTime;
-                if (currentStateDuration <= 0f)
-                {
-                    stateStarted = false;
-                    twoLineText.text = "";
-                    currentState = "STEP2";
-                }
-                break;
-            case "STEP2":
-                if (!stateStarted)
-                {
-                    stateStarted = true;
-                    objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the core stimulus.";
-                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
-                }
-                if (objectiveCounter >= objectiveTargetCounter)
-                {
-                    stateStarted = false;
-                    objectiveText.text = "";
-                    objectiveTargetText.text = "";
-                    currentState = "STEP3 INS";
-                }
-                break;
             case "STEP3 INS":
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 3:\nPay attention to the skip stimulus.";
+                    twoLineText.text = "Step 3:\nPay attention to the core stimulus for 4 sec.";
                     currentStateDuration = start_duration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -352,7 +373,39 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the skip stimulus.";
+                    objectiveText.text = "Pay attention\nto the core stimulus for 4 sec.";
+                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                }
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    stateStarted = false;
+                    objectiveText.text = "";
+                    objectiveTargetText.text = "";
+                    currentState = "STEP4 INS";
+                }
+                break;
+            case "STEP4 INS":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 4:\nPay attention to the skip stimulus for 4 sec.";
+                    currentStateDuration = start_duration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    currentState = "STEP4";
+                }
+                break;
+            case "STEP4":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Pay attention\nto the skip stimulus for 4 sec.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                     player.StartSkipStimulus();
                 }
@@ -360,10 +413,39 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     player.StopSkipStimulus();
-                    currentState = "STEP4 INS";
+                    currentState = "STEP5 INS";
                 }
                 break;
-
+            case "STEP5 INS":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 5:\nAim at the enemies without blinking for 4 sec.";
+                    currentStateDuration = start_duration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    StartEnemyWave();
+                }
+                break;
+            case "STEP5":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 4;
+                    objectiveText.text = "Aim at the enemies\nwithout blinking for 4 sec.";
+                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                }
+                if (ProgressEnemyWave())
+                {
+                    stateStarted = false;
+                    currentState = "WAVE COMPLETED";
+                }
+                break;
             // normal state
             case "WAVE1":
                 if (!stateStarted)
@@ -421,14 +503,35 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     currentStateDuration = congratStateDuration;
-                    congratText.text = calibrationMode ? "STEP COMPLETED" : "WAVE COMPLETED";
+                    if (calibrationMode)
+                    {
+                        congratText.text = nextWave == 2 ? "STEP 1 COMPLETED" : "CALIBRATION COMPLETED";
+                    }
+                    else
+                    {
+                        congratText.text = "WAVE COMPLETED";
+                    }
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
                 {
                     stateStarted = false;
                     congratText.text = "";
-                    currentState = "REMOVE CORE HP";
+                    if (calibrationMode)
+                    {
+                        if (nextWave == 2)
+                        {
+                            currentState = "REMOVE CORE HP";
+                        }
+                        else
+                        {
+                            SceneManager.LoadScene(0);
+                        }
+                    }
+                    else
+                    {
+                        currentState = "REMOVE CORE HP";
+                    }
                 }
                 break;
             case "REMOVE CORE HP":
@@ -468,7 +571,7 @@ public class GameController : MonoBehaviour
                     {
                         if (nextWave == 2)
                         {
-                            currentState = "STEP2 INS";
+                            currentState = "STEP3 INS";
                         }
                         else
                         {
@@ -494,6 +597,9 @@ public class GameController : MonoBehaviour
                 if (currentStateDuration <= 0f)
                 {
                     stateStarted = false;
+                    oneLineText.text = "";
+                    twoLineText.text = "";
+                    countdownText.text = "";
                     player.StopSkipStimulus();
                     StartEnemyWave();
                 }
@@ -577,45 +683,8 @@ public class GameController : MonoBehaviour
 
     private void StartEnemyWave()
     {
-        oneLineText.text = "";
-        twoLineText.text = "";
-        countdownText.text = "";
-        for (int i = 0; i < spawnPoints.Count; i++)
-        {
-            spawnTimers[i] = 0f;
-            if (nextWave == 1)
-            {
-
-                spawnTimeLimits[i] = Random.Range(3f, wave1_maxSpawnTime - wave1_minSpawnTime + 3f);
-            }
-            else if (nextWave == 2)
-            {
-                spawnTimeLimits[i] = Random.Range(3f, wave2_maxSpawnTime - wave2_minSpawnTime + 3f);
-            }
-            else
-            {
-                spawnTimeLimits[i] = Random.Range(3f, wave3_maxSpawnTime - wave3_minSpawnTime + 3f);
-            }
-        }
-        int rand = Random.Range(0, spawnPoints.Count);
-        spawnTimeLimits[rand] = Random.Range(3f, 4f);
         currentStateDuration = wave_duration;
-        if (calibrationMode)
-        {
-            if (nextWave == 1)
-            {
-                currentState = "STEP1";
-            }
-            /*else if (nextWave == 2)
-            {
-                currentState = "STEP2";
-            }
-            else
-            {
-                currentState = "STEP3";
-            }*/
-        }
-        else
+        if (!calibrationMode)
         {
             if (nextWave == 1)
             {
@@ -630,6 +699,32 @@ public class GameController : MonoBehaviour
                 currentState = "WAVE3";
             }
         }
+        else
+        {
+            currentState = nextWave == 1 ? "STEP2" : "STEP5";
+        }
+        for (int i = 0; i < spawnPoints.Count; i++)
+        {
+            spawnTimers[i] = 0f;
+            if (currentState == "WAVE1")
+            {
+                spawnTimeLimits[i] = Random.Range(3f, wave1_maxSpawnTime - wave1_minSpawnTime + 3f);
+            }
+            else if (currentState == "WAVE2")
+            {
+                spawnTimeLimits[i] = Random.Range(3f, wave2_maxSpawnTime - wave2_minSpawnTime + 3f);
+            }
+            else if (currentState == "WAVE3")
+            {
+                spawnTimeLimits[i] = Random.Range(3f, wave3_maxSpawnTime - wave3_minSpawnTime + 3f);
+            }
+            else
+            {
+                spawnTimeLimits[i] = Random.Range(3f, wave1_maxSpawnTime - wave1_minSpawnTime + 3f);
+            }
+        }
+        int rand = Random.Range(0, spawnPoints.Count);
+        spawnTimeLimits[rand] = Random.Range(3f, 4f);
         previousSpawnTime = 0f;
         enemyOnScreen = 0;
         objectiveCounter = 0;
@@ -654,7 +749,7 @@ public class GameController : MonoBehaviour
         {
             waveTimerText.text = testMode ? "W0  0:00" : "W2  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
-        else if (currentState == "WAVE2")
+        else if (currentState == "WAVE3")
         {
             waveTimerText.text = testMode ? "W0  0:00" : "W3  " + ConvertSecondToTimeFormat(currentStateDuration);
         }
@@ -703,11 +798,11 @@ public class GameController : MonoBehaviour
                     }
                     else
                     {
-                        spawnTimeLimits[i] = Random.Range(wave2_minSpawnTime, wave2_maxSpawnTime);
+                        spawnTimeLimits[i] = Random.Range(wave1_minSpawnTime, wave1_maxSpawnTime);
                         smallEnemySpawnChance = 0;
-                        mediumEnemySpawnChance = 100;
-                        largeEnemySpawnChance = 101;
-                        consecutiveSpawnLimit = wave2_consecutiveSpawnLimit;
+                        mediumEnemySpawnChance = 0;
+                        largeEnemySpawnChance = 100;
+                        consecutiveSpawnLimit = wave1_consecutiveSpawnLimit;
                     }
 
                     bool canSpawn = false;

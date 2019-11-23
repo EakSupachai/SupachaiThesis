@@ -22,7 +22,7 @@ public class EyeTrackerController : MonoBehaviour
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 5;
     private static float validGazeDuration = 1f;
-    private static float validGazeDurationForCalibration = 3f;
+    private static float validGazeDurationForCalibration = 4f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
     private static Vector2 blinkPoint = new Vector2(-1, -1);
@@ -127,31 +127,31 @@ public class EyeTrackerController : MonoBehaviour
             {
                 leftBlinkStatusCount++;
                 rightBlinkStatusCount = 0;
-                if (leftBlinkStatusCount == 1)
+                if (leftBlinkStatusCount == validBlinkDuration)
                 {
-                    blinkPoint = currentGazePoint;
-                }
-                else if (leftBlinkStatusCount == validBlinkDuration)
-                {
-                    blinkStatus.blinked = true;
+                    blinkStatus.oneEyedBlink = true;
                     blinkStatus.left = true;
                     blinkStatus.right = false;
+                    blinkPoint = currentGazePoint;
                 }
             }
             else if (left && !right)
             {
                 rightBlinkStatusCount++;
                 leftBlinkStatusCount = 0;
-                if (rightBlinkStatusCount == 1)
+                if (rightBlinkStatusCount == validBlinkDuration)
                 {
-                    blinkPoint = currentGazePoint;
-                }
-                else if (rightBlinkStatusCount == validBlinkDuration)
-                {
-                    blinkStatus.blinked = true;
+                    blinkStatus.oneEyedBlink = true;
                     blinkStatus.left = false;
                     blinkStatus.right = true;
+                    blinkPoint = currentGazePoint;
                 }
+            }
+            else if (!left && !right)
+            {
+                blinkStatus.twoEyedBlink = true;
+                leftBlinkStatusCount = 0;
+                rightBlinkStatusCount = 0;
             }
             else
             {
@@ -168,8 +168,9 @@ public class EyeTrackerController : MonoBehaviour
 
     public static BlinkStatus GetBlinkStatus()
     {
-        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.blinked, blinkStatus.left, blinkStatus.right);
-        blinkStatus.blinked = false;
+        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.oneEyedBlink, blinkStatus.twoEyedBlink, blinkStatus.left, blinkStatus.right);
+        blinkStatus.oneEyedBlink = false;
+        blinkStatus.twoEyedBlink = false;
         blinkStatus.left = false;
         blinkStatus.right = false;
         return tempBlinkStatus;
@@ -213,7 +214,8 @@ public class EyeTrackerController : MonoBehaviour
         leftBlinkStatusCount = 0;
         rightBlinkStatusCount = 0;
         blinkPoint = new Vector2(-1, -1);
-        blinkStatus.blinked = false;
+        blinkStatus.oneEyedBlink = false;
+        blinkStatus.twoEyedBlink = false;
         blinkStatus.left = false;
         blinkStatus.right = false;
         recordBlinking = false;
