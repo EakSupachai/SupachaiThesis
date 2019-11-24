@@ -233,14 +233,14 @@ public class FirstPersonController : MonoBehaviour
             {
                 if (hit.transform.gameObject.GetInstanceID() != lastEnemyInCrosshair.gameObject.GetInstanceID())
                 {
-                    notBlinkDuringShootingEnemy = true;
                     lastEnemyInCrosshair = hit.transform.gameObject.GetComponent<EnemyBehavior>();
+                    notBlinkDuringShootingEnemy = lastEnemyInCrosshair.IsAtFullHealth() ? true : false;
                 }
             }
             else
             {
-                notBlinkDuringShootingEnemy = true;
                 lastEnemyInCrosshair = hit.transform.gameObject.GetComponent<EnemyBehavior>();
+                notBlinkDuringShootingEnemy = lastEnemyInCrosshair.IsAtFullHealth() ? true : false;
             }
         }
         else
@@ -252,6 +252,7 @@ public class FirstPersonController : MonoBehaviour
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
         bool ssvepRunning = InputUDP.GetSsvepInputStatus();
+        bool calibrating = gameController.IsInCalibrationMode();
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
@@ -318,9 +319,8 @@ public class FirstPersonController : MonoBehaviour
                     }
                 }
             }
-            else if (!ssvepRunning || (ssvepRunning && gameController.IsInCalibrationMode()))
+            else if (!ssvepRunning || (ssvepRunning && calibrating))
             {
-                bool calibrating = gameController.IsInCalibrationMode();
                 timeSinceLastBlink += Time.deltaTime;
                 if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
                 {
@@ -335,8 +335,14 @@ public class FirstPersonController : MonoBehaviour
                         EyeTrackerController.GetScaledValidGazeDuration(calibrating);
                     if (coreGazeDuration >= validGazeDuration)
                     {
-                        gazeToActivateCoreCommand = true;
-                        gameController.IncreaseObjectiveCounter("STEP3");
+                        if (calibrating)
+                        {
+                            gameController.IncreaseObjectiveCounter("STEP3");
+                        }
+                        else
+                        {
+                            gazeToActivateCoreCommand = true;
+                        }
                     }
                 }
                 else
@@ -349,8 +355,14 @@ public class FirstPersonController : MonoBehaviour
                     skipGazeDuration += Time.deltaTime;
                     if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(calibrating))
                     {
-                        gazeToActivateSkipCommand = true;
-                        gameController.IncreaseObjectiveCounter("STEP4");
+                        if (calibrating)
+                        {
+                            gameController.IncreaseObjectiveCounter("STEP4");
+                        }
+                        else
+                        {
+                            gazeToActivateSkipCommand = true;
+                        }
                     }
                 }
                 else
@@ -365,8 +377,14 @@ public class FirstPersonController : MonoBehaviour
                         shootGazeDuration += Time.deltaTime;
                         if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
                         {
-                            gazeToActivateShootCommand = true;
-                            gameController.IncreaseObjectiveCounter("STEP5");
+                            if (calibrating)
+                            {
+                                gameController.IncreaseObjectiveCounter("STEP5");
+                            }
+                            else
+                            {
+                                gazeToActivateShootCommand = true;
+                            }
                         }
                     }
                     else
@@ -834,9 +852,12 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        if (lastEnemyInCrosshair != null && lastEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
+        if (calibrating)
         {
-            gameController.IncreaseObjectiveCounter("STEP2");
+            if (g_CurrentGun == "AR" && lastEnemyInCrosshair != null && lastEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
+            {
+                gameController.IncreaseObjectiveCounter("STEP2");
+            }
         }
 
         // gun-bob

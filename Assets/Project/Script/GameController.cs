@@ -1042,7 +1042,7 @@ public class GameController : MonoBehaviour
 
     public bool CanFixCore()
     {
-        if ((currentState == "WAITING" || currentState == "STEP2") && stateStarted)
+        if ((currentState == "WAITING" || currentState == "STEP3") && stateStarted)
         {
             if (waiting_alreadyBeginFixing)
             {

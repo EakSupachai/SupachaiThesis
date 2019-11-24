@@ -567,6 +567,11 @@ public class EnemyBehavior : MonoBehaviour
         return hp <= 0;
     }
 
+    public bool IsAtFullHealth()
+    {
+        return hp >= fullHp;
+    }
+
     public void GiveInstruction(GameController controller, Vector3 deceleration)
     {
         gameController = controller;
