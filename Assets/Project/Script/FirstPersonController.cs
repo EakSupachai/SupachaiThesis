@@ -116,8 +116,10 @@ public class FirstPersonController : MonoBehaviour
     private GameObject fixingCoreAudioPrefab;
 
     private EnemyBehavior lockedOnEnemy;
-    private EnemyBehavior lastEnemyInCrosshair;
+    private EnemyBehavior currentEnemyInCrosshair;
     private bool notBlinkDuringShootingEnemy;
+    private bool forceToChangeGun;
+    private bool enableADS;
     private float timeSinceLastBlink;
        
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
@@ -229,25 +231,45 @@ public class FirstPersonController : MonoBehaviour
         bool scoping = usingSniper && g_Aiming && !g_AimInterpolating;
         if (rayHitEnemy)
         {
-            if (lastEnemyInCrosshair != null)
+            EnemyBehavior tempEb = hit.transform.gameObject.GetComponent<EnemyBehavior>();
+            if (currentEnemyInCrosshair != null)
             {
-                if (hit.transform.gameObject.GetInstanceID() != lastEnemyInCrosshair.gameObject.GetInstanceID())
+                if (hit.transform.gameObject.GetInstanceID() != currentEnemyInCrosshair.gameObject.GetInstanceID() && !tempEb.IsDestroyed())
                 {
-                    lastEnemyInCrosshair = hit.transform.gameObject.GetComponent<EnemyBehavior>();
-                    notBlinkDuringShootingEnemy = lastEnemyInCrosshair.IsAtFullHealth() ? true : false;
+                    currentEnemyInCrosshair = tempEb;
+                    notBlinkDuringShootingEnemy = currentEnemyInCrosshair.IsAtFullHealth() ? true : false;
+                }
+                else if (hit.transform.gameObject.GetInstanceID() != currentEnemyInCrosshair.gameObject.GetInstanceID() && tempEb.IsDestroyed())
+                {
+                    notBlinkDuringShootingEnemy = false;
+                    currentEnemyInCrosshair = null;
+                }
+                else if (hit.transform.gameObject.GetInstanceID() == currentEnemyInCrosshair.gameObject.GetInstanceID() && tempEb.IsDestroyed())
+                {
+                    notBlinkDuringShootingEnemy = false;
+                    currentEnemyInCrosshair = null;
                 }
             }
-            else
+            else if (currentEnemyInCrosshair == null)
             {
-                lastEnemyInCrosshair = hit.transform.gameObject.GetComponent<EnemyBehavior>();
-                notBlinkDuringShootingEnemy = lastEnemyInCrosshair.IsAtFullHealth() ? true : false;
+                if (!tempEb.IsDestroyed())
+                {
+                    currentEnemyInCrosshair = tempEb;
+                    notBlinkDuringShootingEnemy = currentEnemyInCrosshair.IsAtFullHealth() ? true : false;
+                }
+                else
+                {
+                    notBlinkDuringShootingEnemy = false;
+                    currentEnemyInCrosshair = null;
+                }
             }
         }
         else
         {
             notBlinkDuringShootingEnemy = false;
-            lastEnemyInCrosshair = null;
+            currentEnemyInCrosshair = null;
         }
+        bool isCurrentEnemyNotNull = currentEnemyInCrosshair != null;
 
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
@@ -372,19 +394,12 @@ public class FirstPersonController : MonoBehaviour
                 // shoot command
                 if (gazeInEnemyStimulus)
                 {
-                    if (!lastEnemyInCrosshair.IsDestroyed())
+                    if (isCurrentEnemyNotNull)
                     {
                         shootGazeDuration += Time.deltaTime;
                         if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
                         {
-                            if (calibrating)
-                            {
-                                gameController.IncreaseObjectiveCounter("STEP5");
-                            }
-                            else
-                            {
-                                gazeToActivateShootCommand = true;
-                            }
+                            gazeToActivateShootCommand = true;
                         }
                     }
                     else
@@ -446,7 +461,7 @@ public class FirstPersonController : MonoBehaviour
         // trigger slow motion
         if (eyeTrackerRunning)
         {
-            if ((scoping && rayHitEnemy && !lastEnemyInCrosshair.IsDestroyed()) || 
+            if ((scoping && rayHitEnemy && isCurrentEnemyNotNull) || 
                 (gazeInCoreStimulus && !GameController.IsInWaitingState()))
             {
                 Time.timeScale = 0.15f;
@@ -572,6 +587,15 @@ public class FirstPersonController : MonoBehaviour
 
         // change gun
         bool changeGunCommandIssued = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
+        if (calibrating)
+        {
+            changeGunCommandIssued = false;
+            if (forceToChangeGun)
+            {
+                changeGunCommandIssued = true;
+                forceToChangeGun = false;
+            }
+        }
         if (changeGunCommandIssued)
         {
             BeginLoweringGun();
@@ -734,8 +758,23 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        bool aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
-        bool exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+        bool aimCommandIssued = false;
+        bool exitAimCommandIssued = false;
+        aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
+        exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+        /*if (calibrating)
+        {
+            if (enableADS)
+            {
+                aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
+                exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+            }
+        }
+        else
+        {
+            aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
+            exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
+        }*/
         if (aimCommandIssued)
         {
             g_Aiming = true;
@@ -789,7 +828,7 @@ public class FirstPersonController : MonoBehaviour
             }
             else if (g_CurrentGun == "AR" && rayHitEnemy)
             {
-                shoot = !lastEnemyInCrosshair.IsDestroyed();
+                shoot = isCurrentEnemyNotNull;
             }
         }
         else
@@ -854,9 +893,13 @@ public class FirstPersonController : MonoBehaviour
         }
         if (calibrating)
         {
-            if (g_CurrentGun == "AR" && lastEnemyInCrosshair != null && lastEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
+            if (g_CurrentGun == "AR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
             {
                 gameController.IncreaseObjectiveCounter("STEP2");
+            }
+            else if (g_CurrentGun == "SR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
+            {
+                gameController.IncreaseObjectiveCounter("STEP5");
             }
         }
 
@@ -1427,6 +1470,21 @@ public class FirstPersonController : MonoBehaviour
     public void ResetTimeSinceLastBlink()
     {
         timeSinceLastBlink = 0f;
+    }
+
+    public void ForceToChangeGun()
+    {
+        forceToChangeGun = true;
+    }
+
+    public void EnableADS()
+    {
+        enableADS = true;
+    }
+
+    public void DisableADS()
+    {
+        enableADS = false;
     }
 
     public Vector3 GetCameraPosition()

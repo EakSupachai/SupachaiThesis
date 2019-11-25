@@ -182,13 +182,14 @@ public class GameController : MonoBehaviour
         laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
         congratText.text = "";
+        oneLineText.text = "";
         twoLineText.text = "";
+        countdownText.text = "";
         objectiveText.text = "";
         objectiveTargetText.text = "";
         if (calibrationMode)
         {
             oneLineText.text = "Welcome to the calibration phase.";
-            twoLineText.text = "";
         }
         else if (testMode)
         {
@@ -310,7 +311,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 7;
+                    objectiveTargetCounter = 2;
                     objectiveText.text = "Try to walk around without blinking.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -326,7 +327,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 2:\nDestroy the enemies without ADS and blinking.";
+                    twoLineText.text = "Step 2:\nDestroy the enemies by using auto rifle. Don't blink while shooting.";
                     currentStateDuration = start_duration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -342,8 +343,8 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 4;
-                    objectiveText.text = "Destroy the enemies\nwithout ADS and blinking.";
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Destroy the enemies\nand don't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
@@ -412,16 +413,20 @@ public class GameController : MonoBehaviour
                 if (objectiveCounter >= objectiveTargetCounter)
                 {
                     stateStarted = false;
-                    player.StopSkipStimulus();
+                    objectiveText.text = "";
+                    objectiveTargetText.text = "";
                     currentState = "STEP5 INS";
+                    player.StopSkipStimulus();
                 }
                 break;
             case "STEP5 INS":
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 5:\nAim at the enemies without blinking for 4 sec.";
+                    twoLineText.text = "Step 5:\nDestroy the enemies by using sniper rifle. Don't blink while shooting.";
                     currentStateDuration = start_duration;
+                    player.ForceToChangeGun();
+                    player.EnableADS();
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
@@ -437,7 +442,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 4;
-                    objectiveText.text = "Aim at the enemies\nwithout blinking for 4 sec.";
+                    objectiveText.text = "Destroy the enemies\nand don't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
@@ -505,7 +510,7 @@ public class GameController : MonoBehaviour
                     currentStateDuration = congratStateDuration;
                     if (calibrationMode)
                     {
-                        congratText.text = nextWave == 2 ? "STEP 1 COMPLETED" : "CALIBRATION COMPLETED";
+                        congratText.text = nextWave == 2 ? "STEP 2 COMPLETED" : "CALIBRATION COMPLETED";
                     }
                     else
                     {
@@ -740,6 +745,10 @@ public class GameController : MonoBehaviour
         {
             currentStateDuration = testMode || calibrationMode ? wave_duration : 0f;
         }
+        if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
+        {
+            currentStateDuration = 0f;
+        }
 
         if (currentState == "WAVE1")
         {
@@ -899,10 +908,10 @@ public class GameController : MonoBehaviour
         {
             return true;
         }
-        else if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
+        /*else if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
         {
             return true;
-        }
+        }*/
         else
         {
             return false;
@@ -1104,7 +1113,7 @@ public class GameController : MonoBehaviour
 
     public void IncreaseObjectiveCounter(string state)
     {
-        if (state == currentState)
+        if (state == currentState && objectiveCounter < objectiveTargetCounter)
         {
             objectiveCounter++;
             objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;

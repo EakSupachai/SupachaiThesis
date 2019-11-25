@@ -22,7 +22,7 @@ public class EyeTrackerController : MonoBehaviour
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 5;
     private static float validGazeDuration = 1f;
-    private static float validGazeDurationForCalibration = 4f;
+    private static float validGazeDurationForCalibration = 2f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
     private static Vector2 blinkPoint = new Vector2(-1, -1);
