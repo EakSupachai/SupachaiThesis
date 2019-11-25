@@ -67,9 +67,10 @@ public class GameController : MonoBehaviour
     private int consecutiveSpawn;
     private int enemyOnScreen;
 
-    private float start_duration;
-    private float waiting_duration;
-    private float wave_duration;
+    private float startDuration;
+    private float instructionDuration;
+    private float waitingDuration;
+    private float waveDuration;
     private bool waiting_alreadyBeginFixing;
 
     private float wave1_minSpawnTime;
@@ -130,9 +131,10 @@ public class GameController : MonoBehaviour
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
-        start_duration = 5.9f;
-        waiting_duration = 10.9f;
-        wave_duration = 7.9f;
+        startDuration = 5.9f;
+        instructionDuration = 4.5f;
+        waitingDuration = 10.9f;
+        waveDuration = 7.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -194,12 +196,12 @@ public class GameController : MonoBehaviour
         else if (testMode)
         {
             oneLineText.text = "Prepare for the enemies...";
-            countdownText.text = "" + (int)start_duration;
+            countdownText.text = "" + (int)startDuration;
         }
         else
         {
             oneLineText.text = "Prepare for the first wave...";
-            countdownText.text = "" + (int)start_duration;
+            countdownText.text = "" + (int)startDuration;
         }
 
         laserFence.SetActive(false);
@@ -262,7 +264,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    currentStateDuration = start_duration;
+                    currentStateDuration = startDuration;
                     OutputUDP.OpenConnection();
                     if (classifyMode)
                     {
@@ -296,7 +298,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 1:\nTry to walk around without blinking.";
-                    currentStateDuration = start_duration;
+                    currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
@@ -328,7 +330,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 2:\nDestroy the enemies by using auto rifle. Don't blink while shooting.";
-                    currentStateDuration = start_duration;
+                    currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
@@ -358,7 +360,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 3:\nPay attention to the core stimulus for 4 sec.";
-                    currentStateDuration = start_duration;
+                    currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
@@ -390,7 +392,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 4:\nPay attention to the skip stimulus for 4 sec.";
-                    currentStateDuration = start_duration;
+                    currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (currentStateDuration <= 0f)
@@ -424,7 +426,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 5:\nDestroy the enemies by using sniper rifle. Don't blink while shooting.";
-                    currentStateDuration = start_duration;
+                    currentStateDuration = instructionDuration;
                     player.ForceToChangeGun();
                     player.EnableADS();
                 }
@@ -511,6 +513,7 @@ public class GameController : MonoBehaviour
                     if (calibrationMode)
                     {
                         congratText.text = nextWave == 2 ? "STEP 2 COMPLETED" : "CALIBRATION COMPLETED";
+                        currentStateDuration = nextWave == 2 ? congratStateDuration : startDuration;
                     }
                     else
                     {
@@ -593,7 +596,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    currentStateDuration = waiting_duration;
+                    currentStateDuration = waitingDuration;
                     oneLineText.text = "Prepare for the next wave...";
                     player.StartSkipStimulus();
                 }
@@ -688,7 +691,7 @@ public class GameController : MonoBehaviour
 
     private void StartEnemyWave()
     {
-        currentStateDuration = wave_duration;
+        currentStateDuration = waveDuration;
         if (!calibrationMode)
         {
             if (nextWave == 1)
@@ -743,7 +746,7 @@ public class GameController : MonoBehaviour
         currentStateDuration -= Time.deltaTime;
         if (currentStateDuration <= 0f)
         {
-            currentStateDuration = testMode || calibrationMode ? wave_duration : 0f;
+            currentStateDuration = testMode || calibrationMode ? waveDuration : 0f;
         }
         if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
         {
@@ -1041,7 +1044,7 @@ public class GameController : MonoBehaviour
     {
         if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf)
         {
-            if (wave_duration - currentStateDuration > 1.5f)
+            if (waveDuration - currentStateDuration > 1.5f)
             {
                 return true;
             }
