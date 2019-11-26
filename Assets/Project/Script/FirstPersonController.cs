@@ -762,19 +762,6 @@ public class FirstPersonController : MonoBehaviour
         bool exitAimCommandIssued = false;
         aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
         exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
-        /*if (calibrating)
-        {
-            if (enableADS)
-            {
-                aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
-                exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
-            }
-        }
-        else
-        {
-            aimCommandIssued = eyeTrackerRunning ? (blinkToAim && !g_Aiming) : (Input.GetMouseButtonDown(1) && !g_Aiming);
-            exitAimCommandIssued = eyeTrackerRunning ? (blinkToAim && g_Aiming) : (Input.GetMouseButtonDown(1) && g_Aiming);
-        }*/
         if (aimCommandIssued)
         {
             g_Aiming = true;
@@ -783,6 +770,7 @@ public class FirstPersonController : MonoBehaviour
             g_AimingStartTime = Time.time;
             if (usingSniper)
             {
+                notBlinkDuringShootingEnemy = true;
                 g_ScopeFadingStartTime = Time.time;
                 g_AimingStartFOV = m_Camera.fieldOfView;
                 g_AimingIntendedFOV = 10f;

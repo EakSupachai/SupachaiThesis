@@ -10507,8 +10507,8 @@ RectTransform:
   m_Father: {fileID: 731895335}
   m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.027303461, y: 0.63922197}
-  m_AnchorMax: {x: 0.27264133, y: 0.72571456}
+  m_AnchorMin: {x: 0.027303461, y: 0.64652073}
+  m_AnchorMax: {x: 0.223, y: 0.711}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -10560,7 +10560,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.25
-  m_Text: "Destroy the enemies \nwithout ADS and blinking."
+  m_Text: 'Destroy the enemies
+
+    without ADS and blinking.'
 --- !u!222 &676823080
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23489,10 +23491,10 @@ RectTransform:
   m_Father: {fileID: 731895335}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.02730346, y: 0.56361103}
-  m_AnchorMax: {x: 0.10700001, y: 0.6273891}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.02730346, y: 0.586}
+  m_AnchorMax: {x: 0.1036639, y: 0.64052075}
+  m_AnchoredPosition: {x: -0.5, y: 0}
+  m_SizeDelta: {x: -1, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1093212253
 MonoBehaviour:

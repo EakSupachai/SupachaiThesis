@@ -314,7 +314,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 2;
-                    objectiveText.text = "Try to walk around without blinking.";
+                    objectiveText.text = "Try to walk around\nwithout blinking.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -346,13 +346,21 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Destroy the enemies\nand don't blink while shooting.";
+                    objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
                 {
                     stateStarted = false;
                     currentState = "WAVE COMPLETED";
+                }
+                else
+                {
+                    if (objectiveCounter >= objectiveTargetCounter)
+                    {
+                        objectiveText.text = "Destroy the remaining enemies.";
+                        objectiveTargetText.text = "";
+                    }
                 }
                 break;
             case "STEP3 INS":
@@ -444,13 +452,21 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 4;
-                    objectiveText.text = "Destroy the enemies\nand don't blink while shooting.";
+                    objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
                 {
                     stateStarted = false;
                     currentState = "WAVE COMPLETED";
+                }
+                else
+                {
+                    if (objectiveCounter >= objectiveTargetCounter)
+                    {
+                        objectiveText.text = "Destroy the remaining enemies.";
+                        objectiveTargetText.text = "";
+                    }
                 }
                 break;
             // normal state
@@ -911,10 +927,6 @@ public class GameController : MonoBehaviour
         {
             return true;
         }
-        /*else if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
-        {
-            return true;
-        }*/
         else
         {
             return false;
