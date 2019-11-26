@@ -294,14 +294,29 @@ public class FirstPersonController : MonoBehaviour
             gazeInCoreStimulus = IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering();
             gazeInEnemyStimulus = IsGazePointInEnemyStimulusArea(gazePoint) && rayHitEnemy && scoping;
-            if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
+            if (calibrating)
             {
-                timeSinceLastBlink = 0f;
+                if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
+                {
+                    notBlinkDuringShootingEnemy = false;
+                    timeSinceLastBlink = 0f;
+                }
+                else
+                {
+                    timeSinceLastBlink += Time.deltaTime;
+                    if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
+                    {
+                        timeSinceLastBlink = 0f;
+                        gameController.IncreaseObjectiveCounter("STEP1");
+                    }
+                }
+            }
+            if (blinkStatus.validOneEyedBlink || blinkStatus.twoEyedBlink)
+            {
                 coreGazeDuration = 0f;
                 skipGazeDuration = 0f;
                 shootGazeDuration = 0f;
-                notBlinkDuringShootingEnemy = false;
-                if (blinkStatus.oneEyedBlink)
+                if (blinkStatus.validOneEyedBlink)
                 {
                     Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                     bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
@@ -343,12 +358,6 @@ public class FirstPersonController : MonoBehaviour
             }
             else if (!ssvepRunning || (ssvepRunning && calibrating))
             {
-                timeSinceLastBlink += Time.deltaTime;
-                if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
-                {
-                    timeSinceLastBlink = 0f;
-                    gameController.IncreaseObjectiveCounter("STEP1");
-                }
                 // core command
                 if (gazeInCoreStimulus)
                 {
@@ -1455,10 +1464,10 @@ public class FirstPersonController : MonoBehaviour
         h_SkipStimulusController.StopFlickering();
     }
 
-    public void ResetTimeSinceLastBlink()
+    /*public void ResetTimeSinceLastBlink()
     {
         timeSinceLastBlink = 0f;
-    }
+    }*/
 
     public void ForceToChangeGun()
     {

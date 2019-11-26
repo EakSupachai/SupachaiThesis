@@ -125,11 +125,12 @@ public class EyeTrackerController : MonoBehaviour
             bool right = gazeOrigin.right_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
             if (!left && right)
             {
+                blinkStatus.oneEyedBlink = true;
                 leftBlinkStatusCount++;
                 rightBlinkStatusCount = 0;
                 if (leftBlinkStatusCount == validBlinkDuration)
                 {
-                    blinkStatus.oneEyedBlink = true;
+                    blinkStatus.validOneEyedBlink = true;
                     blinkStatus.left = true;
                     blinkStatus.right = false;
                     blinkPoint = currentGazePoint;
@@ -137,11 +138,12 @@ public class EyeTrackerController : MonoBehaviour
             }
             else if (left && !right)
             {
+                blinkStatus.oneEyedBlink = true;
                 rightBlinkStatusCount++;
                 leftBlinkStatusCount = 0;
                 if (rightBlinkStatusCount == validBlinkDuration)
                 {
-                    blinkStatus.oneEyedBlink = true;
+                    blinkStatus.validOneEyedBlink = true;
                     blinkStatus.left = false;
                     blinkStatus.right = true;
                     blinkPoint = currentGazePoint;
@@ -168,7 +170,8 @@ public class EyeTrackerController : MonoBehaviour
 
     public static BlinkStatus GetBlinkStatus()
     {
-        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.oneEyedBlink, blinkStatus.twoEyedBlink, blinkStatus.left, blinkStatus.right);
+        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.validOneEyedBlink, blinkStatus.oneEyedBlink, blinkStatus.twoEyedBlink, blinkStatus.left, blinkStatus.right);
+        blinkStatus.validOneEyedBlink = false;
         blinkStatus.oneEyedBlink = false;
         blinkStatus.twoEyedBlink = false;
         blinkStatus.left = false;
@@ -214,7 +217,7 @@ public class EyeTrackerController : MonoBehaviour
         leftBlinkStatusCount = 0;
         rightBlinkStatusCount = 0;
         blinkPoint = new Vector2(-1, -1);
-        blinkStatus.oneEyedBlink = false;
+        blinkStatus.validOneEyedBlink = false;
         blinkStatus.twoEyedBlink = false;
         blinkStatus.left = false;
         blinkStatus.right = false;
