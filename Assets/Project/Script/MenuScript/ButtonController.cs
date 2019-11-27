@@ -48,17 +48,33 @@ public class ButtonController : MonoBehaviour
             resumePressed = true;
             OnPointerExit();
         }
-        else if (command == "retry" || command == "start")
+        else if (command == "game start")
         {
-            if (command == "retry")
-            {
-                InputUDP.CloseConnection();
-                OutputUDP.SetClassifyingState(0);
-                OutputUDP.CloseConnection();
-                EyeTrackerController.CleanUp();
-            }
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            if (SceneManager.GetActiveScene().name == "Test")
+            StartCoroutine(StallBeforeLoadingScene(1));
+        }
+        else if (command == "test start")
+        {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            StartCoroutine(StallBeforeLoadingScene(2));
+        }
+        else if (command == "calibration start")
+        {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            StartCoroutine(StallBeforeLoadingScene(3));
+        }
+        else if (command == "retry")
+        {
+            InputUDP.CloseConnection();
+            OutputUDP.SetClassifyingState(0);
+            OutputUDP.CloseConnection();
+            EyeTrackerController.CleanUp();
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            if (SceneManager.GetActiveScene().name == "Calibration")
+            {
+                StartCoroutine(StallBeforeLoadingScene(3));
+            }
+            else if (SceneManager.GetActiveScene().name == "Test")
             {
                 StartCoroutine(StallBeforeLoadingScene(2));
             }
