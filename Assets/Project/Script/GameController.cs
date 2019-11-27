@@ -1159,15 +1159,6 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    public static bool IsInWaitingState()
-    {
-        if (currentState == "WAITING")
-        {
-            return true;
-        }
-        return false;
-    }
-
     public static bool IsPause()
     {
         return pause;

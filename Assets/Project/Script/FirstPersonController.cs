@@ -362,7 +362,7 @@ public class FirstPersonController : MonoBehaviour
                 if (gazeInCoreStimulus)
                 {
                     coreGazeDuration += Time.deltaTime;
-                    float validGazeDuration = GameController.IsInWaitingState() ? EyeTrackerController.GetValidGazeDuration(calibrating) : 
+                    float validGazeDuration = gameController.CanFixCore() ? EyeTrackerController.GetValidGazeDuration(calibrating) : 
                         EyeTrackerController.GetScaledValidGazeDuration(calibrating);
                     if (coreGazeDuration >= validGazeDuration)
                     {
@@ -471,7 +471,7 @@ public class FirstPersonController : MonoBehaviour
         if (eyeTrackerRunning)
         {
             if ((scoping && rayHitEnemy && isCurrentEnemyNotNull) || 
-                (gazeInCoreStimulus && !GameController.IsInWaitingState()))
+                (gazeInCoreStimulus && !gameController.CanFixCore()))
             {
                 Time.timeScale = 0.15f;
             }
