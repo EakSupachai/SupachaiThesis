@@ -137,7 +137,8 @@ public class EnemyBehavior : MonoBehaviour
         {
             audioSource.UnPause();
         }
-        
+        audioSource.pitch = Time.timeScale == 1f ? 1f : Time.timeScale + 0.15f;
+
         // Rotate canvas
         Vector3 canvasDirection = transform.position - gameController.GetPlayerCameraPosition();
         canvasDirection.y = 0f;
