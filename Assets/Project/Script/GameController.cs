@@ -238,7 +238,9 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     coreAudioSource.Pause();
                     player.TurnOnDOF();
-                    hudCanvas.gameObject.SetActive(false);
+                    //hudCanvas.gameObject.SetActive(false);
+                    DisableHUD();
+                    ////
                     pauseCanvas.gameObject.SetActive(true);
                     EyeTrackerController.TurnOffBlinkRecording();
                 }
@@ -247,7 +249,9 @@ public class GameController : MonoBehaviour
                     LockCursor();
                     coreAudioSource.UnPause();
                     player.TurnOffDOF();
-                    hudCanvas.gameObject.SetActive(true);
+                    //hudCanvas.gameObject.SetActive(true);
+                    EnableHUD();
+                    ///
                     pauseCanvas.gameObject.SetActive(false);
                     EyeTrackerController.TurnOnBlinkRecording();
                 }
@@ -637,7 +641,9 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     player.TurnOnDOF();
                     coreAudioSource.Pause();
-                    hudCanvas.gameObject.SetActive(false);
+                    //hudCanvas.gameObject.SetActive(false);
+                    DisableHUD();
+                    ///
                     gameOverCanvas.gameObject.SetActive(true);
                     OutputUDP.SetClassifyingState(0);
                     OutputUDP.CloseConnection();
@@ -652,7 +658,9 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     player.TurnOnDOF();
                     coreAudioSource.Pause();
-                    hudCanvas.gameObject.SetActive(false);
+                    //hudCanvas.gameObject.SetActive(false);
+                    DisableHUD();
+                    ///
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
                     gameCompletedCanvas.gameObject.SetActive(true);
@@ -1045,6 +1053,103 @@ public class GameController : MonoBehaviour
         laserFence.SetActive(false);
         laserFenceCooldownIcon.gameObject.SetActive(false);
         laserFenceCooldownIcon.fillAmount = 1f;
+    }
+
+    private bool crosshairSavedStatus = false;
+    private bool aimCrosshairSavedStatus = false;
+    private bool coreStimulusSavedStatus = false;
+    private bool skipStimulusSavedStatus = false;
+    private bool laserFenceCooldownSavedStatus = false;
+    private void DisableHUD()
+    {
+        //hudCanvas.gameObject.SetActive(false);
+        GameObject temp = hudCanvas.transform.Find("Crosshair").gameObject;
+        if (temp.activeSelf)
+        {
+            crosshairSavedStatus = true;
+        }
+        temp.SetActive(false);
+        temp = hudCanvas.transform.Find("AimCrosshair").gameObject;
+        if (temp.activeSelf)
+        {
+            aimCrosshairSavedStatus = true;
+        }        
+        temp.SetActive(false);
+        hudCanvas.transform.Find("CoreHpBarBg").gameObject.SetActive(false);
+        hudCanvas.transform.Find("CoreHpBar").gameObject.SetActive(false);
+        hudCanvas.transform.Find("SkillCooldown").gameObject.SetActive(false);
+        hudCanvas.transform.Find("Gun").gameObject.SetActive(false);
+        hudCanvas.transform.Find("Info").gameObject.SetActive(false);
+        hudCanvas.transform.Find("Score").gameObject.SetActive(false);
+        //hudCanvas.transform.Find("LaserFenceStimulus").gameObject.SetActive(false);
+        temp = hudCanvas.transform.Find("LaserFenceStimulus").gameObject;
+        if (temp.activeSelf)
+        {
+            coreStimulusSavedStatus = true;
+        }
+        temp.SetActive(false);
+        //hudCanvas.transform.Find("LaserFenceCooldown").gameObject.SetActive(false);
+        temp = hudCanvas.transform.Find("LaserFenceCooldown").gameObject;
+        if (temp.activeSelf)
+        {
+            laserFenceCooldownSavedStatus = true;
+        }
+        temp.SetActive(false);
+        //hudCanvas.transform.Find("SkipStimulus").gameObject.SetActive(false);
+        temp = hudCanvas.transform.Find("SkipStimulus").gameObject;
+        if (temp.activeSelf)
+        {
+            skipStimulusSavedStatus = true;
+        }
+        temp.SetActive(false);
+        hudCanvas.transform.Find("ObjectiveText").gameObject.SetActive(false);
+        hudCanvas.transform.Find("ObjectiveTargetText").gameObject.SetActive(false);
+        hudCanvas.transform.Find("CongratText").gameObject.SetActive(false);
+        hudCanvas.transform.Find("1LineMessageText").gameObject.SetActive(false);
+        hudCanvas.transform.Find("2LineMessageText").gameObject.SetActive(false);
+        hudCanvas.transform.Find("Countdown").gameObject.SetActive(false);
+    }
+
+    private void EnableHUD()
+    {
+        //hudCanvas.gameObject.SetActive(true);
+        if (crosshairSavedStatus)
+        {
+            crosshairSavedStatus = false;
+            hudCanvas.transform.Find("Crosshair").gameObject.SetActive(true);
+        }
+        if (aimCrosshairSavedStatus)
+        {
+            aimCrosshairSavedStatus = true;
+            hudCanvas.transform.Find("AimCrosshair").gameObject.SetActive(true);
+        }
+        hudCanvas.transform.Find("CoreHpBarBg").gameObject.SetActive(true);
+        hudCanvas.transform.Find("CoreHpBar").gameObject.SetActive(true);
+        hudCanvas.transform.Find("SkillCooldown").gameObject.SetActive(true);
+        hudCanvas.transform.Find("Gun").gameObject.SetActive(true);
+        hudCanvas.transform.Find("Info").gameObject.SetActive(true);
+        hudCanvas.transform.Find("Score").gameObject.SetActive(true);
+        if (coreStimulusSavedStatus)
+        {
+            coreStimulusSavedStatus = false;
+            hudCanvas.transform.Find("LaserFenceStimulus").gameObject.SetActive(true);
+        }
+        if (laserFenceCooldownSavedStatus)
+        {
+            laserFenceCooldownSavedStatus = false;
+            hudCanvas.transform.Find("LaserFenceCooldown").gameObject.SetActive(true);
+        }
+        if (skipStimulusSavedStatus)
+        {
+            skipStimulusSavedStatus = false;
+            hudCanvas.transform.Find("SkipStimulus").gameObject.SetActive(true);
+        }
+        hudCanvas.transform.Find("ObjectiveText").gameObject.SetActive(true);
+        hudCanvas.transform.Find("ObjectiveTargetText").gameObject.SetActive(true);
+        hudCanvas.transform.Find("CongratText").gameObject.SetActive(true);
+        hudCanvas.transform.Find("1LineMessageText").gameObject.SetActive(true);
+        hudCanvas.transform.Find("2LineMessageText").gameObject.SetActive(true);
+        hudCanvas.transform.Find("Countdown").gameObject.SetActive(true);
     }
 
     public bool IsCoreHpFull()
