@@ -53,7 +53,6 @@ public class ButtonController : MonoBehaviour
         {
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
-                OutputUDP.SetClassifyingState(1);
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
                 StartCoroutine(StallBeforeLoadingScene(1));
             }
@@ -66,7 +65,6 @@ public class ButtonController : MonoBehaviour
         {
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
-                OutputUDP.SetClassifyingState(1);
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
                 StartCoroutine(StallBeforeLoadingScene(2));
             }
@@ -79,7 +77,6 @@ public class ButtonController : MonoBehaviour
         {
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
-                OutputUDP.SetClassifyingState(0);
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
                 StartCoroutine(StallBeforeLoadingScene(3));
             }
@@ -91,7 +88,6 @@ public class ButtonController : MonoBehaviour
         else if (command == "retry")
         {
             InputUDP.CloseConnection();
-            OutputUDP.SetClassifyingState(0);
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
@@ -139,7 +135,6 @@ public class ButtonController : MonoBehaviour
         if (scene == 0)
         {
             InputUDP.CloseConnection();
-            OutputUDP.SetClassifyingState(0);
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
         }
