@@ -142,9 +142,7 @@ public class FirstPersonController : MonoBehaviour
         PrepareCommandAreaCorners();
         SetUIPosition(g_GunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
         SetUIPosition(s_SkillCooldownHUD.gameObject.GetComponent<RectTransform>(), out skillPanelPosition);
-
-        Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 0;
+        
         m_CharacterController = GetComponent<CharacterController>();
         m_Camera = Camera.main;
         m_OriginalCameraPosition = m_Camera.transform.localPosition;
@@ -1343,37 +1341,41 @@ public class FirstPersonController : MonoBehaviour
         h_SkipCommandArea.rectTransform.GetWorldCorners(skipCommandStimulusAreaCorners);
         h_ShootCommandArea.rectTransform.GetWorldCorners(shootCommandStimulusAreaCorners);
 
+        int windowHeight = 0;
 #if UNITY_EDITOR
-        gunAndSkillCommandAreaCorners[0].y = 911 - gunAndSkillCommandAreaCorners[0].y;
-        gunAndSkillCommandAreaCorners[1].y = 911 - gunAndSkillCommandAreaCorners[1].y;
-        gunAndSkillCommandAreaCorners[2].y = 911 - gunAndSkillCommandAreaCorners[2].y;
-        gunAndSkillCommandAreaCorners[3].y = 911 - gunAndSkillCommandAreaCorners[3].y;
-
-        gunModeCommandAreaCorners[0].y = 911 - gunModeCommandAreaCorners[0].y;
-        gunModeCommandAreaCorners[1].y = 911 - gunModeCommandAreaCorners[1].y;
-        gunModeCommandAreaCorners[2].y = 911 - gunModeCommandAreaCorners[2].y;
-        gunModeCommandAreaCorners[3].y = 911 - gunModeCommandAreaCorners[3].y;
-
-        gunModeAimCommandAreaCorners[0].y = 911 - gunModeAimCommandAreaCorners[0].y;
-        gunModeAimCommandAreaCorners[1].y = 911 - gunModeAimCommandAreaCorners[1].y;
-        gunModeAimCommandAreaCorners[2].y = 911 - gunModeAimCommandAreaCorners[2].y;
-        gunModeAimCommandAreaCorners[3].y = 911 - gunModeAimCommandAreaCorners[3].y;
-
-        coreCommandStimulusAreaCorners[0].y = 911 - coreCommandStimulusAreaCorners[0].y;
-        coreCommandStimulusAreaCorners[1].y = 911 - coreCommandStimulusAreaCorners[1].y;
-        coreCommandStimulusAreaCorners[2].y = 911 - coreCommandStimulusAreaCorners[2].y;
-        coreCommandStimulusAreaCorners[3].y = 911 - coreCommandStimulusAreaCorners[3].y;
-
-        skipCommandStimulusAreaCorners[0].y = 911 - skipCommandStimulusAreaCorners[0].y;
-        skipCommandStimulusAreaCorners[1].y = 911 - skipCommandStimulusAreaCorners[1].y;
-        skipCommandStimulusAreaCorners[2].y = 911 - skipCommandStimulusAreaCorners[2].y;
-        skipCommandStimulusAreaCorners[3].y = 911 - skipCommandStimulusAreaCorners[3].y;
-
-        shootCommandStimulusAreaCorners[0].y = 911 - shootCommandStimulusAreaCorners[0].y;
-        shootCommandStimulusAreaCorners[1].y = 911 - shootCommandStimulusAreaCorners[1].y;
-        shootCommandStimulusAreaCorners[2].y = 911 - shootCommandStimulusAreaCorners[2].y;
-        shootCommandStimulusAreaCorners[3].y = 911 - shootCommandStimulusAreaCorners[3].y;
+        windowHeight = 911;
+#else
+        windowHeight = 1080;
 #endif
+        gunAndSkillCommandAreaCorners[0].y = windowHeight - gunAndSkillCommandAreaCorners[0].y;
+        gunAndSkillCommandAreaCorners[1].y = windowHeight - gunAndSkillCommandAreaCorners[1].y;
+        gunAndSkillCommandAreaCorners[2].y = windowHeight - gunAndSkillCommandAreaCorners[2].y;
+        gunAndSkillCommandAreaCorners[3].y = windowHeight - gunAndSkillCommandAreaCorners[3].y;
+
+        gunModeCommandAreaCorners[0].y = windowHeight - gunModeCommandAreaCorners[0].y;
+        gunModeCommandAreaCorners[1].y = windowHeight - gunModeCommandAreaCorners[1].y;
+        gunModeCommandAreaCorners[2].y = windowHeight - gunModeCommandAreaCorners[2].y;
+        gunModeCommandAreaCorners[3].y = windowHeight - gunModeCommandAreaCorners[3].y;
+
+        gunModeAimCommandAreaCorners[0].y = windowHeight - gunModeAimCommandAreaCorners[0].y;
+        gunModeAimCommandAreaCorners[1].y = windowHeight - gunModeAimCommandAreaCorners[1].y;
+        gunModeAimCommandAreaCorners[2].y = windowHeight - gunModeAimCommandAreaCorners[2].y;
+        gunModeAimCommandAreaCorners[3].y = windowHeight - gunModeAimCommandAreaCorners[3].y;
+
+        coreCommandStimulusAreaCorners[0].y = windowHeight - coreCommandStimulusAreaCorners[0].y;
+        coreCommandStimulusAreaCorners[1].y = windowHeight - coreCommandStimulusAreaCorners[1].y;
+        coreCommandStimulusAreaCorners[2].y = windowHeight - coreCommandStimulusAreaCorners[2].y;
+        coreCommandStimulusAreaCorners[3].y = windowHeight - coreCommandStimulusAreaCorners[3].y;
+
+        skipCommandStimulusAreaCorners[0].y = windowHeight - skipCommandStimulusAreaCorners[0].y;
+        skipCommandStimulusAreaCorners[1].y = windowHeight - skipCommandStimulusAreaCorners[1].y;
+        skipCommandStimulusAreaCorners[2].y = windowHeight - skipCommandStimulusAreaCorners[2].y;
+        skipCommandStimulusAreaCorners[3].y = windowHeight - skipCommandStimulusAreaCorners[3].y;
+
+        shootCommandStimulusAreaCorners[0].y = windowHeight - shootCommandStimulusAreaCorners[0].y;
+        shootCommandStimulusAreaCorners[1].y = windowHeight - shootCommandStimulusAreaCorners[1].y;
+        shootCommandStimulusAreaCorners[2].y = windowHeight - shootCommandStimulusAreaCorners[2].y;
+        shootCommandStimulusAreaCorners[3].y = windowHeight - shootCommandStimulusAreaCorners[3].y;
     }
 
     private void SetUIPosition(RectTransform rectTransform, out Vector2 uiPosition)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,6 +53,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject coreDamagedAudioPrefab;
     [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
     [SerializeField] private GameObject laserFenceHummingAudioPrefab;
+
+    [SerializeField] private Text fpsText;
 
     private static string currentState;
     private static float coreHp;
@@ -124,6 +127,9 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
+
         pause = false;
         gameOver = false;
         LockCursor();
@@ -221,6 +227,10 @@ public class GameController : MonoBehaviour
     
     private void Update()
     {
+        if (fpsText != null)
+        {
+            fpsText.text = "" + ((int)Math.Round(1.0f / Time.deltaTime, 0));
+        }
         if (currentState != "GAME OVER" && currentState != "END")
         {
             if (Input.GetKeyDown(KeyCode.Escape) || ButtonController.IsResumePressed())
