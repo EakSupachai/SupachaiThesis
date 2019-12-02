@@ -78,7 +78,11 @@ public class EyeTrackerController : MonoBehaviour
             result = Interop.tobii_device_process_callbacks(deviceContext);
             if (tracker != null && tracker.gameObject.activeSelf)
             {
+#if UNITY_EDITOR
                 tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 911 - currentGazePoint.y, 0f);
+#else
+                tracker.GetComponent<RectTransform>().position = new Vector3(currentGazePoint.x, 1080 - currentGazePoint.y, 0f);
+#endif
             }
         }
     }
