@@ -8,6 +8,7 @@ public class ButtonController : MonoBehaviour
     [SerializeField] private List<GameObject> hoverMarkers = new List<GameObject>();
     [SerializeField] private AudioClip hoverAudio;
     [SerializeField] private GameObject clickAudioPrefab;
+    [SerializeField] private GameObject errorAudioPrefab;
 
     private static bool resumePressed;
 
@@ -50,18 +51,42 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "game start")
         {
-            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            StartCoroutine(StallBeforeLoadingScene(1));
+            if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
+            {
+                OutputUDP.SetClassifyingState(1);
+                Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+                StartCoroutine(StallBeforeLoadingScene(1));
+            }
+            else
+            {
+                Instantiate(errorAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
         }
         else if (command == "test start")
         {
-            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            StartCoroutine(StallBeforeLoadingScene(2));
+            if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
+            {
+                OutputUDP.SetClassifyingState(1);
+                Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+                StartCoroutine(StallBeforeLoadingScene(2));
+            }
+            else
+            {
+                Instantiate(errorAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
         }
         else if (command == "calibration start")
         {
-            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            StartCoroutine(StallBeforeLoadingScene(3));
+            if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
+            {
+                OutputUDP.SetClassifyingState(0);
+                Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+                StartCoroutine(StallBeforeLoadingScene(3));
+            }
+            else
+            {
+                Instantiate(errorAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
         }
         else if (command == "retry")
         {

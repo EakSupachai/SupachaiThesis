@@ -1,18 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using Bci2000Api;
 
 public class OutputUDP : MonoBehaviour
 {
     private static IntPtr BCI2000API;
-
-    private static int ip1 = 192;
-    private static int ip2 = 168;
-    private static int ip3 = 1;
-    private static int ip4 = 54;
-    private static int port = 20320;
 
     private void Start()
     {
@@ -23,19 +15,14 @@ public class OutputUDP : MonoBehaviour
     {
         if (Interop.UseIsSendConnectionOpen(BCI2000API))
         {
-            SetClassifyingState(0);
-            SetRecordingState(0);
             Interop.UseCloseSendConnection(BCI2000API);
         }
     }
 
-    public static void AssignSendAddress()
-    {
-        Interop.UseAssignSendAddress(BCI2000API, ip1, ip2, ip3, ip4, port);
-    }
-
     public static void OpenConnection()
     {
+        Interop.UseAssignSendAddress(BCI2000API, AddressRecorder.in_ip1, AddressRecorder.in_ip2, 
+            AddressRecorder.in_ip3, AddressRecorder.in_ip4, AddressRecorder.in_port);
         Interop.UseOpenSendConnection(BCI2000API);
     }
 

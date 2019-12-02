@@ -16,7 +16,6 @@ public class InputUDP : MonoBehaviour
     private static object lockObject = new object();
     private static bool newInputReceived = false;
     private static bool inputStatus = false;
-    private static int port = 20321;
     private static int bufferSize = 5;
     private static int threshold = 4;
 
@@ -38,7 +37,7 @@ public class InputUDP : MonoBehaviour
     // receive thread function
     private void ReceiveData()
     {
-        client = new UdpClient(port);
+        client = new UdpClient(AddressRecorder.in_port);
         while (true)
         {
             try

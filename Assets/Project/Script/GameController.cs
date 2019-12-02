@@ -270,9 +270,14 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     currentStateDuration = startDuration;
                     OutputUDP.OpenConnection();
+                    OutputUDP.SetRecordingState(0);
                     if (classifyMode)
                     {
                         OutputUDP.SetClassifyingState(1);
+                    }
+                    else if (calibrationMode)
+                    {
+                        OutputUDP.SetClassifyingState(0);
                     }
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -645,7 +650,6 @@ public class GameController : MonoBehaviour
                     DisableHUD();
                     ///
                     gameOverCanvas.gameObject.SetActive(true);
-                    OutputUDP.SetClassifyingState(0);
                     OutputUDP.CloseConnection();
                 }
                 break;
@@ -664,7 +668,6 @@ public class GameController : MonoBehaviour
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
                     gameCompletedCanvas.gameObject.SetActive(true);
-                    OutputUDP.SetClassifyingState(0);
                     OutputUDP.CloseConnection();
                 }
                 break;
