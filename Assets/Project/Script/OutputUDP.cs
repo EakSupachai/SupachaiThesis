@@ -21,8 +21,8 @@ public class OutputUDP : MonoBehaviour
 
     public static void OpenConnection()
     {
-        Interop.UseAssignSendAddress(BCI2000API, AddressRecorder.in_ip1, AddressRecorder.in_ip2, 
-            AddressRecorder.in_ip3, AddressRecorder.in_ip4, AddressRecorder.in_port);
+        Interop.UseAssignSendAddress(BCI2000API, AddressRecorder.out_ip1, AddressRecorder.out_ip2, 
+            AddressRecorder.out_ip3, AddressRecorder.out_ip4, AddressRecorder.out_port);
         Interop.UseOpenSendConnection(BCI2000API);
     }
 

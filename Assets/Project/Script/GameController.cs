@@ -138,7 +138,7 @@ public class GameController : MonoBehaviour
 
         currentState = "START";
         startDuration = 5.9f;
-        instructionDuration = 4.5f;
+        instructionDuration = 4.25f;
         waitingDuration = 10.9f;
         waveDuration = 7.9f;
 
@@ -248,9 +248,7 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     coreAudioSource.Pause();
                     player.TurnOnDOF();
-                    //hudCanvas.gameObject.SetActive(false);
                     DisableHUD();
-                    ////
                     pauseCanvas.gameObject.SetActive(true);
                     EyeTrackerController.TurnOffBlinkRecording();
                 }
@@ -259,9 +257,7 @@ public class GameController : MonoBehaviour
                     LockCursor();
                     coreAudioSource.UnPause();
                     player.TurnOffDOF();
-                    //hudCanvas.gameObject.SetActive(true);
                     EnableHUD();
-                    ///
                     pauseCanvas.gameObject.SetActive(false);
                     EyeTrackerController.TurnOnBlinkRecording();
                 }
@@ -332,7 +328,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 2;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Try to walk around\nwithout blinking.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -364,7 +360,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -386,7 +382,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 3:\nPay attention to the core stimulus for 4 sec.";
+                    twoLineText.text = "Step 3:\nPay attention to the core stimulus.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -403,7 +399,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the core stimulus for 4 sec.";
+                    objectiveText.text = "Pay attention\nto the core stimulus.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -418,7 +414,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 4:\nPay attention to the skip stimulus for 4 sec.";
+                    twoLineText.text = "Step 4:\nPay attention to the skip stimulus.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -435,7 +431,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the skip stimulus for 4 sec.";
+                    objectiveText.text = "Pay attention\nto the skip stimulus.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                     player.StartSkipStimulus();
                 }
@@ -470,7 +466,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 4;
+                    objectiveTargetCounter = 6;
                     objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -656,9 +652,7 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     player.TurnOnDOF();
                     coreAudioSource.Pause();
-                    //hudCanvas.gameObject.SetActive(false);
                     DisableHUD();
-                    ///
                     gameOverCanvas.gameObject.SetActive(true);
                     OutputUDP.CloseConnection();
                 }
@@ -672,9 +666,7 @@ public class GameController : MonoBehaviour
                     UnlockCursor();
                     player.TurnOnDOF();
                     coreAudioSource.Pause();
-                    //hudCanvas.gameObject.SetActive(false);
                     DisableHUD();
-                    ///
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
                     gameCompletedCanvas.gameObject.SetActive(true);
@@ -1075,7 +1067,6 @@ public class GameController : MonoBehaviour
     private bool laserFenceCooldownSavedStatus = false;
     private void DisableHUD()
     {
-        //hudCanvas.gameObject.SetActive(false);
         GameObject temp = hudCanvas.transform.Find("Crosshair").gameObject;
         if (temp.activeSelf)
         {
@@ -1094,21 +1085,18 @@ public class GameController : MonoBehaviour
         hudCanvas.transform.Find("Gun").gameObject.SetActive(false);
         hudCanvas.transform.Find("Info").gameObject.SetActive(false);
         hudCanvas.transform.Find("Score").gameObject.SetActive(false);
-        //hudCanvas.transform.Find("LaserFenceStimulus").gameObject.SetActive(false);
         temp = hudCanvas.transform.Find("LaserFenceStimulus").gameObject;
         if (temp.activeSelf)
         {
             coreStimulusSavedStatus = true;
         }
         temp.SetActive(false);
-        //hudCanvas.transform.Find("LaserFenceCooldown").gameObject.SetActive(false);
         temp = hudCanvas.transform.Find("LaserFenceCooldown").gameObject;
         if (temp.activeSelf)
         {
             laserFenceCooldownSavedStatus = true;
         }
         temp.SetActive(false);
-        //hudCanvas.transform.Find("SkipStimulus").gameObject.SetActive(false);
         temp = hudCanvas.transform.Find("SkipStimulus").gameObject;
         if (temp.activeSelf)
         {
@@ -1125,7 +1113,6 @@ public class GameController : MonoBehaviour
 
     private void EnableHUD()
     {
-        //hudCanvas.gameObject.SetActive(true);
         if (crosshairSavedStatus)
         {
             crosshairSavedStatus = false;
