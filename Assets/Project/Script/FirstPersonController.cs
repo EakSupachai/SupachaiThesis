@@ -305,8 +305,7 @@ public class FirstPersonController : MonoBehaviour
                     if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
                     {
                         timeSinceLastBlink = 0f;
-                        gameController.IncreaseObjectiveCounter("STEP1");
-                        OutputUDP.SetRecordingState(3);
+                        gameController.IncreaseObjectiveCounter("STEP1", 3);
                     }
                 }
             }
@@ -367,8 +366,7 @@ public class FirstPersonController : MonoBehaviour
                     {
                         if (calibrating)
                         {
-                            gameController.IncreaseObjectiveCounter("STEP3");
-                            OutputUDP.SetRecordingState(2);
+                            gameController.IncreaseObjectiveCounter("STEP3", 2);
                         }
                         else
                         {
@@ -388,8 +386,7 @@ public class FirstPersonController : MonoBehaviour
                     {
                         if (calibrating)
                         {
-                            gameController.IncreaseObjectiveCounter("STEP4");
-                            OutputUDP.SetRecordingState(2);
+                            gameController.IncreaseObjectiveCounter("STEP4", 2);
                         }
                         else
                         {
@@ -742,7 +739,6 @@ public class FirstPersonController : MonoBehaviour
                         {
                             scopeFadingRatio = 1f;
                             g_AimInterpolating = false;
-                            notBlinkDuringShootingEnemy = true;
                         }
                         g_SniperRifleController.AdjustBlankAlpha(1f - scopeFadingRatio);
                     }
@@ -893,13 +889,11 @@ public class FirstPersonController : MonoBehaviour
         {
             if (g_CurrentGun == "AR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
             {
-                gameController.IncreaseObjectiveCounter("STEP2");
-                OutputUDP.SetRecordingState(3);
+                gameController.IncreaseObjectiveCounter("STEP2", 3);
             }
-            else if (g_CurrentGun == "SR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
+            else if (g_CurrentGun == "SR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed())
             {
-                gameController.IncreaseObjectiveCounter("STEP5");
-                OutputUDP.SetRecordingState(1);
+                gameController.IncreaseObjectiveCounter("STEP5", 1);
             }
         }
 

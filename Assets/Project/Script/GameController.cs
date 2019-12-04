@@ -128,7 +128,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount = 0;
+        QualitySettings.vSyncCount = 1;
 
         pause = false;
         gameOver = false;
@@ -140,7 +140,7 @@ public class GameController : MonoBehaviour
         startDuration = 5.9f;
         instructionDuration = 4.25f;
         waitingDuration = 10.9f;
-        waveDuration = 7.9f;
+        waveDuration = 30.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -224,12 +224,22 @@ public class GameController : MonoBehaviour
             spawnTimers.Add(0f);
         }
     }
-    
+
+    private float fpsTime;
+    private int frameCount = 0;
     private void Update()
     {
         if (fpsText != null)
         {
-            fpsText.text = "" + ((int)Math.Round(1.0f / Time.deltaTime, 0));
+            if (fpsTime >= 1f)
+            {
+                fpsText.text = "" + frameCount;
+                frameCount = 0;
+                fpsTime = 0;
+            }
+            frameCount++;
+            fpsTime += Time.deltaTime;
+            //fpsText.text = "" + ((int)Math.Round(1.0f / Time.deltaTime, 0));
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
@@ -328,7 +338,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Try to walk around\nwithout blinking.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -360,7 +370,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -1231,12 +1241,13 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void IncreaseObjectiveCounter(string state)
+    public void IncreaseObjectiveCounter(string state, int recordingState)
     {
         if (state == currentState && objectiveCounter < objectiveTargetCounter)
         {
             objectiveCounter++;
             objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+            OutputUDP.SetRecordingState(recordingState);
         }
     }
 
