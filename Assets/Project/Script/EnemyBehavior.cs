@@ -196,9 +196,9 @@ public class EnemyBehavior : MonoBehaviour
         }
         if (flickering)
         {
-            if (frameCount > 4)
+            if (frameCount > 2)
             {
-                frameCount = 0;
+                frameCount = 1;
                 foreach (MeshRenderer mr in meshRenderers)
                 {
                     mr.material = materialFlag ? whiteStimulusMaterial : blackStimulusMaterial;

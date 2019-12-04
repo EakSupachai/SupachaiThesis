@@ -742,6 +742,7 @@ public class FirstPersonController : MonoBehaviour
                         {
                             scopeFadingRatio = 1f;
                             g_AimInterpolating = false;
+                            notBlinkDuringShootingEnemy = true;
                         }
                         g_SniperRifleController.AdjustBlankAlpha(1f - scopeFadingRatio);
                     }
@@ -780,7 +781,6 @@ public class FirstPersonController : MonoBehaviour
             g_AimingStartTime = Time.time;
             if (usingSniper)
             {
-                notBlinkDuringShootingEnemy = true;
                 g_ScopeFadingStartTime = Time.time;
                 g_AimingStartFOV = m_Camera.fieldOfView;
                 g_AimingIntendedFOV = 10f;
