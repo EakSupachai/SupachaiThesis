@@ -4,11 +4,12 @@ using UnityEngine.UI;
 using UnityEngine.PostProcessing;
 using Random = UnityEngine.Random;
 
-[RequireComponent(typeof (CharacterController))]
-[RequireComponent(typeof (AudioSource))]
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(AudioSource))]
 public class FirstPersonController : MonoBehaviour
 {
     [SerializeField] GameController gameController;
+    [SerializeField] Text bci2000Input;
     [SerializeField] AssaultRifleController g_AssaultRifleController;
     [SerializeField] SniperRifleController g_SniperRifleController;
     [SerializeField] SSVEPStimulusController h_CoreStimulusController;
@@ -186,6 +187,15 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
+        /*if (InputUDP.IsNewInputReceived())
+        {
+            string input = InputUDP.GetBufferedInput();
+            bci2000Input.text = input;
+            bool svepReceived = isSSVEPdetected(input);
+            Debug.Log(input);
+            Debug.Log(svepReceived);
+            Debug.Log("--------------------------");
+        }*/
         if (GameController.IsPause() || GameController.IsGameOver())
         {
             timeSinceLastBlink = 0f;
@@ -424,7 +434,10 @@ public class FirstPersonController : MonoBehaviour
                 bool ssvepReceived = false;
                 if (InputUDP.IsNewInputReceived())
                 {
-                    ssvepReceived = InputUDP.IsSsvepDetected();
+                    //ssvepReceived = InputUDP.IsSsvepDetected();
+                    string input = InputUDP.GetBufferedInput();
+                    bci2000Input.text = input;
+                    ssvepReceived = isSSVEPdetected(input);
                     previousSsvepInput = ssvepReceived;
                 }
                 else
@@ -508,7 +521,7 @@ public class FirstPersonController : MonoBehaviour
             m_MouseLook.LookRotation(transform, m_Camera.transform);
         }
 
-        // use skill & fix core
+        // use skill
         bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime) : 
             (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime);
         if (useSkillCommandIssued)
@@ -1430,6 +1443,23 @@ public class FirstPersonController : MonoBehaviour
         return false;
     }
 
+    private bool isSSVEPdetected(string input)
+    {
+        int ssvepCounter = 0;
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (input[i].Equals('1'))
+            {
+                ssvepCounter++;
+            }
+        }
+        if (ssvepCounter >= 4)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public bool IsAiming()
     {
         return g_Aiming;
@@ -1464,11 +1494,6 @@ public class FirstPersonController : MonoBehaviour
     {
         h_SkipStimulusController.StopFlickering();
     }
-
-    /*public void ResetTimeSinceLastBlink()
-    {
-        timeSinceLastBlink = 0f;
-    }*/
 
     public void ForceToChangeGun()
     {

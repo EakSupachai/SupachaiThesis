@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using Random = System.Random;
 
 public class InputUDP : MonoBehaviour
 {
-    [SerializeField] private Text apiOutput;
+    //[SerializeField] private Text apiOutput;
     
     private static Thread readThread;    
     private static UdpClient client;
@@ -18,6 +17,7 @@ public class InputUDP : MonoBehaviour
     private static bool inputStatus = false;
     private static int bufferSize = 5;
     private static int threshold = 4;
+    private static Random random = new Random();
 
     // start from unity3d
     private void Start()
@@ -44,11 +44,21 @@ public class InputUDP : MonoBehaviour
             {
                 // receive bytes
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
-                byte[] data = client.Receive(ref anyIP);
+                //byte[] data = client.Receive(ref anyIP);
                 inputStatus = true;
 
                 // encode UTF8-coded bytes to text format
-                string text = Encoding.UTF8.GetString(data);
+                //string text = Encoding.UTF8.GetString(data);
+                int rand = random.Next(0, 100);
+                string text = "";
+                if (rand < 50)
+                {
+                    text = "0\n";
+                }
+                else
+                {
+                    text = "1\n";
+                }
 
                 // show received message
                 int strLength = 0;
@@ -66,7 +76,7 @@ public class InputUDP : MonoBehaviour
                         bufferedInput = bufferedInput.Substring(strLength - bufferSize);
                     }
                 }
-                apiOutput.text = bufferedInput;
+                //apiOutput.text = bufferedInput;
             }
             catch (Exception err)
             {
@@ -75,37 +85,12 @@ public class InputUDP : MonoBehaviour
         }
     }
 
-    // return the latest message
-    /*public static bool getSSVEPStatus()
-    {
-        bool ssvepReceived = false;
-        int ssvepCounter = -1;
-        lock(lockObject)
-        {
-            if (newInputReceived)
-            {
-                newInputReceived = false;
-                for(int i = 0; i < bufferedInput.Length; i++)
-                {
-                    if (bufferedInput[i].Equals('1'))
-                    {
-                        ssvepCounter++;
-                    }
-                }
-            }
-        }
-        if (ssvepCounter >= (bufferSize - 1))
-        {
-            ssvepReceived = true;
-        }
-        return ssvepReceived;
-    }*/
-
-    public static bool IsSsvepDetected()
+    /*public static bool IsSsvepDetected()
     {
         int ssvepCounter = 0;
         lock (lockObject)
         {
+            //Debug.Log(bufferedInput);
             for (int i = 0; i < bufferedInput.Length; i++)
             {
                 if (bufferedInput[i].Equals('1'))
@@ -119,7 +104,7 @@ public class InputUDP : MonoBehaviour
             return true;
         }
         return false;
-    }
+    }*/
 
     public static bool IsNewInputReceived()
     {
@@ -143,5 +128,13 @@ public class InputUDP : MonoBehaviour
     public static bool GetSsvepInputStatus()
     {
         return inputStatus;
+    }
+
+    public static string GetBufferedInput()
+    {
+        lock (lockObject)
+        {
+            return bufferedInput;
+        }
     }
 }

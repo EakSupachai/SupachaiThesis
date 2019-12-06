@@ -8916,7 +8916,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2531716637ecc4eaacd207aafae4ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  apiOutput: {fileID: 886697747}
 --- !u!4 &431414788
 Transform:
   m_ObjectHideFlags: 0
@@ -34705,6 +34704,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameController: {fileID: 637552324}
+  bci2000Input: {fileID: 886697747}
   g_AssaultRifleController: {fileID: 604200034}
   g_SniperRifleController: {fileID: 693374674}
   h_CoreStimulusController: {fileID: 863535227}
