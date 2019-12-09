@@ -45,20 +45,20 @@ public class InputUDP : MonoBehaviour
                 // receive bytes
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
                 //byte[] data = client.Receive(ref anyIP);
-                inputStatus = true;
+                //inputStatus = true;
 
                 // encode UTF8-coded bytes to text format
                 //string text = Encoding.UTF8.GetString(data);
                 int rand = random.Next(0, 100);
-                string text = "";
-                if (rand < 50)
+                string text = "0\n";
+                /*if (rand < 50)
                 {
                     text = "0\n";
                 }
                 else
                 {
                     text = "1\n";
-                }
+                }*/
 
                 // show received message
                 int strLength = 0;

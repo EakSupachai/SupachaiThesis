@@ -226,7 +226,7 @@ public class GameController : MonoBehaviour
     }
 
     private float fpsTime;
-    private int frameCount = 0;
+    private int frameCount = -1;
     private void Update()
     {
         if (fpsText != null)
@@ -234,7 +234,7 @@ public class GameController : MonoBehaviour
             if (fpsTime >= 1f)
             {
                 fpsText.text = "" + frameCount;
-                frameCount = 0;
+                frameCount = -1;
                 fpsTime = 0;
             }
             frameCount++;
@@ -370,7 +370,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 4;
+                    objectiveTargetCounter = 1;
                     objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -476,7 +476,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 6;
+                    objectiveTargetCounter = 1;
                     objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -492,6 +492,87 @@ public class GameController : MonoBehaviour
                         objectiveText.text = "Destroy the remaining enemies.";
                         objectiveTargetText.text = "";
                     }
+                }
+                break;
+            case "STEP6 INS":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 6:\nPay attention to the core stimulus.";
+                    currentStateDuration = instructionDuration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    currentState = "STEP6";
+                }
+                break;
+            case "STEP6":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Pay attention\nto the core stimulus.";
+                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                }
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    stateStarted = false;
+                    objectiveText.text = "";
+                    objectiveTargetText.text = "";
+                    currentState = "STEP7 INS";
+                }
+                break;
+            case "STEP7 INS":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    twoLineText.text = "Step 7:\nPay attention to the skip stimulus.";
+                    currentStateDuration = instructionDuration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    twoLineText.text = "";
+                    currentState = "STEP7";
+                }
+                break;
+            case "STEP7":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Pay attention\nto the skip stimulus.";
+                    objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                    player.StartSkipStimulus();
+                }
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    stateStarted = false;
+                    objectiveText.text = "";
+                    objectiveTargetText.text = "";
+                    currentState = "FINAL STEP";
+                    player.StopSkipStimulus();
+                }
+                break;
+            case "FINAL STEP":
+                if (!stateStarted)
+                {
+                    stateStarted = true;
+                    congratText.text = "CALIBRATION COMPLETED";
+                    currentStateDuration = startDuration;
+                }
+                currentStateDuration -= Time.deltaTime;
+                if (currentStateDuration <= 0f)
+                {
+                    stateStarted = false;
+                    congratText.text = "";
+                    SceneManager.LoadScene(0);
                 }
                 break;
             // normal state
@@ -553,8 +634,8 @@ public class GameController : MonoBehaviour
                     currentStateDuration = congratStateDuration;
                     if (calibrationMode)
                     {
-                        congratText.text = nextWave == 2 ? "STEP 2 COMPLETED" : "CALIBRATION COMPLETED";
-                        currentStateDuration = nextWave == 2 ? congratStateDuration : startDuration;
+                        congratText.text = nextWave == 2 ? "STEP 2 COMPLETED" : "STEP 5 COMPLETED";
+
                     }
                     else
                     {
@@ -566,7 +647,8 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     congratText.text = "";
-                    if (calibrationMode)
+                    currentState = "REMOVE CORE HP";
+                    /*if (calibrationMode)
                     {
                         if (nextWave == 2)
                         {
@@ -580,7 +662,7 @@ public class GameController : MonoBehaviour
                     else
                     {
                         currentState = "REMOVE CORE HP";
-                    }
+                    }*/
                 }
                 break;
             case "REMOVE CORE HP":
@@ -618,14 +700,15 @@ public class GameController : MonoBehaviour
                     twoLineText.text = "";
                     if (calibrationMode)
                     {
-                        if (nextWave == 2)
+                        currentState = nextWave == 2 ? "STEP3 INS" : "STEP6 INS";
+                        /*if (nextWave == 2)
                         {
                             currentState = "STEP3 INS";
                         }
                         else
                         {
                             currentState = "WAITING";
-                        }
+                        }*/
                     }
                     else
                     {
@@ -1181,7 +1264,7 @@ public class GameController : MonoBehaviour
 
     public bool CanFixCore()
     {
-        if ((currentState == "WAITING" || currentState == "STEP3") && stateStarted)
+        if ((currentState == "WAITING" || currentState == "STEP3" || currentState == "STEP6") && stateStarted)
         {
             if (waiting_alreadyBeginFixing)
             {

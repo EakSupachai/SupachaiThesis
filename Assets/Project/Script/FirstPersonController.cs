@@ -377,6 +377,7 @@ public class FirstPersonController : MonoBehaviour
                         if (calibrating)
                         {
                             gameController.IncreaseObjectiveCounter("STEP3", 2);
+                            gameController.IncreaseObjectiveCounter("STEP6", 2);
                         }
                         else
                         {
@@ -397,6 +398,7 @@ public class FirstPersonController : MonoBehaviour
                         if (calibrating)
                         {
                             gameController.IncreaseObjectiveCounter("STEP4", 2);
+                            gameController.IncreaseObjectiveCounter("STEP7", 2);
                         }
                         else
                         {
@@ -429,7 +431,7 @@ public class FirstPersonController : MonoBehaviour
                     shootGazeDuration = 0f;
                 }
             }
-            if (ssvepRunning && gameController.IsInClassifyingMode())
+            else if (ssvepRunning && gameController.IsInClassifyingMode())
             {
                 bool ssvepReceived = false;
                 if (InputUDP.IsNewInputReceived())
