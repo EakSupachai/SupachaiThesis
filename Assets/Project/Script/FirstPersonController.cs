@@ -132,9 +132,12 @@ public class FirstPersonController : MonoBehaviour
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
     private float coreGazeDuration;
+    private float coreNotGazeDuration;
     private float skipGazeDuration;
+    private float skipNotGazeDuration;
     private float skipPressDuration;
     private float shootGazeDuration;
+    private float shootNotGazeDuration;
     private bool previousSsvepInput;
 
     // Use this for initialization
@@ -187,15 +190,6 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
-        /*if (InputUDP.IsNewInputReceived())
-        {
-            string input = InputUDP.GetBufferedInput();
-            bci2000Input.text = input;
-            bool svepReceived = isSSVEPdetected(input);
-            Debug.Log(input);
-            Debug.Log(svepReceived);
-            Debug.Log("--------------------------");
-        }*/
         if (GameController.IsPause() || GameController.IsGameOver())
         {
             timeSinceLastBlink = 0f;
@@ -294,6 +288,7 @@ public class FirstPersonController : MonoBehaviour
         bool gazeToActivateSkipCommand = false;
         bool gazeToActivateShootCommand = false;
         bool pressToActivateSkipCommand = false;
+        float unscaledDeltaTime = Time.deltaTime / Time.timeScale;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         Vector2 gazePoint = Vector2.zero;
         if (eyeTrackerRunning)
@@ -311,19 +306,26 @@ public class FirstPersonController : MonoBehaviour
                 }
                 else
                 {
-                    timeSinceLastBlink += Time.deltaTime;
-                    if (timeSinceLastBlink >= EyeTrackerController.GetValidGazeDuration(calibrating))
+                    timeSinceLastBlink += unscaledDeltaTime;
+                    if (timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
                     {
-                        timeSinceLastBlink = 0f;
-                        gameController.IncreaseObjectiveCounter("STEP1", 3);
+                        if (gameController.IncreaseObjectiveCounter("STEP1", 3))
+                        {
+                            timeSinceLastBlink = 0f;
+                        }
+                        /*timeSinceLastBlink = 0f;
+                        gameController.IncreaseObjectiveCounter("STEP1", 3);*/
                     }
                 }
             }
-            if (blinkStatus.validOneEyedBlink || blinkStatus.twoEyedBlink)
+            if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
             {
-                coreGazeDuration = 0f;
-                skipGazeDuration = 0f;
-                shootGazeDuration = 0f;
+                if (!ssvepRunning)
+                {
+                    coreGazeDuration = 0f;
+                    skipGazeDuration = 0f;
+                    shootGazeDuration = 0f;
+                }
                 if (blinkStatus.validOneEyedBlink)
                 {
                     Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
@@ -369,8 +371,27 @@ public class FirstPersonController : MonoBehaviour
                 // core command
                 if (gazeInCoreStimulus)
                 {
-                    coreGazeDuration += Time.deltaTime;
-                    float validGazeDuration = gameController.CanFixCore() ? EyeTrackerController.GetValidGazeDuration(calibrating) : 
+                    coreNotGazeDuration = 0f;
+                    coreGazeDuration += unscaledDeltaTime;
+                    if (!ssvepRunning)
+                    {
+                        if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                        {
+                            coreGazeDuration = 0f;
+                            gazeToActivateCoreCommand = true;
+                        }
+                    }
+                    else
+                    {
+                        if (coreGazeDuration >= EyeTrackerController.GetValidGazeDuration(true) && 
+                            timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
+                        {
+                            coreGazeDuration = 0f;
+                            gameController.IncreaseObjectiveCounter("STEP3", 2);
+                            gameController.IncreaseObjectiveCounter("STEP6", 2);
+                        }
+                    }
+                    /*float validGazeDuration = gameController.CanFixCore() ? EyeTrackerController.GetValidGazeDuration(calibrating) : 
                         EyeTrackerController.GetScaledValidGazeDuration(calibrating);
                     if (coreGazeDuration >= validGazeDuration)
                     {
@@ -383,17 +404,47 @@ public class FirstPersonController : MonoBehaviour
                         {
                             gazeToActivateCoreCommand = true;
                         }
-                    }
+                    }*/
                 }
                 else
                 {
-                    coreGazeDuration = 0f;
+                    if (!ssvepRunning)
+                    {
+                        coreGazeDuration = 0f;
+                    }
+                    else
+                    {
+                        coreNotGazeDuration += unscaledDeltaTime;
+                        if (coreNotGazeDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            coreGazeDuration = 0f;
+                        }
+                    }
                 }
                 // skip command
                 if (gazeInSkipStimulus)
                 {
-                    skipGazeDuration += Time.deltaTime;
-                    if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(calibrating))
+                    skipNotGazeDuration = 0f;
+                    skipGazeDuration += unscaledDeltaTime;
+                    if (!ssvepRunning)
+                    {
+                        if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                        {
+                            skipGazeDuration = 0f;
+                            gazeToActivateSkipCommand = true;
+                        }
+                    }
+                    else
+                    {
+                        if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(true) &&
+                            timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
+                        {
+                            skipGazeDuration = 0f;
+                            gameController.IncreaseObjectiveCounter("STEP4", 2);
+                            gameController.IncreaseObjectiveCounter("STEP7", 2);
+                        }
+                    }
+                    /*if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(calibrating))
                     {
                         if (calibrating)
                         {
@@ -404,40 +455,75 @@ public class FirstPersonController : MonoBehaviour
                         {
                             gazeToActivateSkipCommand = true;
                         }
-                    }
+                    }*/
                 }
                 else
                 {
-                    skipGazeDuration = 0f;
+                    if (!ssvepRunning)
+                    {
+                        skipGazeDuration = 0f;
+                    }
+                    else
+                    {
+                        skipNotGazeDuration += unscaledDeltaTime;
+                        if (skipNotGazeDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            skipGazeDuration = 0f;
+                        }
+                    }
                 }
                 // shoot command
                 if (gazeInEnemyStimulus)
                 {
                     if (isCurrentEnemyNotNull)
                     {
-                        shootGazeDuration += Time.deltaTime;
-                        if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
+                        shootNotGazeDuration = 0f;
+                        shootGazeDuration += unscaledDeltaTime;
+                        if (!ssvepRunning)
+                        {
+                            if (shootGazeDuration >= EyeTrackerController.GetValidGazeDuration())
+                            {
+                                shootGazeDuration = 0f;
+                                gazeToActivateShootCommand = true;
+                            }
+                        }
+                        else
+                        {
+                            if (shootGazeDuration >= EyeTrackerController.GetValidGazeDuration(true) &&
+                            timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
+                            {
+                                shootGazeDuration = 0f;
+                                gazeToActivateShootCommand = true;
+                            }
+                        }
+                        /*if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
                         {
                             gazeToActivateShootCommand = true;
-                        }
-                    }
-                    else
-                    {
-                        shootGazeDuration = 0f;
+                        }*/
                     }
                 }
                 else
                 {
-                    shootGazeDuration = 0f;
+                    if (!ssvepRunning)
+                    {
+                        shootGazeDuration = 0f;
+                    }
+                    else
+                    {
+                        shootNotGazeDuration += unscaledDeltaTime;
+                        if (shootNotGazeDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            shootGazeDuration = 0f;
+                        }
+                    }
                 }
             }
             else if (ssvepRunning && gameController.IsInClassifyingMode())
             {
                 bool ssvepReceived = false;
-                if (InputUDP.IsNewInputReceived())
+                string input = InputUDP.GetNewBufferedInput();
+                if (input != "NULL")
                 {
-                    //ssvepReceived = InputUDP.IsSsvepDetected();
-                    string input = InputUDP.GetBufferedInput();
                     bci2000Input.text = input;
                     ssvepReceived = isSSVEPdetected(input);
                     previousSsvepInput = ssvepReceived;
@@ -468,7 +554,7 @@ public class FirstPersonController : MonoBehaviour
             notBlinkDuringShootingEnemy = false;
             if (Input.GetKey(KeyCode.V) && h_SkipStimulusController.IsFlickering())
             {
-                skipPressDuration += Time.deltaTime;
+                skipPressDuration += unscaledDeltaTime;
                 if (skipPressDuration >= EyeTrackerController.GetValidGazeDuration())
                 {
                     pressToActivateSkipCommand = true;
@@ -1455,7 +1541,7 @@ public class FirstPersonController : MonoBehaviour
                 ssvepCounter++;
             }
         }
-        if (ssvepCounter >= 4)
+        if (ssvepCounter >= 5)
         {
             return true;
         }

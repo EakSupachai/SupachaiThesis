@@ -15,8 +15,7 @@ public class InputUDP : MonoBehaviour
     private static object lockObject = new object();
     private static bool newInputReceived = false;
     private static bool inputStatus = false;
-    private static int bufferSize = 5;
-    private static int threshold = 4;
+    private static int bufferSize = 6;
     private static Random random = new Random();
 
     // start from unity3d
@@ -76,7 +75,6 @@ public class InputUDP : MonoBehaviour
                         bufferedInput = bufferedInput.Substring(strLength - bufferSize);
                     }
                 }
-                //apiOutput.text = bufferedInput;
             }
             catch (Exception err)
             {
@@ -106,7 +104,24 @@ public class InputUDP : MonoBehaviour
         return false;
     }*/
 
-    public static bool IsNewInputReceived()
+    public static string GetNewBufferedInput()
+    {
+        lock (lockObject)
+        {
+            if (newInputReceived)
+            {
+                newInputReceived = false;
+                return bufferedInput;
+            }
+            else
+            {
+                return "NULL";
+            }
+        }
+    }
+
+
+    /*public static bool IsNewInputReceived()
     {
         lock (lockObject)
         {
@@ -114,7 +129,7 @@ public class InputUDP : MonoBehaviour
             newInputReceived = false;
             return temp;
         }
-    }
+    }*/
 
     public static void CloseConnection()
     {
@@ -130,11 +145,11 @@ public class InputUDP : MonoBehaviour
         return inputStatus;
     }
 
-    public static string GetBufferedInput()
+    /*public static string GetBufferedInput()
     {
         lock (lockObject)
         {
             return bufferedInput;
         }
-    }
+    }*/
 }

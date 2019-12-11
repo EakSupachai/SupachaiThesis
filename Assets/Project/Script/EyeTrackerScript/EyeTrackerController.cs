@@ -22,7 +22,9 @@ public class EyeTrackerController : MonoBehaviour
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 8;
     private static float validGazeDuration = 1.25f;
-    private static float validGazeDurationForCalibration = 2f;
+    private static float validGazeDurationForCalibration = 5f;
+    private static float validDurationSinceLastBlink = 2.5f;
+    private static float blinkDurationAllowed = 0.25f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
     private static Vector2 blinkPoint = new Vector2(-1, -1);
@@ -193,14 +195,14 @@ public class EyeTrackerController : MonoBehaviour
         return blinkPoint;
     }
 
-    public static float GetScaledValidGazeDuration(bool calibrating = false)
+    /*public static float GetScaledValidGazeDuration(bool calibrating = false)
     {
         if (calibrating)
         {
             return validGazeDurationForCalibration * 0.2f;
         }
         return validGazeDuration * 0.2f;
-    }
+    }*/
 
     public static float GetValidGazeDuration(bool calibrating = false)
     {
@@ -209,6 +211,16 @@ public class EyeTrackerController : MonoBehaviour
             return validGazeDurationForCalibration;
         }
         return validGazeDuration;
+    }
+
+    public static float GetValidDurationSinceLastBlink()
+    {
+        return validDurationSinceLastBlink;
+    }
+
+    public static float GetBlinkDurationAllowed()
+    {
+        return blinkDurationAllowed;
     }
 
     public static void TurnOnBlinkRecording()

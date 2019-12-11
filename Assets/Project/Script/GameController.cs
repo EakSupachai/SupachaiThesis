@@ -1324,14 +1324,16 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void IncreaseObjectiveCounter(string state, int recordingState)
+    public bool IncreaseObjectiveCounter(string state, int recordingState)
     {
         if (state == currentState && objectiveCounter < objectiveTargetCounter)
         {
             objectiveCounter++;
             objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
             OutputUDP.SetRecordingState(recordingState);
+            return true;
         }
+        return false;
     }
 
     public bool IsInClassifyingMode()
