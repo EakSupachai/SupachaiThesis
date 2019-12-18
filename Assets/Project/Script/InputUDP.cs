@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Text;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
@@ -7,15 +8,14 @@ using Random = System.Random;
 
 public class InputUDP : MonoBehaviour
 {
-    //[SerializeField] private Text apiOutput;
-    
     private static Thread readThread;    
     private static UdpClient client;
     private static string bufferedInput = ""; // this one has to be cleaned up from time to time
     private static object lockObject = new object();
     private static bool newInputReceived = false;
     private static bool inputStatus = false;
-    private static int bufferSize = 6;
+    private static int bufferSize = 5;
+    private static int threshold = 4;
     private static Random random = new Random();
 
     // start from unity3d
@@ -43,14 +43,14 @@ public class InputUDP : MonoBehaviour
             {
                 // receive bytes
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
-                //byte[] data = client.Receive(ref anyIP);
-                //inputStatus = true;
+                byte[] data = client.Receive(ref anyIP);
+                inputStatus = true;
 
                 // encode UTF8-coded bytes to text format
-                //string text = Encoding.UTF8.GetString(data);
-                int rand = random.Next(0, 100);
+                string text = Encoding.UTF8.GetString(data);
+                /*int rand = random.Next(0, 100);
                 string text = "0\n";
-                /*if (rand < 50)
+                if (rand < 50)
                 {
                     text = "0\n";
                 }
@@ -83,27 +83,6 @@ public class InputUDP : MonoBehaviour
         }
     }
 
-    /*public static bool IsSsvepDetected()
-    {
-        int ssvepCounter = 0;
-        lock (lockObject)
-        {
-            //Debug.Log(bufferedInput);
-            for (int i = 0; i < bufferedInput.Length; i++)
-            {
-                if (bufferedInput[i].Equals('1'))
-                {
-                    ssvepCounter++;
-                }
-            }
-        }
-        if (ssvepCounter >= threshold)
-        {
-            return true;
-        }
-        return false;
-    }*/
-
     public static string GetNewBufferedInput()
     {
         lock (lockObject)
@@ -120,17 +99,6 @@ public class InputUDP : MonoBehaviour
         }
     }
 
-
-    /*public static bool IsNewInputReceived()
-    {
-        lock (lockObject)
-        {
-            bool temp = newInputReceived;
-            newInputReceived = false;
-            return temp;
-        }
-    }*/
-
     public static void CloseConnection()
     {
         if (readThread.IsAlive)
@@ -145,11 +113,8 @@ public class InputUDP : MonoBehaviour
         return inputStatus;
     }
 
-    /*public static string GetBufferedInput()
+    public static int GetThreshold()
     {
-        lock (lockObject)
-        {
-            return bufferedInput;
-        }
-    }*/
+        return threshold;
+    }
 }

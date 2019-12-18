@@ -524,7 +524,8 @@ public class FirstPersonController : MonoBehaviour
                 string input = InputUDP.GetNewBufferedInput();
                 if (input != "NULL")
                 {
-                    bci2000Input.text = input;
+                    //bci2000Input.text = input;
+                    bci2000Input.text = "";
                     ssvepReceived = isSSVEPdetected(input);
                     previousSsvepInput = ssvepReceived;
                 }
@@ -542,7 +543,7 @@ public class FirstPersonController : MonoBehaviour
                     {
                         gazeToActivateSkipCommand = true;
                     }
-                    else if (gazeInEnemyStimulus)
+                    else if (gazeInEnemyStimulus && isCurrentEnemyNotNull)
                     {
                         gazeToActivateShootCommand = true;
                     }
@@ -1541,7 +1542,7 @@ public class FirstPersonController : MonoBehaviour
                 ssvepCounter++;
             }
         }
-        if (ssvepCounter >= 5)
+        if (ssvepCounter >= InputUDP.GetThreshold())
         {
             return true;
         }
