@@ -54,6 +54,9 @@ public class ButtonController : MonoBehaviour
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+                GameModeRecorder.classifyMode = true;
+                GameModeRecorder.testMode = false;
+                GameModeRecorder.calibrationMode = false;
                 StartCoroutine(StallBeforeLoadingScene(1));
             }
             else
@@ -66,7 +69,11 @@ public class ButtonController : MonoBehaviour
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-                StartCoroutine(StallBeforeLoadingScene(2));
+                GameModeRecorder.classifyMode = true;
+                GameModeRecorder.testMode = true;
+                GameModeRecorder.calibrationMode = false;
+                StartCoroutine(StallBeforeLoadingScene(1));
+                //StartCoroutine(StallBeforeLoadingScene(2));
             }
             else
             {
@@ -78,7 +85,11 @@ public class ButtonController : MonoBehaviour
             if (AddressRecorder.in_recordValid && AddressRecorder.out_recordValid)
             {
                 Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-                StartCoroutine(StallBeforeLoadingScene(3));
+                GameModeRecorder.classifyMode = false;
+                GameModeRecorder.testMode = false;
+                GameModeRecorder.calibrationMode = true;
+                StartCoroutine(StallBeforeLoadingScene(1));
+                //StartCoroutine(StallBeforeLoadingScene(3));
             }
             else
             {
@@ -91,7 +102,8 @@ public class ButtonController : MonoBehaviour
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
-            if (SceneManager.GetActiveScene().name == "Calibration")
+            StartCoroutine(StallBeforeLoadingScene(1));
+            /*if (SceneManager.GetActiveScene().name == "Calibration")
             {
                 StartCoroutine(StallBeforeLoadingScene(3));
             }
@@ -102,7 +114,7 @@ public class ButtonController : MonoBehaviour
             else
             {
                 StartCoroutine(StallBeforeLoadingScene(1));
-            }
+            }*/
         }
         else if (command == "back")
         {

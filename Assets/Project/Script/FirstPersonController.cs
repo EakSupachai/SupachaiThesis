@@ -120,6 +120,8 @@ public class FirstPersonController : MonoBehaviour
     private EnemyBehavior currentEnemyInCrosshair;
     private bool notBlinkDuringShootingEnemy;
     private bool forceToChangeGun;
+    private bool calibrating;
+    private bool classifying;
     private bool enableADS;
     private float timeSinceLastBlink;
        
@@ -143,6 +145,9 @@ public class FirstPersonController : MonoBehaviour
     // Use this for initialization
     private void Start()
     {
+        calibrating = GameModeRecorder.calibrationMode;
+        classifying = GameModeRecorder.classifyMode;
+
         PrepareCommandAreaCorners();
         SetUIPosition(g_GunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
         SetUIPosition(s_SkillCooldownHUD.gameObject.GetComponent<RectTransform>(), out skillPanelPosition);
@@ -276,7 +281,6 @@ public class FirstPersonController : MonoBehaviour
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
         bool ssvepRunning = InputUDP.GetSsvepInputStatus();
-        bool calibrating = gameController.IsInCalibrationMode();
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
@@ -313,8 +317,6 @@ public class FirstPersonController : MonoBehaviour
                         {
                             timeSinceLastBlink = 0f;
                         }
-                        /*timeSinceLastBlink = 0f;
-                        gameController.IncreaseObjectiveCounter("STEP1", 3);*/
                     }
                 }
             }
@@ -391,20 +393,6 @@ public class FirstPersonController : MonoBehaviour
                             gameController.IncreaseObjectiveCounter("STEP6", 2);
                         }
                     }
-                    /*float validGazeDuration = gameController.CanFixCore() ? EyeTrackerController.GetValidGazeDuration(calibrating) : 
-                        EyeTrackerController.GetScaledValidGazeDuration(calibrating);
-                    if (coreGazeDuration >= validGazeDuration)
-                    {
-                        if (calibrating)
-                        {
-                            gameController.IncreaseObjectiveCounter("STEP3", 2);
-                            gameController.IncreaseObjectiveCounter("STEP6", 2);
-                        }
-                        else
-                        {
-                            gazeToActivateCoreCommand = true;
-                        }
-                    }*/
                 }
                 else
                 {
@@ -444,18 +432,6 @@ public class FirstPersonController : MonoBehaviour
                             gameController.IncreaseObjectiveCounter("STEP7", 2);
                         }
                     }
-                    /*if (skipGazeDuration >= EyeTrackerController.GetValidGazeDuration(calibrating))
-                    {
-                        if (calibrating)
-                        {
-                            gameController.IncreaseObjectiveCounter("STEP4", 2);
-                            gameController.IncreaseObjectiveCounter("STEP7", 2);
-                        }
-                        else
-                        {
-                            gazeToActivateSkipCommand = true;
-                        }
-                    }*/
                 }
                 else
                 {
@@ -496,10 +472,6 @@ public class FirstPersonController : MonoBehaviour
                                 gazeToActivateShootCommand = true;
                             }
                         }
-                        /*if (shootGazeDuration >= EyeTrackerController.GetScaledValidGazeDuration(calibrating))
-                        {
-                            gazeToActivateShootCommand = true;
-                        }*/
                     }
                 }
                 else
@@ -518,14 +490,17 @@ public class FirstPersonController : MonoBehaviour
                     }
                 }
             }
-            else if (ssvepRunning && gameController.IsInClassifyingMode())
+            else if (ssvepRunning && classifying)
             {
                 bool ssvepReceived = false;
                 string input = InputUDP.GetNewBufferedInput();
                 if (input != "NULL")
                 {
                     //bci2000Input.text = input;
-                    bci2000Input.text = "";
+                    // 90 255 0
+                    bci2000Input.color = new Color(0.353f, 1f, 0f);
+                    // 255 30 0
+                    bci2000Input.color = new Color(1f, 0.118f, 0f);
                     ssvepReceived = isSSVEPdetected(input);
                     previousSsvepInput = ssvepReceived;
                 }

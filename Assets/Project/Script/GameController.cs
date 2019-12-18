@@ -8,10 +8,6 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private bool classifyMode;
-    [SerializeField] private bool testMode;
-    [SerializeField] private bool calibrationMode;
-
     [SerializeField] private FirstPersonController player;
     [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
     [SerializeField] private List<Transform> decelerationPoints = new List<Transform>();
@@ -59,6 +55,9 @@ public class GameController : MonoBehaviour
     private static string currentState;
     private static float coreHp;
     private static float coreFullHp;
+    private bool classifyMode;
+    private bool testMode;
+    private bool calibrationMode;
 
     public static bool pause;
     public static bool gameOver;
@@ -129,6 +128,10 @@ public class GameController : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 1;
+
+        classifyMode = GameModeRecorder.classifyMode;
+        testMode = GameModeRecorder.testMode;
+        calibrationMode = GameModeRecorder.calibrationMode;
 
         pause = false;
         gameOver = false;
@@ -648,21 +651,6 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     congratText.text = "";
                     currentState = "REMOVE CORE HP";
-                    /*if (calibrationMode)
-                    {
-                        if (nextWave == 2)
-                        {
-                            currentState = "REMOVE CORE HP";
-                        }
-                        else
-                        {
-                            SceneManager.LoadScene(0);
-                        }
-                    }
-                    else
-                    {
-                        currentState = "REMOVE CORE HP";
-                    }*/
                 }
                 break;
             case "REMOVE CORE HP":
@@ -701,14 +689,6 @@ public class GameController : MonoBehaviour
                     if (calibrationMode)
                     {
                         currentState = nextWave == 2 ? "STEP3 INS" : "STEP6 INS";
-                        /*if (nextWave == 2)
-                        {
-                            currentState = "STEP3 INS";
-                        }
-                        else
-                        {
-                            currentState = "WAITING";
-                        }*/
                     }
                     else
                     {
@@ -1334,21 +1314,6 @@ public class GameController : MonoBehaviour
             return true;
         }
         return false;
-    }
-
-    public bool IsInClassifyingMode()
-    {
-        return classifyMode;
-    }
-
-    public bool IsInTestMode()
-    {
-        return testMode;
-    }
-
-    public bool IsInCalibrationMode()
-    {
-        return calibrationMode;
     }
 
     public static bool IsInWaveCompletedState()

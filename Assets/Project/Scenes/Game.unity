@@ -10412,9 +10412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e0984d8770c0d94db765e3eb8172b59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  classifyMode: 1
-  testMode: 0
-  calibrationMode: 0
   player: {fileID: 6710741858142577804}
   spawnPoints:
   - {fileID: 1877347638}
@@ -21932,7 +21929,7 @@ GameObject:
   - component: {fileID: 886697748}
   - component: {fileID: 886697747}
   m_Layer: 5
-  m_Name: BCI2000Input
+  m_Name: BCI2000Status
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21951,7 +21948,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.3529412, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -21971,7 +21968,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 00000
+  m_Text: BCI2000
 --- !u!222 &886697748
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -21994,8 +21991,8 @@ RectTransform:
   m_Father: {fileID: 1124554339}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.80200005, y: 0.9305808}
-  m_AnchorMax: {x: 0.91859245, y: 0.9733273}
+  m_AnchorMin: {x: 0.846, y: 0.9343402}
+  m_AnchorMax: {x: 0.9217637, y: 0.9696391}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -26559,8 +26556,8 @@ RectTransform:
   m_Father: {fileID: 731895335}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.7534065, y: 0}
-  m_AnchorMax: {x: 1, y: 0.21100001}
+  m_AnchorMin: {x: 0.74, y: 0}
+  m_AnchorMax: {x: 1, y: 0.22634356}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
