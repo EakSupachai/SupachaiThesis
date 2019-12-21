@@ -140,7 +140,13 @@ public class FirstPersonController : MonoBehaviour
     private float skipPressDuration;
     private float shootGazeDuration;
     private float shootNotGazeDuration;
+    private float stimulusNotGazeDuration;
     private bool previousSsvepInput;
+    // has 4 value: NONE, CORE, SKIP, ENEMY
+    private string currentGazeZone = "NONE";
+
+    private Color redColor = new Color(1f, 0.133f, 0.133f);
+    private Color greenColor = new Color(0.318f, 0.965f, 0f);
 
     // Use this for initialization
     private void Start()
@@ -280,7 +286,7 @@ public class FirstPersonController : MonoBehaviour
 
         // check eye tracker input
         bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
-        bool ssvepRunning = InputUDP.GetSsvepInputStatus();
+        bool ssvepRunning = InputUDP.GetInputAvailableStatus();
         bool blinkToAim = false;
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
@@ -295,6 +301,7 @@ public class FirstPersonController : MonoBehaviour
         float unscaledDeltaTime = Time.deltaTime / Time.timeScale;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         Vector2 gazePoint = Vector2.zero;
+        bci2000Input.color = ssvepRunning ? greenColor : redColor;
         if (eyeTrackerRunning)
         {
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
@@ -492,15 +499,74 @@ public class FirstPersonController : MonoBehaviour
             }
             else if (ssvepRunning && classifying)
             {
-                bool ssvepReceived = false;
+                if (gazeInCoreStimulus)
+                {
+                    if (currentGazeZone != "CORE")
+                    {
+                        InputUDP.ClearInput();
+                    }
+                    currentGazeZone = "CORE";
+                    stimulusNotGazeDuration = 0f;
+                }
+                else if (gazeInSkipStimulus)
+                {
+                    if (currentGazeZone != "SKIP")
+                    {
+                        InputUDP.ClearInput();
+                    }
+                    currentGazeZone = "SKIP";
+                    stimulusNotGazeDuration = 0f;
+                }
+                else if (gazeInEnemyStimulus && isCurrentEnemyNotNull)
+                {
+                    if (currentGazeZone != "ENEMY")
+                    {
+                        InputUDP.ClearInput();
+                    }
+                    currentGazeZone = "ENEMY";
+                    stimulusNotGazeDuration = 0f;
+                }
+                else
+                {
+                    stimulusNotGazeDuration += unscaledDeltaTime;
+                    if (stimulusNotGazeDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                    {
+                        currentGazeZone = "NONE";
+                    }
+                }
+                if (currentGazeZone != "NONE")
+                {
+                    bool ssvepReceived = false;
+                    string bciBufferedInput = InputUDP.GetNewBufferedInput();
+                    if (bciBufferedInput != "NULL")
+                    {
+                        ssvepReceived = isSSVEPdetected(bciBufferedInput);
+                        previousSsvepInput = ssvepReceived;
+                    }
+                    else
+                    {
+                        ssvepReceived = previousSsvepInput;
+                    }
+                    if (ssvepReceived)
+                    {
+                        if (gazeInCoreStimulus)
+                        {
+                            gazeToActivateCoreCommand = true;
+                        }
+                        else if (gazeInSkipStimulus)
+                        {
+                            gazeToActivateSkipCommand = true;
+                        }
+                        else if (gazeInEnemyStimulus && isCurrentEnemyNotNull)
+                        {
+                            gazeToActivateShootCommand = true;
+                        }
+                    }
+                }
+                /*bool ssvepReceived = false;
                 string input = InputUDP.GetNewBufferedInput();
                 if (input != "NULL")
                 {
-                    //bci2000Input.text = input;
-                    // 90 255 0
-                    bci2000Input.color = new Color(0.353f, 1f, 0f);
-                    // 255 30 0
-                    bci2000Input.color = new Color(1f, 0.118f, 0f);
                     ssvepReceived = isSSVEPdetected(input);
                     previousSsvepInput = ssvepReceived;
                 }
@@ -522,7 +588,7 @@ public class FirstPersonController : MonoBehaviour
                     {
                         gazeToActivateShootCommand = true;
                     }
-                } 
+                }*/
             }
         }
         else

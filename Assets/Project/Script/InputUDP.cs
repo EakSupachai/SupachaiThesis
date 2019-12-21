@@ -13,7 +13,7 @@ public class InputUDP : MonoBehaviour
     private static string bufferedInput = ""; // this one has to be cleaned up from time to time
     private static object lockObject = new object();
     private static bool newInputReceived = false;
-    private static bool inputStatus = false;
+    private static bool inputAvailableStatus = false;
     private static int bufferSize = 5;
     private static int threshold = 4;
     private static Random random = new Random();
@@ -44,7 +44,7 @@ public class InputUDP : MonoBehaviour
                 // receive bytes
                 IPEndPoint anyIP = new IPEndPoint(IPAddress.Any, 0);
                 byte[] data = client.Receive(ref anyIP);
-                inputStatus = true;
+                inputAvailableStatus = true;
 
                 // encode UTF8-coded bytes to text format
                 string text = Encoding.UTF8.GetString(data);
@@ -108,9 +108,17 @@ public class InputUDP : MonoBehaviour
         client.Close();
     }
 
-    public static bool GetSsvepInputStatus()
+    public static bool GetInputAvailableStatus()
     {
-        return inputStatus;
+        return inputAvailableStatus;
+    }
+
+    public static void ClearInput()
+    {
+        lock (lockObject)
+        {
+            bufferedInput = "00000";
+        }
     }
 
     public static int GetThreshold()
