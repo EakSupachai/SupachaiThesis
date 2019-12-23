@@ -504,16 +504,12 @@ public class FirstPersonController : MonoBehaviour
                 {
                     if (currentGazeZone == "NONE")
                     {
-                        // set currentGazeZone to "CORE" immediately
-                        // clear input, unlock
                         currentGazeZone = "CORE";
                         gazeShiftDuration = 0f;
                         InputUDP.UnlockInput();
                     }
                     else if (currentGazeZone != "CORE")
                     {
-                        // increase universal wait time and check if it's more than 0.18 sec. after that 
-                        // - clear input, unlock, set currentGazeZone to "CORE"
                         gazeShiftDuration += unscaledDeltaTime;
                         if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
                         {
@@ -524,7 +520,6 @@ public class FirstPersonController : MonoBehaviour
                     }
                     else
                     {
-                        // reset universal wait time to 0
                         gazeShiftDuration = 0f;
                     }
                 }
@@ -532,16 +527,12 @@ public class FirstPersonController : MonoBehaviour
                 {
                     if (currentGazeZone == "NONE")
                     {
-                        // set currentGazeZone to "SKIP" immediately
-                        // clear input, unlock
                         currentGazeZone = "SKIP";
                         gazeShiftDuration = 0f;
                         InputUDP.UnlockInput();
                     }
                     else if (currentGazeZone != "SKIP")
                     {
-                        // increase universal wait time and check if it's more than 0.18 sec. after that 
-                        // - clear input, unlock, set currentGazeZone to "SKIP"
                         gazeShiftDuration += unscaledDeltaTime;
                         if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
                         {
@@ -552,7 +543,6 @@ public class FirstPersonController : MonoBehaviour
                     }
                     else
                     {
-                        // reset universal wait time to 0
                         gazeShiftDuration = 0f;
                     }
                 }
@@ -560,16 +550,12 @@ public class FirstPersonController : MonoBehaviour
                 {
                     if (currentGazeZone == "NONE")
                     {
-                        // set currentGazeZone to "SKIP" immediately
-                        // clear input, unlock
                         currentGazeZone = "ENEMY";
                         gazeShiftDuration = 0f;
                         InputUDP.UnlockInput();
                     }
                     else if (currentGazeZone != "ENEMY")
                     {
-                        // increase universal wait time and check if it's more than 0.18 sec. after that 
-                        // - clear input, unlock, set currentGazeZone to "ENEMY"
                         gazeShiftDuration += unscaledDeltaTime;
                         if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
                         {
@@ -580,7 +566,6 @@ public class FirstPersonController : MonoBehaviour
                     }
                     else
                     {
-                        // reset universal wait time to 0
                         gazeShiftDuration = 0f;
                     }
                 }
@@ -597,6 +582,7 @@ public class FirstPersonController : MonoBehaviour
                 if (currentGazeZone != "NONE")
                 {
                     bool ssvepReceived = false;
+                    bool tempGazeInCoreStimulus = gazeInCoreStimulus && currentGazeZone == "CORE";
                     string bciBufferedInput = InputUDP.GetNewBufferedInput();
                     if (bciBufferedInput != "NULL")
                     {
@@ -605,19 +591,19 @@ public class FirstPersonController : MonoBehaviour
                     }
                     else
                     {
-                        ssvepReceived = currentGazeZone == "CORE" ? previousSsvepInput : false;
+                        ssvepReceived = tempGazeInCoreStimulus ? previousSsvepInput : false;
                     }
                     if (ssvepReceived)
                     {
-                        if (currentGazeZone == "CORE")
+                        if (tempGazeInCoreStimulus)
                         {
                             gazeToActivateCoreCommand = true;
                         }
-                        else if (currentGazeZone == "SKIP")
+                        else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                         {
                             gazeToActivateSkipCommand = true;
                         }
-                        else if (currentGazeZone == "ENEMY")
+                        else if (gazeInEnemyStimulus && isCurrentEnemyNotNull && currentGazeZone == "ENEMY")
                         {
                             gazeToActivateShootCommand = true;
                         }
