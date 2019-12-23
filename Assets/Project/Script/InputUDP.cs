@@ -14,6 +14,7 @@ public class InputUDP : MonoBehaviour
     private static object lockObject = new object();
     private static bool newInputReceived = false;
     private static bool inputAvailableStatus = false;
+    private static bool inputLockStatus = true;
     private static int bufferSize = 5;
     private static int threshold = 4;
     private static Random random = new Random();
@@ -47,26 +48,34 @@ public class InputUDP : MonoBehaviour
                 inputAvailableStatus = true;
 
                 // encode UTF8-coded bytes to text format
-                string text = Encoding.UTF8.GetString(data);
-                /*int rand = random.Next(0, 100);
-                string text = "0\n";
-                if (rand < 50)
-                {
-                    text = "0\n";
-                }
-                else
-                {
-                    text = "1\n";
-                }*/
-
-                // show received message
-                int strLength = 0;
-                strLength = text.Length;
-                text = text.Substring(strLength - 2, 1);
-
-                // update received messages
                 lock (lockObject)
                 {
+                    string text = "";
+                    if (inputLockStatus)
+                    {
+                        text = "0\n";
+                    }
+                    else
+                    {
+                        text = Encoding.UTF8.GetString(data);
+                    }
+                    /*int rand = random.Next(0, 100);
+                    string text = "0\n";
+                    if (rand < 50)
+                    {
+                        text = "0\n";
+                    }
+                    else
+                    {
+                        text = "1\n";
+                    }*/
+
+                    // show received message
+                    int strLength = 0;
+                    strLength = text.Length;
+                    text = text.Substring(strLength - 2, 1);
+
+                    // update received messages
                     newInputReceived = true;
                     bufferedInput = bufferedInput + text;
                     strLength = bufferedInput.Length;
@@ -124,5 +133,23 @@ public class InputUDP : MonoBehaviour
     public static int GetThreshold()
     {
         return threshold;
+    }
+
+    public static void LockInput()
+    {
+        lock (lockObject)
+        {
+            bufferedInput = "00000";
+            inputLockStatus = true;
+        }
+    }
+
+    public static void UnlockInput()
+    {
+        lock (lockObject)
+        {
+            bufferedInput = "00000";
+            inputLockStatus = false;
+        }
     }
 }

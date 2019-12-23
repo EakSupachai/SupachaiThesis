@@ -141,6 +141,7 @@ public class FirstPersonController : MonoBehaviour
     private float shootGazeDuration;
     private float shootNotGazeDuration;
     private float stimulusNotGazeDuration;
+    private float gazeShiftDuration;
     private bool previousSsvepInput;
     // has 4 value: NONE, CORE, SKIP, ENEMY
     private string currentGazeZone = "NONE";
@@ -501,6 +502,129 @@ public class FirstPersonController : MonoBehaviour
             {
                 if (gazeInCoreStimulus)
                 {
+                    if (currentGazeZone == "NONE")
+                    {
+                        // set currentGazeZone to "CORE" immediately
+                        // clear input, unlock
+                        currentGazeZone = "CORE";
+                        gazeShiftDuration = 0f;
+                        InputUDP.UnlockInput();
+                    }
+                    else if (currentGazeZone != "CORE")
+                    {
+                        // increase universal wait time and check if it's more than 0.18 sec. after that 
+                        // - clear input, unlock, set currentGazeZone to "CORE"
+                        gazeShiftDuration += unscaledDeltaTime;
+                        if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            currentGazeZone = "CORE";
+                            gazeShiftDuration = 0f;
+                            InputUDP.UnlockInput();
+                        }
+                    }
+                    else
+                    {
+                        // reset universal wait time to 0
+                        gazeShiftDuration = 0f;
+                    }
+                }
+                else if (gazeInSkipStimulus)
+                {
+                    if (currentGazeZone == "NONE")
+                    {
+                        // set currentGazeZone to "SKIP" immediately
+                        // clear input, unlock
+                        currentGazeZone = "SKIP";
+                        gazeShiftDuration = 0f;
+                        InputUDP.UnlockInput();
+                    }
+                    else if (currentGazeZone != "SKIP")
+                    {
+                        // increase universal wait time and check if it's more than 0.18 sec. after that 
+                        // - clear input, unlock, set currentGazeZone to "SKIP"
+                        gazeShiftDuration += unscaledDeltaTime;
+                        if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            currentGazeZone = "SKIP";
+                            gazeShiftDuration = 0f;
+                            InputUDP.UnlockInput();
+                        }
+                    }
+                    else
+                    {
+                        // reset universal wait time to 0
+                        gazeShiftDuration = 0f;
+                    }
+                }
+                else if (gazeInEnemyStimulus && isCurrentEnemyNotNull)
+                {
+                    if (currentGazeZone == "NONE")
+                    {
+                        // set currentGazeZone to "SKIP" immediately
+                        // clear input, unlock
+                        currentGazeZone = "ENEMY";
+                        gazeShiftDuration = 0f;
+                        InputUDP.UnlockInput();
+                    }
+                    else if (currentGazeZone != "ENEMY")
+                    {
+                        // increase universal wait time and check if it's more than 0.18 sec. after that 
+                        // - clear input, unlock, set currentGazeZone to "ENEMY"
+                        gazeShiftDuration += unscaledDeltaTime;
+                        if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                        {
+                            currentGazeZone = "ENEMY";
+                            gazeShiftDuration = 0f;
+                            InputUDP.UnlockInput();
+                        }
+                    }
+                    else
+                    {
+                        // reset universal wait time to 0
+                        gazeShiftDuration = 0f;
+                    }
+                }
+                else
+                {
+                    gazeShiftDuration += unscaledDeltaTime;
+                    if (gazeShiftDuration >= EyeTrackerController.GetBlinkDurationAllowed())
+                    {
+                        currentGazeZone = "NONE";
+                        gazeShiftDuration = 0f;
+                        InputUDP.LockInput();
+                    }
+                }
+                if (currentGazeZone != "NONE")
+                {
+                    bool ssvepReceived = false;
+                    string bciBufferedInput = InputUDP.GetNewBufferedInput();
+                    if (bciBufferedInput != "NULL")
+                    {
+                        ssvepReceived = isSSVEPdetected(bciBufferedInput);
+                        previousSsvepInput = ssvepReceived;
+                    }
+                    else
+                    {
+                        ssvepReceived = currentGazeZone == "CORE" ? previousSsvepInput : false;
+                    }
+                    if (ssvepReceived)
+                    {
+                        if (currentGazeZone == "CORE")
+                        {
+                            gazeToActivateCoreCommand = true;
+                        }
+                        else if (currentGazeZone == "SKIP")
+                        {
+                            gazeToActivateSkipCommand = true;
+                        }
+                        else if (currentGazeZone == "ENEMY")
+                        {
+                            gazeToActivateShootCommand = true;
+                        }
+                    }
+                }
+                /*if (gazeInCoreStimulus)
+                {
                     if (currentGazeZone != "CORE")
                     {
                         InputUDP.ClearInput();
@@ -562,7 +686,7 @@ public class FirstPersonController : MonoBehaviour
                             gazeToActivateShootCommand = true;
                         }
                     }
-                }
+                }*/
                 /*bool ssvepReceived = false;
                 string input = InputUDP.GetNewBufferedInput();
                 if (input != "NULL")
