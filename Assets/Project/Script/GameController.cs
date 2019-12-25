@@ -25,9 +25,6 @@ public class GameController : MonoBehaviour
     [SerializeField] private int smallEnemyDamage = 10;
     [SerializeField] private int mediumEnemyDamage = 15;
     [SerializeField] private int largeEnemyDamage = 20;
-    [SerializeField] private int smallEnemyScore = 100;
-    [SerializeField] private int mediumEnemyScore = 150;
-    [SerializeField] private int largeEnemyScore = 200;
     [SerializeField] private Image coreHpBar;
     [SerializeField] private Image laserFenceCooldownIcon;
     [SerializeField] private Text waveTimerText;
@@ -39,6 +36,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private Text countdownText;
     [SerializeField] private Text objectiveText;
     [SerializeField] private Text objectiveTargetText;
+    [SerializeField] private Text pauseTestResultText;
+    [SerializeField] private Text gameOverTestResultText;
+    [SerializeField] private Text gameCompleteTestResultText;
     [SerializeField] private Canvas hudCanvas;
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private Canvas gameOverCanvas;
@@ -120,6 +120,11 @@ public class GameController : MonoBehaviour
     private int fixingCost;
     private int objectiveCounter;
     private int objectiveTargetCounter;
+    private int enemiesTakenOutByAR;
+    private int enemiesTakenOutBySR;
+    private int enemiesTakenOutByLaser;
+    private int ssvepCommandCount;
+    private float accSsvepCommandDelay;
 
     private List<float> spawnTimeLimits = new List<float>();
     private List<float> spawnTimers = new List<float>();
@@ -278,6 +283,11 @@ public class GameController : MonoBehaviour
         }
         if (pause)
         {
+            double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
+            pauseTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
+                "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
+                "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
+                "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
             return;
         }
 
@@ -325,7 +335,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 1:\nTry to walk around without blinking.";
+                    twoLineText.text = "Step 1:\nTry to walk around without blinking\nfor 2.5 second.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -341,8 +351,8 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 4;
-                    objectiveText.text = "Try to walk around\nwithout blinking.";
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Try to walk around\nwithout blinking for 2.5 second.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -357,7 +367,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 2:\nDestroy the enemies by using auto rifle. Don't blink while shooting.";
+                    twoLineText.text = "Step 2:\nDestroy the enemies with auto rifle.\nDon't blink while shooting.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -373,8 +383,8 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 4;
-                    objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
+                    objectiveTargetCounter = 1;
+                    objectiveText.text = "Destroy the enemies with auto rifle.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
@@ -395,7 +405,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 3:\nPay attention to the core stimulus.";
+                    twoLineText.text = "Step 3:\nLook at the core and pay attention to the stimulus.\n";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -412,7 +422,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the core stimulus.";
+                    objectiveText.text = "Look at the core and\npay attention to the stimulus.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -427,7 +437,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 4:\nPay attention to the skip stimulus.";
+                    twoLineText.text = "Step 4:\nPay attention to the stimulus\nat the buttom of the screen.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -444,7 +454,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the skip stimulus.";
+                    objectiveText.text = "Pay attention to the stimulus\nat the buttom of the screen.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                     player.StartSkipStimulus();
                 }
@@ -461,7 +471,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 5:\nDestroy the enemies by using sniper rifle. Don't blink while shooting.";
+                    twoLineText.text = "Step 5:\nUse sniper rifle to aim at the enemies and\npay attention to the stimulus.";
                     currentStateDuration = instructionDuration;
                     player.ForceToChangeGun();
                     player.EnableADS();
@@ -480,7 +490,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 4;
-                    objectiveText.text = "Destroy the enemies.\nDon't blink while shooting.";
+                    objectiveText.text = "Use sniper rifle to aim at the enemies\nand pay attention to the stimulus.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (ProgressEnemyWave())
@@ -501,7 +511,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 6:\nPay attention to the core stimulus.";
+                    twoLineText.text = "Step 6:\nLook at the core and pay attention to the stimulus.\n";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -518,7 +528,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the core stimulus.";
+                    objectiveText.text = "Look at the core and\npay attention to the stimulus.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -533,7 +543,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     stateStarted = true;
-                    twoLineText.text = "Step 7:\nPay attention to the skip stimulus.";
+                    twoLineText.text = "Step 7:\nPay attention to the stimulus\nat the buttom of the screen.";
                     currentStateDuration = instructionDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -550,7 +560,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 1;
-                    objectiveText.text = "Pay attention\nto the skip stimulus.";
+                    objectiveText.text = "Pay attention to the stimulus\nat the buttom of the screen.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                     player.StartSkipStimulus();
                 }
@@ -660,7 +670,7 @@ public class GameController : MonoBehaviour
                     currentStateDuration = removeCoreHpStateDuration;
                     coreHpToDecrease = coreHp - (coreHp * 0.3f);
                     currentDecreaseCoreHpAudioPrefab = Instantiate(decreaseCoreHpAudioPrefab, Vector3.zero, Quaternion.identity);
-                    twoLineText.text = "We are reducing some core HP.\nFixing it will cost you " + fixingCost + " points.";
+                    twoLineText.text = "We are reducing some core HP.\nFixing it will cost you " + fixingCost + " points.\n";
                 }
                 currentStateDuration -= Time.deltaTime;
                 if (coreHp > coreHpToDecrease)
@@ -726,6 +736,11 @@ public class GameController : MonoBehaviour
                     player.TurnOnDOF();
                     coreAudioSource.Pause();
                     DisableHUD();
+                    double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
+                    gameOverTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
+                        "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
+                        "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
+                        "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
                     gameOverCanvas.gameObject.SetActive(true);
                     OutputUDP.CloseConnection();
                 }
@@ -742,6 +757,11 @@ public class GameController : MonoBehaviour
                     DisableHUD();
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
+                    double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
+                    gameCompleteTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
+                        "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
+                        "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
+                        "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
                     gameCompletedCanvas.gameObject.SetActive(true);
                     OutputUDP.CloseConnection();
                 }
@@ -791,8 +811,10 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private bool timesUpFlag;
     private void StartEnemyWave()
     {
+        timesUpFlag = false;
         currentStateDuration = waveDuration;
         if (!calibrationMode)
         {
@@ -842,7 +864,6 @@ public class GameController : MonoBehaviour
     }
 
     private List<GameObject> enemies = new List<GameObject>();
-
     private bool ProgressEnemyWave()
     {
         currentStateDuration -= Time.deltaTime;
@@ -1075,13 +1096,17 @@ public class GameController : MonoBehaviour
         Instantiate(coreDamagedAudioPrefab, transform.position, Quaternion.identity);
     }
 
-    public void IncreaseCoreHp()
+    public void IncreaseCoreHp(float stimulusGazeDuration = -1f)
     {
         if (!waiting_alreadyBeginFixing)
         {
             waiting_alreadyBeginFixing = true;
             score = score - fixingCost;
             scoreText.text = "" + score;
+            if (stimulusGazeDuration != -1f)
+            {
+                UpdateAccCommandDelay(stimulusGazeDuration);
+            }
         }
         if (coreHp < coreFullHp)
         {
@@ -1279,21 +1304,31 @@ public class GameController : MonoBehaviour
         enemyOnScreen--;
     }
 
-    public void AddScore(int type)
+    public void AddScore(int score)
     {
-        if (type == 1)
-        {
-            score += smallEnemyScore;
-        }
-        else if (type == 2)
-        {
-            score += mediumEnemyScore;
-        }
-        else
-        {
-            score += largeEnemyScore;
-        }
+        score += score;
         scoreText.text = "" + score;
+    }
+
+    public void IncreaseEnemiesTakenOutByAR()
+    {
+        enemiesTakenOutByAR++;
+    }
+
+    public void IncreaseEnemiesTakenOutBySR()
+    {
+        enemiesTakenOutBySR++;
+    }
+
+    public void IncreaseEnemiesTakenOutByLaser()
+    {
+        enemiesTakenOutByLaser++;
+    }
+
+    public void UpdateAccCommandDelay(float delay)
+    {
+        accSsvepCommandDelay += delay;
+        ssvepCommandCount++;
     }
 
     public void SkipWaitingState()

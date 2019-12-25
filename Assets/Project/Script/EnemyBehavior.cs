@@ -366,6 +366,7 @@ public class EnemyBehavior : MonoBehaviour
             {
                 hp = 0f;
                 Explode(true, 1.5f);
+                gameController.IncreaseEnemiesTakenOutByLaser();
             }
         }
     }
@@ -379,13 +380,13 @@ public class EnemyBehavior : MonoBehaviour
         gameController.RemoveEnemyOnScreen();
         if (showScore)
         {
-            gameController.AddScore(type);
             Vector3 scorePanelDirection = transform.position - gameController.GetPlayerCameraPosition();
             scorePanelDirection.y = 0f;
             GameObject scorePopUp = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
             int realScore = (int)(score * modifier);
             scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + realScore;
             Destroy(scorePopUp, 2f);
+            gameController.AddScore(realScore);
         }
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
@@ -484,6 +485,14 @@ public class EnemyBehavior : MonoBehaviour
             {
                 hp = 0f;
                 Explode(true);
+                if (ammoType == "ORANGE")
+                {
+                    gameController.IncreaseEnemiesTakenOutBySR();
+                }
+                else
+                {
+                    gameController.IncreaseEnemiesTakenOutByAR();
+                }
             }
             else
             {
