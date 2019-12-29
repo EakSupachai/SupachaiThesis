@@ -866,7 +866,20 @@ public class GameController : MonoBehaviour
     private List<GameObject> enemies = new List<GameObject>();
     private bool ProgressEnemyWave()
     {
-        currentStateDuration -= Time.deltaTime;
+        if (!testMode && !calibrationMode)
+        {
+            currentStateDuration -= Time.deltaTime;
+            if (currentStateDuration <= 0f)
+            {
+                currentStateDuration = 0f;
+            }
+        }
+        else if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
+        {
+            timesUpFlag = true;
+            //currentStateDuration = 0f;
+        }
+        /*currentStateDuration -= Time.deltaTime;
         if (currentStateDuration <= 0f)
         {
             currentStateDuration = testMode || calibrationMode ? waveDuration : 0f;
@@ -874,7 +887,7 @@ public class GameController : MonoBehaviour
         if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
         {
             currentStateDuration = 0f;
-        }
+        }*/
 
         if (currentState == "WAVE1")
         {
@@ -893,90 +906,154 @@ public class GameController : MonoBehaviour
             waveTimerText.text = "W0  0:00";
         }
 
-        if (currentStateDuration > 0f)
+        if (!timesUpFlag)
         {
-            for (int i = 0; i < spawnPoints.Count; i++)
+            float rand = Random.Range(0, 100);
+            int smallEnemySpawnChance = 0;
+            int mediumEnemySpawnChance = 0;
+            int largeEnemySpawnChance = 0;
+            int consecutiveSpawnLimit = 0;
+            if (currentStateDuration <= 0f)
             {
-                spawnTimers[i] = spawnTimers[i] + Time.deltaTime;
-                if (spawnTimers[i] >= spawnTimeLimits[i])
+                timesUpFlag = true;
+                rand = Random.Range(0, 100);
+                float minTimer = 999f;
+                int minIndex = -1;
+                for (int i = 0; i < spawnPoints.Count; i++)
                 {
-                    float rand = Random.Range(0, 100);
-                    int smallEnemySpawnChance = 0;
-                    int mediumEnemySpawnChance = 0;
-                    int largeEnemySpawnChance = 0;
-                    int consecutiveSpawnLimit = 0;
-                    spawnTimers[i] = 0f;
+                    if (spawnTimers[i] < minTimer)
+                    {
+                        minTimer = spawnTimers[i];
+                        minIndex = i;
+                    }
+                }
+                ////
+                if (currentState == "WAVE1")
+                {
+                    smallEnemySpawnChance = wave1_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave1_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave1_largeEnemySpawnChance;
+                }
+                else if (currentState == "WAVE2")
+                {
+                    smallEnemySpawnChance = wave2_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave2_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave2_largeEnemySpawnChance;
+                }
+                else if (currentState == "WAVE3")
+                {
+                    smallEnemySpawnChance = wave3_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave3_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave3_largeEnemySpawnChance;
+                }
+                else
+                {
+                    smallEnemySpawnChance = 0;
+                    mediumEnemySpawnChance = 0;
+                    largeEnemySpawnChance = 100;
+                }
 
-                    if (currentState == "WAVE1")
+                enemyOnScreen++;
+                GameObject enemy = null;
+                if (rand <= smallEnemySpawnChance)
+                {
+                    enemy = Instantiate(smallEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
+                }
+                else if (rand <= mediumEnemySpawnChance)
+                {
+                    enemy = Instantiate(mediumEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
+                }
+                else if (rand <= largeEnemySpawnChance)
+                {
+                    enemy = Instantiate(largeEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
+                }
+                enemies.Add(enemy);
+                /////
+            }
+            else
+            {
+                for (int i = 0; i < spawnPoints.Count; i++)
+                {
+                    spawnTimers[i] = spawnTimers[i] + Time.deltaTime;
+                    if (spawnTimers[i] >= spawnTimeLimits[i])
                     {
-                        spawnTimeLimits[i] = Random.Range(wave1_minSpawnTime, wave1_maxSpawnTime);
-                        smallEnemySpawnChance = wave1_smallEnemySpawnChance;
-                        mediumEnemySpawnChance = wave1_mediumEnemySpawnChance;
-                        largeEnemySpawnChance = wave1_largeEnemySpawnChance;
-                        consecutiveSpawnLimit = wave1_consecutiveSpawnLimit;
-                    }
-                    else if (currentState == "WAVE2")
-                    {
-                        spawnTimeLimits[i] = Random.Range(wave2_minSpawnTime, wave2_maxSpawnTime);
-                        smallEnemySpawnChance = wave2_smallEnemySpawnChance;
-                        mediumEnemySpawnChance = wave2_mediumEnemySpawnChance;
-                        largeEnemySpawnChance = wave2_largeEnemySpawnChance;
-                        consecutiveSpawnLimit = wave2_consecutiveSpawnLimit;
-                    }
-                    else if (currentState == "WAVE3")
-                    {
-                        spawnTimeLimits[i] = Random.Range(wave3_minSpawnTime, wave3_maxSpawnTime);
-                        smallEnemySpawnChance = wave3_smallEnemySpawnChance;
-                        mediumEnemySpawnChance = wave3_mediumEnemySpawnChance;
-                        largeEnemySpawnChance = wave3_largeEnemySpawnChance;
-                        consecutiveSpawnLimit = wave3_consecutiveSpawnLimit;
-                    }
-                    else
-                    {
-                        spawnTimeLimits[i] = Random.Range(wave1_minSpawnTime, wave1_maxSpawnTime);
-                        smallEnemySpawnChance = 0;
-                        mediumEnemySpawnChance = 0;
-                        largeEnemySpawnChance = 100;
-                        consecutiveSpawnLimit = wave1_consecutiveSpawnLimit;
-                    }
+                        rand = Random.Range(0, 100);
+                        spawnTimers[i] = 0f;
 
-                    bool canSpawn = false;
-                    if (Time.time - previousSpawnTime > 5f)
-                    {
-                        consecutiveSpawn = 1;
-                        canSpawn = true;
-                        previousSpawnTime = Time.time;
-                    }
-                    else
-                    {
-                        if (consecutiveSpawn < consecutiveSpawnLimit)
+                        if (currentState == "WAVE1")
                         {
-                            consecutiveSpawn++;
+                            spawnTimeLimits[i] = Random.Range(wave1_minSpawnTime, wave1_maxSpawnTime);
+                            smallEnemySpawnChance = wave1_smallEnemySpawnChance;
+                            mediumEnemySpawnChance = wave1_mediumEnemySpawnChance;
+                            largeEnemySpawnChance = wave1_largeEnemySpawnChance;
+                            consecutiveSpawnLimit = wave1_consecutiveSpawnLimit;
+                        }
+                        else if (currentState == "WAVE2")
+                        {
+                            spawnTimeLimits[i] = Random.Range(wave2_minSpawnTime, wave2_maxSpawnTime);
+                            smallEnemySpawnChance = wave2_smallEnemySpawnChance;
+                            mediumEnemySpawnChance = wave2_mediumEnemySpawnChance;
+                            largeEnemySpawnChance = wave2_largeEnemySpawnChance;
+                            consecutiveSpawnLimit = wave2_consecutiveSpawnLimit;
+                        }
+                        else if (currentState == "WAVE3")
+                        {
+                            spawnTimeLimits[i] = Random.Range(wave3_minSpawnTime, wave3_maxSpawnTime);
+                            smallEnemySpawnChance = wave3_smallEnemySpawnChance;
+                            mediumEnemySpawnChance = wave3_mediumEnemySpawnChance;
+                            largeEnemySpawnChance = wave3_largeEnemySpawnChance;
+                            consecutiveSpawnLimit = wave3_consecutiveSpawnLimit;
+                        }
+                        else
+                        {
+                            spawnTimeLimits[i] = Random.Range(wave1_minSpawnTime, wave1_maxSpawnTime);
+                            smallEnemySpawnChance = 0;
+                            mediumEnemySpawnChance = 0;
+                            largeEnemySpawnChance = 100;
+                            consecutiveSpawnLimit = wave1_consecutiveSpawnLimit;
+                        }
+
+                        bool canSpawn = false;
+                        if (Time.time - previousSpawnTime > 5f)
+                        {
+                            consecutiveSpawn = 1;
                             canSpawn = true;
-                            previousSpawnTime = Time.time + (consecutiveSpawn * 1.5f);
+                            previousSpawnTime = Time.time;
                         }
-                    }
+                        else
+                        {
+                            if (consecutiveSpawn < consecutiveSpawnLimit)
+                            {
+                                consecutiveSpawn++;
+                                canSpawn = true;
+                                previousSpawnTime = Time.time + (consecutiveSpawn * 1.5f);
+                            }
+                        }
 
-                    if (canSpawn)
-                    {
-                        enemyOnScreen++;
-                        GameObject enemy = null;
-                        if (rand <= smallEnemySpawnChance)
+                        if (canSpawn)
                         {
-                            enemy = Instantiate(smallEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            enemyOnScreen++;
+                            GameObject enemy = null;
+                            if (rand <= smallEnemySpawnChance)
+                            {
+                                enemy = Instantiate(smallEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                                enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            }
+                            else if (rand <= mediumEnemySpawnChance)
+                            {
+                                enemy = Instantiate(mediumEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                                enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            }
+                            else if (rand <= largeEnemySpawnChance)
+                            {
+                                enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
+                                enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
+                            }
+                            enemies.Add(enemy);
                         }
-                        else if (rand <= mediumEnemySpawnChance)
-                        {
-                            enemy = Instantiate(mediumEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
-                        }
-                        else if (rand <= largeEnemySpawnChance)
-                        {
-                            enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
-                            enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
-                        }
-                        enemies.Add(enemy);
                     }
                 }
             }
@@ -1030,7 +1107,7 @@ public class GameController : MonoBehaviour
             player.ClearLockonEnemy();
         }
 
-        if ((currentStateDuration == 0f && enemyOnScreen <= 0) || coreHp == 0f)
+        if ((currentStateDuration <= 0f && enemyOnScreen <= 0) || coreHp == 0f)
         {
             return true;
         }
