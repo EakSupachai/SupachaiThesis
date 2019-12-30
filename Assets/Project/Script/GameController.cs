@@ -351,7 +351,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Try to walk around\nwithout blinking for 2.5 second.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -383,7 +383,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
-                    objectiveTargetCounter = 1;
+                    objectiveTargetCounter = 4;
                     objectiveText.text = "Destroy the enemies with auto rifle.\nDon't blink while shooting.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
@@ -876,18 +876,8 @@ public class GameController : MonoBehaviour
         }
         else if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
         {
-            timesUpFlag = true;
-            //currentStateDuration = 0f;
-        }
-        /*currentStateDuration -= Time.deltaTime;
-        if (currentStateDuration <= 0f)
-        {
-            currentStateDuration = testMode || calibrationMode ? waveDuration : 0f;
-        }
-        if (calibrationMode && objectiveCounter >= objectiveTargetCounter)
-        {
             currentStateDuration = 0f;
-        }*/
+        }
 
         if (currentState == "WAVE1")
         {
@@ -1340,6 +1330,10 @@ public class GameController : MonoBehaviour
             {
                 return true;
             }
+            else if (testMode)
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -1381,9 +1375,9 @@ public class GameController : MonoBehaviour
         enemyOnScreen--;
     }
 
-    public void AddScore(int score)
+    public void AddScore(int addedScore)
     {
-        score += score;
+        score += addedScore;
         scoreText.text = "" + score;
     }
 
