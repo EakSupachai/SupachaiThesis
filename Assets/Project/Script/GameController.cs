@@ -246,7 +246,7 @@ public class GameController : MonoBehaviour
                 fpsTime = 0;
             }
             frameCount++;
-            fpsTime += Time.deltaTime;
+            fpsTime += Time.deltaTime / Time.timeScale;
             //fpsText.text = "" + ((int)Math.Round(1.0f / Time.deltaTime, 0));
         }
         if (currentState != "GAME OVER" && currentState != "END")
