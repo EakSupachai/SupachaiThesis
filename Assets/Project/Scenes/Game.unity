@@ -24924,6 +24924,18 @@ PrefabInstance:
       propertyPath: statusIcon
       value: 
       objectReference: {fileID: 1996105363}
+    - target: {fileID: 4781005892350522642, guid: 9bf35f11e969f8b4596c40565d26245b,
+        type: 3}
+      propertyPath: validStatusSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 6d5384135ac63984c9f8dd5d07061889,
+        type: 3}
+    - target: {fileID: 4781005892350522642, guid: 9bf35f11e969f8b4596c40565d26245b,
+        type: 3}
+      propertyPath: invalidStatusSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 17731af42816a3a4195bb23d7dc98409,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9bf35f11e969f8b4596c40565d26245b, type: 3}
 --- !u!1 &1206571975
@@ -30426,7 +30438,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: c49c3d93d2170b84d924139b34b1d916, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6d5384135ac63984c9f8dd5d07061889, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
