@@ -286,6 +286,8 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
+        /*bool gazeInGunPanel = false;
+        bool gazeInSkillPanel = false;*/
         bool gazeInCoreStimulus = false;
         bool gazeInSkipStimulus = false;
         bool gazeInEnemyStimulus = false;
@@ -300,9 +302,9 @@ public class FirstPersonController : MonoBehaviour
         if (eyeTrackerRunning)
         {
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
-            gazeInCoreStimulus = IsGazePointInCoreStimulusArea(gazePoint) && h_CoreStimulusController.IsFlickering();
-            gazeInSkipStimulus = IsGazePointInSkipStimulusArea(gazePoint) && h_SkipStimulusController.IsFlickering();
-            gazeInEnemyStimulus = IsGazePointInEnemyStimulusArea(gazePoint) && rayHitEnemy && scoping;
+            gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
+            gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
+            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping;
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -331,9 +333,9 @@ public class FirstPersonController : MonoBehaviour
                 if (blinkStatus.validOneEyedBlink)
                 {
                     Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
-                    bool blinkInChangeGunAndSkillCA = IsBlinkPointInCommandArea(blinkPoint, gunAndSkillCommandAreaCorners);
-                    bool blinkInGunModeCA = IsBlinkPointInCommandArea(blinkPoint, gunModeCommandAreaCorners);
-                    bool blinkInGunModeAimCA = IsBlinkPointInCommandArea(blinkPoint, gunModeAimCommandAreaCorners);
+                    bool blinkInChangeGunAndSkillCA = IsPointInArea(blinkPoint, gunAndSkillCommandAreaCorners);
+                    bool blinkInGunModeCA = IsPointInArea(blinkPoint, gunModeCommandAreaCorners);
+                    bool blinkInGunModeAimCA = IsPointInArea(blinkPoint, gunModeAimCommandAreaCorners);
                     if (blinkInChangeGunAndSkillCA)
                     {
                         float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
@@ -1420,7 +1422,7 @@ public class FirstPersonController : MonoBehaviour
         uiPosition = position;
     }
 
-    private bool IsBlinkPointInCommandArea(Vector2 blinkPoint, Vector3[] area)
+    private bool IsPointInArea(Vector2 blinkPoint, Vector3[] area)
     {
         int x = (int)blinkPoint.x;
         int y = (int)blinkPoint.y;
@@ -1430,43 +1432,7 @@ public class FirstPersonController : MonoBehaviour
         }
         return false;
     }
-
-    private bool IsGazePointInCoreStimulusArea(Vector2 gazePoint)
-    {
-        int x = (int)gazePoint.x;
-        int y = (int)gazePoint.y;
-        if (x >= coreCommandStimulusAreaCorners[0].x && x <= coreCommandStimulusAreaCorners[2].x && 
-            y >= coreCommandStimulusAreaCorners[1].y && y <= coreCommandStimulusAreaCorners[0].y)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool IsGazePointInSkipStimulusArea(Vector2 gazePoint)
-    {
-        int x = (int)gazePoint.x;
-        int y = (int)gazePoint.y;
-        if (x >= skipCommandStimulusAreaCorners[0].x && x <= skipCommandStimulusAreaCorners[2].x &&
-            y >= skipCommandStimulusAreaCorners[1].y && y <= skipCommandStimulusAreaCorners[0].y)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private bool IsGazePointInEnemyStimulusArea(Vector2 gazePoint)
-    {
-        int x = (int)gazePoint.x;
-        int y = (int)gazePoint.y;
-        if (x >= shootCommandStimulusAreaCorners[0].x && x <= shootCommandStimulusAreaCorners[2].x &&
-            y >= shootCommandStimulusAreaCorners[1].y && y <= shootCommandStimulusAreaCorners[0].y)
-        {
-            return true;
-        }
-        return false;
-    }
-
+    
     private bool isSSVEPdetected(string input)
     {
         int ssvepCounter = 0;
