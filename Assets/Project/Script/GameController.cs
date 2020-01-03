@@ -326,13 +326,32 @@ public class GameController : MonoBehaviour
                     }
                     else
                     {
-                        currentState = "STEP1 INS";
+                        currentState = "STEP0";
                     }
                 }
                 break;
             // calibration state
-            case "STEP1 INS":
+            case "STEP0":
                 if (!stateStarted)
+                {
+                    stateStarted = true;
+                    objectiveCounter = 0;
+                    objectiveTargetCounter = 1;
+                    oneLineText.text = "Pay attention to the stimulus to start.";
+                    player.StartSkipStimulus();
+                }
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    stateStarted = false;
+                    oneLineText.text = "";
+                    currentState = "STEP1 INS";
+                    player.StopSkipStimulus();
+                }
+                break;
+            case "STEP1 INS":
+                CalibrationInsStepHandler("Step 1:\nTry to walk around without blinking\nfor " + 
+                    EyeTrackerController.GetValidDurationSinceLastBlink() + " second.", false, "STEP1");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 1:\nTry to walk around without blinking\nfor 2.5 second.";
@@ -344,7 +363,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     currentState = "STEP1";
-                }
+                }*/
                 break;
             case "STEP1":
                 if (!stateStarted)
@@ -352,7 +371,7 @@ public class GameController : MonoBehaviour
                     stateStarted = true;
                     objectiveCounter = 0;
                     objectiveTargetCounter = 4;
-                    objectiveText.text = "Try to walk around\nwithout blinking for 2.5 second.";
+                    objectiveText.text = "Try to walk around\nwithout blinking for " + EyeTrackerController.GetValidDurationSinceLastBlink() + " second.";
                     objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
                 }
                 if (objectiveCounter >= objectiveTargetCounter)
@@ -363,8 +382,11 @@ public class GameController : MonoBehaviour
                     currentState = "STEP2 INS";
                 }
                 break;
+            case "STEP":
+                break;
             case "STEP2 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 2:\nDestroy the enemies with auto rifle.\nDon't blink while shooting.");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 2:\nDestroy the enemies with auto rifle.\nDon't blink while shooting.";
@@ -376,7 +398,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     StartEnemyWave();
-                }
+                }*/
                 break;
             case "STEP2":
                 if (!stateStarted)
@@ -402,7 +424,8 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "STEP3 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 3:\nLook at the core and pay attention to the stimulus.\n", false, "STEP3");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 3:\nLook at the core and pay attention to the stimulus.\n";
@@ -414,7 +437,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     currentState = "STEP3";
-                }
+                }*/
                 break;
             case "STEP3":
                 if (!stateStarted)
@@ -434,7 +457,8 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "STEP4 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 4:\nPay attention to the stimulus\nat the buttom of the screen.", false, "STEP4");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 4:\nPay attention to the stimulus\nat the buttom of the screen.";
@@ -446,7 +470,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     currentState = "STEP4";
-                }
+                }*/
                 break;
             case "STEP4":
                 if (!stateStarted)
@@ -468,7 +492,8 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "STEP5 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 5:\nUse sniper rifle to aim at the enemies and\npay attention to the stimulus.", false, "STEP5", true);
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 5:\nUse sniper rifle to aim at the enemies and\npay attention to the stimulus.";
@@ -482,7 +507,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     StartEnemyWave();
-                }
+                }*/
                 break;
             case "STEP5":
                 if (!stateStarted)
@@ -508,7 +533,8 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "STEP6 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 6:\nLook at the core and pay attention to the stimulus.\n", false, "STEP6");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 6:\nLook at the core and pay attention to the stimulus.\n";
@@ -520,7 +546,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     currentState = "STEP6";
-                }
+                }*/
                 break;
             case "STEP6":
                 if (!stateStarted)
@@ -540,7 +566,8 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case "STEP7 INS":
-                if (!stateStarted)
+                CalibrationInsStepHandler("Step 7:\nPay attention to the stimulus\nat the buttom of the screen.", false, "STEP7");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     twoLineText.text = "Step 7:\nPay attention to the stimulus\nat the buttom of the screen.";
@@ -552,7 +579,7 @@ public class GameController : MonoBehaviour
                     stateStarted = false;
                     twoLineText.text = "";
                     currentState = "STEP7";
-                }
+                }*/
                 break;
             case "STEP7":
                 if (!stateStarted)
@@ -1315,6 +1342,34 @@ public class GameController : MonoBehaviour
         hudCanvas.transform.Find("Countdown").gameObject.SetActive(true);
     }
 
+    private void CalibrationInsStepHandler(string message, bool startWave = true, string nextState = "", bool changeGun = false)
+    {
+        if (!stateStarted)
+        {
+            stateStarted = true;
+            twoLineText.text = message;
+            currentStateDuration = instructionDuration;
+            if (changeGun)
+            {
+                player.ForceToChangeGun();
+            }
+        }
+        currentStateDuration -= Time.deltaTime;
+        if (currentStateDuration <= 0f)
+        {
+            stateStarted = false;
+            twoLineText.text = "";
+            if (startWave)
+            {
+                StartEnemyWave();
+            }
+            else
+            {
+                currentState = nextState;
+            }
+        }
+    }
+
     public bool IsCoreHpFull()
     {
         return coreHp >= coreFullHp;
@@ -1408,13 +1463,16 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public bool IncreaseObjectiveCounter(string state, int recordingState)
+    public bool IncreaseObjectiveCounter(string state, int recordingState = 0)
     {
         if (state == currentState && objectiveCounter < objectiveTargetCounter)
         {
             objectiveCounter++;
-            objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
-            OutputUDP.SetRecordingState(recordingState);
+            if (recordingState != 0)
+            {
+                objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+                OutputUDP.SetRecordingState(recordingState);
+            }
             return true;
         }
         return false;

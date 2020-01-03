@@ -122,7 +122,6 @@ public class FirstPersonController : MonoBehaviour
     private bool forceToChangeGun;
     private bool calibrating;
     private bool classifying;
-    private bool enableADS;
     private float timeSinceLastBlink;
        
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
@@ -470,6 +469,7 @@ public class FirstPersonController : MonoBehaviour
                             }
                             else if (gazeInSkipStimulus)
                             {
+                                gameController.IncreaseObjectiveCounter("STEP0");
                                 gameController.IncreaseObjectiveCounter("STEP4", 2);
                                 gameController.IncreaseObjectiveCounter("STEP7", 2);
                             }
@@ -1528,16 +1528,6 @@ public class FirstPersonController : MonoBehaviour
     public void ForceToChangeGun()
     {
         forceToChangeGun = true;
-    }
-
-    public void EnableADS()
-    {
-        enableADS = true;
-    }
-
-    public void DisableADS()
-    {
-        enableADS = false;
     }
 
     public Vector3 GetCameraPosition()
