@@ -325,39 +325,42 @@ public class EnemyBehavior : MonoBehaviour
         }
         else if (other.gameObject.tag == "Enemy")
         {
-            EnemyBehavior eb = other.GetComponent<EnemyBehavior>();
-            float distanceToCore = Vector3.Distance(transform.position, destinationPosition);
-            float otherDistanceToCore = Vector3.Distance(other.transform.position, destinationPosition);
-            Vector3 fd = Vector3.zero;
-            Vector3 fp = Vector3.zero;
-            if (distanceToCore < otherDistanceToCore)
+            if (!IsDestroyed())
             {
-                fd = (destinationPosition - transform.position).normalized;
-                fp = backImpactPoint.position;
-            }
-            else
-            {
-                fd = (transform.position - destinationPosition).normalized;
-                fp = frontImpactPoint.position;
-            }
+                EnemyBehavior eb = other.GetComponent<EnemyBehavior>();
+                float distanceToCore = Vector3.Distance(transform.position, destinationPosition);
+                float otherDistanceToCore = Vector3.Distance(other.transform.position, destinationPosition);
+                Vector3 fd = Vector3.zero;
+                Vector3 fp = Vector3.zero;
+                if (distanceToCore < otherDistanceToCore)
+                {
+                    fd = (destinationPosition - transform.position).normalized;
+                    fp = backImpactPoint.position;
+                }
+                else
+                {
+                    fd = (transform.position - destinationPosition).normalized;
+                    fp = frontImpactPoint.position;
+                }
 
-            if (type > eb.type)
-            {
-                hp = hp - (fullHp / ((type - eb.type) + 1));
-                if (hp <= 0f)
+                if (type > eb.type)
+                {
+                    hp = hp - (fullHp / ((type - eb.type) + 1));
+                    if (hp <= 0f)
+                    {
+                        hp = 0f;
+                        forceDirection = fd;
+                        forcePosition = fp;
+                        Explode(true, 2f);
+                    }
+                }
+                else
                 {
                     hp = 0f;
                     forceDirection = fd;
                     forcePosition = fp;
                     Explode(true, 2f);
                 }
-            }
-            else
-            {
-                hp = 0f;
-                forceDirection = fd;
-                forcePosition = fp;
-                Explode(true, 2f);
             }
         }
         else if (other.gameObject.tag == "Laser Fence")

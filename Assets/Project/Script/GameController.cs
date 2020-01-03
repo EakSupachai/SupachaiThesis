@@ -864,6 +864,7 @@ public class GameController : MonoBehaviour
     }
 
     private List<GameObject> enemies = new List<GameObject>();
+    private int lastSpawnPointIndex = 0;
     private bool ProgressEnemyWave()
     {
         if (!testMode && !calibrationMode)
@@ -903,10 +904,84 @@ public class GameController : MonoBehaviour
             int mediumEnemySpawnChance = 0;
             int largeEnemySpawnChance = 0;
             int consecutiveSpawnLimit = 0;
-            if (currentStateDuration <= 0f)
+            if (currentStateDuration <= 0f && enemyOnScreen > 0)
             {
                 timesUpFlag = true;
-                rand = Random.Range(0, 100);
+            }
+            else if (currentStateDuration <= 0f)
+            {
+                timesUpFlag = true;
+                // randInt = 0 go lower, randInt = 1 go higher
+                /*int randInt = Random.Range(0, 2);
+                if (lastSpawnPointIndex == 0)
+                {
+                    randInt = Random.Range(1, spawnPoints.Count);
+                }
+                else if (lastSpawnPointIndex == (spawnPoints.Count - 1))
+                {
+                    randInt = Random.Range(0, spawnPoints.Count - 1);
+                }
+                else
+                {
+                    if (randInt == 0)
+                    {
+                        randInt = Random.Range(0, lastSpawnPointIndex);
+                    }
+                    else
+                    {
+                        randInt = Random.Range(lastSpawnPointIndex + 1, spawnPoints.Count);
+                    }
+                }*/
+                int randInt = Random.Range(0, spawnPoints.Count);
+                while (randInt == lastSpawnPointIndex)
+                {
+                    randInt = Random.Range(0, spawnPoints.Count);
+                }
+                if (currentState == "WAVE1")
+                {
+                    smallEnemySpawnChance = wave1_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave1_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave1_largeEnemySpawnChance;
+                }
+                else if (currentState == "WAVE2")
+                {
+                    smallEnemySpawnChance = wave2_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave2_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave2_largeEnemySpawnChance;
+                }
+                else if (currentState == "WAVE3")
+                {
+                    smallEnemySpawnChance = wave3_smallEnemySpawnChance;
+                    mediumEnemySpawnChance = wave3_mediumEnemySpawnChance;
+                    largeEnemySpawnChance = wave3_largeEnemySpawnChance;
+                }
+                else
+                {
+                    smallEnemySpawnChance = 0;
+                    mediumEnemySpawnChance = 0;
+                    largeEnemySpawnChance = 100;
+                }
+
+                enemyOnScreen++;
+                GameObject enemy = null;
+                if (rand <= smallEnemySpawnChance)
+                {
+                    enemy = Instantiate(smallEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
+                }
+                else if (rand <= mediumEnemySpawnChance)
+                {
+                    enemy = Instantiate(mediumEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
+                }
+                else if (rand <= largeEnemySpawnChance)
+                {
+                    enemy = Instantiate(largeEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
+                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
+                }
+                enemies.Add(enemy);
+
+                /*rand = Random.Range(0, 100);
                 float minTimer = 999f;
                 int minIndex = -1;
                 for (int i = 0; i < spawnPoints.Count; i++)
@@ -917,7 +992,6 @@ public class GameController : MonoBehaviour
                         minIndex = i;
                     }
                 }
-                ////
                 if (currentState == "WAVE1")
                 {
                     smallEnemySpawnChance = wave1_smallEnemySpawnChance;
@@ -960,8 +1034,7 @@ public class GameController : MonoBehaviour
                     enemy = Instantiate(largeEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
                 }
-                enemies.Add(enemy);
-                /////
+                enemies.Add(enemy);*/
             }
             else
             {
@@ -1026,6 +1099,7 @@ public class GameController : MonoBehaviour
                         if (canSpawn)
                         {
                             enemyOnScreen++;
+                            lastSpawnPointIndex = i;
                             GameObject enemy = null;
                             if (rand <= smallEnemySpawnChance)
                             {
@@ -1097,7 +1171,7 @@ public class GameController : MonoBehaviour
             player.ClearLockonEnemy();
         }
 
-        if ((currentStateDuration <= 0f && enemyOnScreen <= 0) || coreHp == 0f)
+        if ((timesUpFlag && enemyOnScreen <= 0) || coreHp == 0f)
         {
             return true;
         }
