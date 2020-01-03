@@ -911,27 +911,6 @@ public class GameController : MonoBehaviour
             else if (currentStateDuration <= 0f)
             {
                 timesUpFlag = true;
-                // randInt = 0 go lower, randInt = 1 go higher
-                /*int randInt = Random.Range(0, 2);
-                if (lastSpawnPointIndex == 0)
-                {
-                    randInt = Random.Range(1, spawnPoints.Count);
-                }
-                else if (lastSpawnPointIndex == (spawnPoints.Count - 1))
-                {
-                    randInt = Random.Range(0, spawnPoints.Count - 1);
-                }
-                else
-                {
-                    if (randInt == 0)
-                    {
-                        randInt = Random.Range(0, lastSpawnPointIndex);
-                    }
-                    else
-                    {
-                        randInt = Random.Range(lastSpawnPointIndex + 1, spawnPoints.Count);
-                    }
-                }*/
                 int randInt = Random.Range(0, spawnPoints.Count);
                 while (randInt == lastSpawnPointIndex)
                 {
@@ -980,61 +959,6 @@ public class GameController : MonoBehaviour
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
                 enemies.Add(enemy);
-
-                /*rand = Random.Range(0, 100);
-                float minTimer = 999f;
-                int minIndex = -1;
-                for (int i = 0; i < spawnPoints.Count; i++)
-                {
-                    if (spawnTimers[i] < minTimer)
-                    {
-                        minTimer = spawnTimers[i];
-                        minIndex = i;
-                    }
-                }
-                if (currentState == "WAVE1")
-                {
-                    smallEnemySpawnChance = wave1_smallEnemySpawnChance;
-                    mediumEnemySpawnChance = wave1_mediumEnemySpawnChance;
-                    largeEnemySpawnChance = wave1_largeEnemySpawnChance;
-                }
-                else if (currentState == "WAVE2")
-                {
-                    smallEnemySpawnChance = wave2_smallEnemySpawnChance;
-                    mediumEnemySpawnChance = wave2_mediumEnemySpawnChance;
-                    largeEnemySpawnChance = wave2_largeEnemySpawnChance;
-                }
-                else if (currentState == "WAVE3")
-                {
-                    smallEnemySpawnChance = wave3_smallEnemySpawnChance;
-                    mediumEnemySpawnChance = wave3_mediumEnemySpawnChance;
-                    largeEnemySpawnChance = wave3_largeEnemySpawnChance;
-                }
-                else
-                {
-                    smallEnemySpawnChance = 0;
-                    mediumEnemySpawnChance = 0;
-                    largeEnemySpawnChance = 100;
-                }
-
-                enemyOnScreen++;
-                GameObject enemy = null;
-                if (rand <= smallEnemySpawnChance)
-                {
-                    enemy = Instantiate(smallEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
-                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
-                }
-                else if (rand <= mediumEnemySpawnChance)
-                {
-                    enemy = Instantiate(mediumEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
-                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
-                }
-                else if (rand <= largeEnemySpawnChance)
-                {
-                    enemy = Instantiate(largeEnemy, spawnPoints[minIndex].position, Quaternion.LookRotation(spawnPoints[minIndex].position - core.transform.position));
-                    enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[minIndex].position);
-                }
-                enemies.Add(enemy);*/
             }
             else
             {
