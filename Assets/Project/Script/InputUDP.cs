@@ -13,7 +13,7 @@ public class InputUDP : MonoBehaviour
     private static string bufferedInput = ""; // this one has to be cleaned up from time to time
     private static object lockObject = new object();
     private static bool newInputReceived = false;
-    private static bool inputAvailableStatus = true;
+    private static bool inputAvailableStatus = false;
     private static bool inputLockStatus = true;
     private static int bufferSize = 5;
     private static int threshold = 4;
