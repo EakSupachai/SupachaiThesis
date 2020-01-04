@@ -1498,7 +1498,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-        else if ((currentState == "STEP3" || currentState == "STEP6") && stateStarted)
+        else if ((currentState == "STEP3" || currentState == "STEP6" || currentState == "STEP2_2" || currentState == "STEP5_2") && stateStarted)
         {
             return true;
         }
