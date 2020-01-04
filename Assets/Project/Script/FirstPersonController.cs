@@ -314,13 +314,13 @@ public class FirstPersonController : MonoBehaviour
                 else
                 {
                     timeSinceLastBlink += unscaledDeltaTime;
-                    if (timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
+                    /*if (timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
                     {
                         if (gameController.IncreaseObjectiveCounter("STEP1", 3))
                         {
                             timeSinceLastBlink = 0f;
                         }
-                    }
+                    }*/
                 }
             }
             if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -464,18 +464,29 @@ public class FirstPersonController : MonoBehaviour
                         {
                             if (gazeInCoreStimulus)
                             {
-                                gameController.IncreaseObjectiveCounter("STEP3", 2);
-                                gameController.IncreaseObjectiveCounter("STEP6", 2);
+                                /*gameController.IncreaseObjectiveCounter("STEP3", 2);
+                                gameController.IncreaseObjectiveCounter("STEP6", 2);*/
+                                gameController.IncreaseObjectiveCounter("STEP2_2", 2);
+                                gameController.IncreaseObjectiveCounter("STEP5_2", 2);
                             }
                             else if (gazeInSkipStimulus)
                             {
                                 gameController.IncreaseObjectiveCounter("STEP0");
-                                gameController.IncreaseObjectiveCounter("STEP4", 2);
-                                gameController.IncreaseObjectiveCounter("STEP7", 2);
+                                /*gameController.IncreaseObjectiveCounter("STEP4", 2);
+                                gameController.IncreaseObjectiveCounter("STEP7", 2);*/
+                                gameController.IncreaseObjectiveCounter("STEP3_2", 2);
+                                gameController.IncreaseObjectiveCounter("STEP6_2", 2);
                             }
                             else if (tempGazeInEnemyStimulus)
                             {
-                                gazeToActivateShootCommand = true;
+                                if (gameController.CanShootEnemy())
+                                {
+                                    gazeToActivateShootCommand = true;
+                                }
+                                else
+                                {
+                                    gameController.IncreaseObjectiveCounter("STEP4_2", 3);
+                                }
                             }
                             stimulusGazeDuration = 0f;
                         }
@@ -928,11 +939,13 @@ public class FirstPersonController : MonoBehaviour
         {
             if (g_CurrentGun == "AR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
             {
-                gameController.IncreaseObjectiveCounter("STEP2", 3);
+                //gameController.IncreaseObjectiveCounter("STEP2", 3);
+                gameController.IncreaseObjectiveCounter("STEP1_2", 3);
             }
             else if (g_CurrentGun == "SR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed())
             {
-                gameController.IncreaseObjectiveCounter("STEP5", 1);
+                //gameController.IncreaseObjectiveCounter("STEP5", 1);
+                gameController.IncreaseObjectiveCounter("STEP7_2", 1);
             }
         }
 
