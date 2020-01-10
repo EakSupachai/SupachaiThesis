@@ -421,6 +421,39 @@ public class FirstPersonController : MonoBehaviour
                     {
                         bool ssvepReceived = false;
                         bool tempGazeInCoreStimulus = gazeInCoreStimulus && currentGazeZone == "CORE";
+                        InputObject bciInput = InputUDP.GetNewBufferedInput();
+                        stimulusGazeDuration += unscaledDeltaTime;
+                        if (bciInput.input != "NULL")
+                        {
+                            ssvepReceived = isSSVEPdetected(bciInput);
+                            previousSsvepInput = ssvepReceived;
+                        }
+                        else
+                        {
+                            ssvepReceived = tempGazeInCoreStimulus ? previousSsvepInput : false;
+                        }
+                        if (ssvepReceived)
+                        {
+
+                            if (tempGazeInCoreStimulus)
+                            {
+                                gazeToActivateCoreCommand = true;
+                                savedStimulusGazeDuration = stimulusGazeDuration;
+                            }
+                            else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
+                            {
+                                gazeToActivateSkipCommand = true;
+                                gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                            }
+                            else if (tempGazeInEnemyStimulus && currentGazeZone == "ENEMY")
+                            {
+                                gazeToActivateShootCommand = true;
+                                gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                            }
+                            stimulusGazeDuration = 0f;
+                        }
+                        /*bool ssvepReceived = false;
+                        bool tempGazeInCoreStimulus = gazeInCoreStimulus && currentGazeZone == "CORE";
                         string bciBufferedInput = InputUDP.GetNewBufferedInput();
                         stimulusGazeDuration += unscaledDeltaTime;
                         if (bciBufferedInput != "NULL")
@@ -451,7 +484,7 @@ public class FirstPersonController : MonoBehaviour
                                 gameController.UpdateAccCommandDelay(stimulusGazeDuration);
                             }
                             stimulusGazeDuration = 0f;
-                        }
+                        }*/
                     }
                     else if (calibrating)
                     {
@@ -1445,8 +1478,26 @@ public class FirstPersonController : MonoBehaviour
         }
         return false;
     }
-    
-    private bool isSSVEPdetected(string input)
+
+    private bool isSSVEPdetected(InputObject inputObject)
+    {
+        int ssvepCounter = 0;
+        string input = inputObject.input;
+        float grad1 = inputObject.grad1;
+        for (int i = 0; i < input.Length; i++)
+        {
+            if (input[i].Equals('1'))
+            {
+                ssvepCounter++;
+            }
+        }
+        if (ssvepCounter >= InputUDP.GetThreshold() && grad1 < 0f)
+        {
+            return true;
+        }
+        return false;
+    }
+    /*private bool isSSVEPdetected(string input)
     {
         int ssvepCounter = 0;
         for (int i = 0; i < input.Length; i++)
@@ -1461,7 +1512,7 @@ public class FirstPersonController : MonoBehaviour
             return true;
         }
         return false;
-    }
+    }*/
 
     private void CurrentGazeZoneSetter(string gazeZone, float unscaledDeltaTime)
     {

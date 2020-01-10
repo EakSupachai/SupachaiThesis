@@ -12,10 +12,10 @@ public class InputUDP : MonoBehaviour
     private static Thread readThread;    
     private static UdpClient client;
     private static string bufferedInput = ""; // this one has to be cleaned up from time to time
-    private static List<float> bufferedDistance1 = new List<float>();
-    private static List<float> bufferedDistanceDiff1 = new List<float>();
-    private static List<float> bufferedDistance2 = new List<float>();
-    private static List<float> bufferedDistanceDiff2 = new List<float>();
+    private static float bufferedGrad0;
+    private static float bufferedGrad1;
+    private static List<float> bufferedNorm0 = new List<float>();
+    private static List<float> bufferedNorm1 = new List<float>();
     private static object lockObject = new object();
     private static bool newInputReceived = false;
     private static bool inputAvailableStatus = false;
@@ -29,13 +29,8 @@ public class InputUDP : MonoBehaviour
     {
         for (int i = 0; i < bufferSize; i++)
         {
-            bufferedDistance1.Add(0f);
-            bufferedDistance2.Add(0f);
-        }
-        for (int i = 0; i < bufferSize-1; i++)
-        {
-            bufferedDistanceDiff1.Add(0f);
-            bufferedDistanceDiff2.Add(0f);
+            bufferedNorm0.Add(0f);
+            bufferedNorm1.Add(0f);
         }
         // create thread for reading UDP messages
         readThread = new Thread(new ThreadStart(ReceiveData));
@@ -65,18 +60,18 @@ public class InputUDP : MonoBehaviour
                 // encode UTF8-coded bytes to text format
                 lock (lockObject)
                 {
-                    string text = "";
+                    string text1 = "";
                     string text2 = "";
                     string text3 = "";
                     if (inputLockStatus)
                     {
-                        text = "0\n";
+                        text1 = "0\n";
                         text2 = "0\n";
                         text3 = "0\n";
                     }
                     else
                     {
-                        text = Encoding.UTF8.GetString(data);
+                        text1 = Encoding.UTF8.GetString(data);
                         text2 = Encoding.UTF8.GetString(data);
                         text3 = Encoding.UTF8.GetString(data);
                     }
@@ -84,21 +79,21 @@ public class InputUDP : MonoBehaviour
                     // show received message
                     int strLength = 0;
                     int startIndex = 0;
+                    float d_temp0 = 0f;
                     float d_temp1 = 0f;
-                    float d_temp2 = 0f;
-                    strLength = text.Length;
-                    text = text.Substring(strLength - 2, 1);
+                    strLength = text1.Length;
+                    text1 = text1.Substring(strLength - 2, 1);
 
                     startIndex = text2.IndexOf(' ') + 1;
                     text2 = text2.Substring(startIndex, text2.Length - startIndex - 1);
-                    d_temp1 = float.Parse(text2);
+                    d_temp0 = float.Parse(text2);
                     startIndex = text3.IndexOf(' ') + 1;
                     text3 = text3.Substring(startIndex, text3.Length - startIndex - 1);
-                    d_temp2 = float.Parse(text3);
+                    d_temp1 = float.Parse(text3);
 
                     // update received messages
                     newInputReceived = true;
-                    bufferedInput = bufferedInput + text;
+                    bufferedInput = bufferedInput + text1;
                     strLength = bufferedInput.Length;
                     if (strLength > bufferSize)
                     {
@@ -107,15 +102,18 @@ public class InputUDP : MonoBehaviour
 
                     for (int i = 1; i < bufferSize; i++)
                     {
-                        bufferedDistance1[i - 1] = bufferedDistance1[i];
-                        bufferedDistance2[i - 1] = bufferedDistance2[i];
+                        bufferedNorm0[i - 1] = bufferedNorm0[i];
+                        bufferedNorm1[i - 1] = bufferedNorm1[i];
                     }
-                    bufferedDistance1[bufferSize - 1] = d_temp1;
-                    bufferedDistance2[bufferSize - 1] = d_temp2;
+                    float m_norm = d_temp0 + d_temp1;
+                    bufferedNorm0[bufferSize - 1] = d_temp0 / m_norm;
+                    bufferedNorm1[bufferSize - 1] = d_temp1 / m_norm;
+                    bufferedGrad0 = 0f;
+                    bufferedGrad1 = 0f;
                     for (int i = 0; i < bufferSize-1; i++)
                     {
-                        bufferedDistanceDiff1[i] = bufferedDistance1[i + 1] - bufferedDistance1[i];
-                        bufferedDistanceDiff2[i] = bufferedDistance2[i + 1] - bufferedDistance2[i];
+                        bufferedGrad0 += (bufferedNorm0[i + 1] - bufferedNorm0[i]);
+                        bufferedGrad1 += (bufferedNorm1[i + 1] - bufferedNorm1[i]);
                     }
                 }
             }
@@ -174,7 +172,7 @@ public class InputUDP : MonoBehaviour
         }
     }*/
 
-    public static string GetNewBufferedInput()
+    /*public static string GetNewBufferedInput()
     {
         lock (lockObject)
         {
@@ -188,15 +186,33 @@ public class InputUDP : MonoBehaviour
                 return "NULL";
             }
         }
+    }*/
+
+    public static InputObject GetNewBufferedInput()
+    {
+        lock (lockObject)
+        {
+            if (newInputReceived)
+            {
+                InputObject io = new InputObject(bufferedInput, bufferedGrad0, bufferedGrad1);
+                newInputReceived = false;
+                return io;
+            }
+            else
+            {
+                InputObject io = new InputObject("NULL", 0f, 0f);
+                return io;
+            }
+        }
     }
 
-    public static string GetNewBufferedDistance()
+    /*public static string GetNewBufferedDistance()
     {
         lock (lockObject)
         {
             return bufferedDistance1[bufferSize - 1] + " " + bufferedDistance2[bufferSize - 1];
         }
-    }
+    }*/
 
     public static void CloseConnection()
     {
