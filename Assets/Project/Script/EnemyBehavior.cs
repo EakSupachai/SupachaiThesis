@@ -199,7 +199,7 @@ public class EnemyBehavior : MonoBehaviour
             if (frameCount > 2)
             {
                 frameCount = 1;
-                foreach (MeshRenderer mr in meshRenderers)
+                /*foreach (MeshRenderer mr in meshRenderers)
                 {
                     mr.material = materialFlag ? whiteStimulusMaterial : blackStimulusMaterial;
                 }
@@ -219,7 +219,7 @@ public class EnemyBehavior : MonoBehaviour
                         color.b = 0f;
                     }
                     ps.material.color = color;
-                }
+                }*/
                 materialFlag = !materialFlag;
             }
             frameCount++;
@@ -530,7 +530,7 @@ public class EnemyBehavior : MonoBehaviour
             frameCount = 1;
             flickering = true;
             materialFlag = false;
-            foreach (MeshRenderer mr in meshRenderers)
+            /*foreach (MeshRenderer mr in meshRenderers)
             {
                 mr.material = whiteStimulusMaterial;
                 mr.receiveShadows = false;
@@ -542,8 +542,7 @@ public class EnemyBehavior : MonoBehaviour
             foreach (ParticleSystemRenderer ps in thrusts)
             {
                 ps.material = defaultParticleMaterial;
-
-            }
+            }*/
         }
     }
 
@@ -553,7 +552,7 @@ public class EnemyBehavior : MonoBehaviour
         {
             flickering = false;
             int index = 0;
-            foreach (MeshRenderer mr in meshRenderers)
+            /*foreach (MeshRenderer mr in meshRenderers)
             {
                 mr.material = defaultMaterials[index];
                 mr.receiveShadows = true;
@@ -570,8 +569,7 @@ public class EnemyBehavior : MonoBehaviour
             foreach (ParticleSystemRenderer ps in thrusts)
             {
                 ps.material = thrustMaterial;
-
-            }
+            }*/
         }
     }
 

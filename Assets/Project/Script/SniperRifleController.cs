@@ -13,6 +13,7 @@ public class SniperRifleController : GunController
     [SerializeField] private ParticleSystem orangeMuzzleFlash;
     [SerializeField] private GameObject orangeImpactParticle;
     [SerializeField] private GameObject shotFiredAudioPrefab;
+    [SerializeField] private SSVEPStimulusController crosshairStimulusController;
     [SerializeField] private int rpm = 120;
     [SerializeField] private int damage = 50;
     [SerializeField] private float scopeRecoilUp = 5.4f;
@@ -56,9 +57,13 @@ public class SniperRifleController : GunController
             impactNormal = hit.normal;
             if (IsScopeActive())
             {
-                if (hit.transform.gameObject.tag == "Enemy")
+                EnemyBehavior enemyBehavior = hit.transform.gameObject.GetComponent<EnemyBehavior>();
+                if (enemyBehavior != null && !enemyBehavior.IsDestroyed())
                 {
-                    EnemyBehavior enemyBehavior = hit.transform.gameObject.GetComponent<EnemyBehavior>();
+                    if (!crosshairStimulusController.IsFlickering())
+                    {
+                        crosshairStimulusController.StartFlickering();
+                    }
                     if (currentEnemyBehavior == null)
                     {
                         enemyBehavior.StartFlickering();
@@ -76,6 +81,10 @@ public class SniperRifleController : GunController
                 }
                 else
                 {
+                    if (crosshairStimulusController.IsFlickering())
+                    {
+                        crosshairStimulusController.StopFlickering();
+                    }
                     if (currentEnemyBehavior != null)
                     {
                         currentEnemyBehavior.StopFlickering();
@@ -157,6 +166,7 @@ public class SniperRifleController : GunController
     {
         scope.gameObject.SetActive(false);
         scopeCrosshair.gameObject.SetActive(false);
+        crosshairStimulusController.StopFlickering();
     }
 
     public void ShowGunParts()
