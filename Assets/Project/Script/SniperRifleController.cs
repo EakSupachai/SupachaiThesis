@@ -60,7 +60,7 @@ public class SniperRifleController : GunController
                 EnemyBehavior enemyBehavior = hit.transform.gameObject.GetComponent<EnemyBehavior>();
                 if (enemyBehavior != null && !enemyBehavior.IsDestroyed())
                 {
-                    if (!crosshairStimulusController.IsFlickering())
+                    if (GameModeRecorder.useCrosshairStimulus && !crosshairStimulusController.IsFlickering())
                     {
                         crosshairStimulusController.StartFlickering();
                     }
@@ -81,7 +81,7 @@ public class SniperRifleController : GunController
                 }
                 else
                 {
-                    if (crosshairStimulusController.IsFlickering())
+                    if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
                     {
                         crosshairStimulusController.StopFlickering();
                     }

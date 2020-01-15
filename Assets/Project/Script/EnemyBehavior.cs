@@ -199,27 +199,30 @@ public class EnemyBehavior : MonoBehaviour
             if (frameCount > 2)
             {
                 frameCount = 1;
-                /*foreach (MeshRenderer mr in meshRenderers)
+                if (!GameModeRecorder.useCrosshairStimulus)
                 {
-                    mr.material = materialFlag ? whiteStimulusMaterial : blackStimulusMaterial;
+                    foreach (MeshRenderer mr in meshRenderers)
+                    {
+                        mr.material = materialFlag ? whiteStimulusMaterial : blackStimulusMaterial;
+                    }
+                    foreach (ParticleSystemRenderer ps in thrusts)
+                    {
+                        Color color = ps.material.color;
+                        if (materialFlag)
+                        {
+                            color.r = 1f;
+                            color.g = 1f;
+                            color.b = 1f;
+                        }
+                        else
+                        {
+                            color.r = 0f;
+                            color.g = 0f;
+                            color.b = 0f;
+                        }
+                        ps.material.color = color;
+                    }
                 }
-                foreach (ParticleSystemRenderer ps in thrusts)
-                {
-                    Color color = ps.material.color;
-                    if (materialFlag)
-                    {
-                        color.r = 1f;
-                        color.g = 1f;
-                        color.b = 1f;
-                    }
-                    else
-                    {
-                        color.r = 0f;
-                        color.g = 0f;
-                        color.b = 0f;
-                    }
-                    ps.material.color = color;
-                }*/
                 materialFlag = !materialFlag;
             }
             frameCount++;
@@ -530,19 +533,22 @@ public class EnemyBehavior : MonoBehaviour
             frameCount = 1;
             flickering = true;
             materialFlag = false;
-            /*foreach (MeshRenderer mr in meshRenderers)
+            if (!GameModeRecorder.useCrosshairStimulus)
             {
-                mr.material = whiteStimulusMaterial;
-                mr.receiveShadows = false;
-                if (mr.gameObject.tag == "Eye")
+                foreach (MeshRenderer mr in meshRenderers)
                 {
-                    mr.gameObject.layer = defaultLayer;
+                    mr.material = whiteStimulusMaterial;
+                    mr.receiveShadows = false;
+                    if (mr.gameObject.tag == "Eye")
+                    {
+                        mr.gameObject.layer = defaultLayer;
+                    }
+                }
+                foreach (ParticleSystemRenderer ps in thrusts)
+                {
+                    ps.material = defaultParticleMaterial;
                 }
             }
-            foreach (ParticleSystemRenderer ps in thrusts)
-            {
-                ps.material = defaultParticleMaterial;
-            }*/
         }
     }
 
@@ -552,24 +558,27 @@ public class EnemyBehavior : MonoBehaviour
         {
             flickering = false;
             int index = 0;
-            /*foreach (MeshRenderer mr in meshRenderers)
+            if (!GameModeRecorder.useCrosshairStimulus)
             {
-                mr.material = defaultMaterials[index];
-                mr.receiveShadows = true;
-                if (mr.gameObject.tag == "Eye")
+                foreach (MeshRenderer mr in meshRenderers)
                 {
-                    mr.gameObject.layer = eyeLayer;
+                    mr.material = defaultMaterials[index];
+                    mr.receiveShadows = true;
+                    if (mr.gameObject.tag == "Eye")
+                    {
+                        mr.gameObject.layer = eyeLayer;
+                    }
+                    if (IsDestroyed())
+                    {
+                        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    }
+                    index++;
                 }
-                if (IsDestroyed())
+                foreach (ParticleSystemRenderer ps in thrusts)
                 {
-                    mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    ps.material = thrustMaterial;
                 }
-                index++;
             }
-            foreach (ParticleSystemRenderer ps in thrusts)
-            {
-                ps.material = thrustMaterial;
-            }*/
         }
     }
 
