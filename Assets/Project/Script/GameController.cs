@@ -423,7 +423,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus.", true);
                 break;
             case "STEP4_2":
-                CalibrationStepHandler(4, "Use sniper rifle to aim at the enemies\nand pay attention to the stimulus.");
+                CalibrationStepHandler(4, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
                 /*if (!stateStarted)
                 {
                     stateStarted = true;
@@ -491,10 +491,10 @@ public class GameController : MonoBehaviour
                 }*/
                 break;
             case "STEP7_2 INS":
-                CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope\nand pay attention to the stimulus.", false);
+                CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope.\nPay attention to the stimulus.", false);
                 break;
             case "STEP7_2":
-                CalibrationStepHandler(4, "Use sniper rifle to aim at the enemies\nand pay attention to the stimulus.");
+                CalibrationStepHandler(4, "Look at the enemies through the scope.\nPay attention to the stimulus.");
                 /*if (!stateStarted)
                 {
                     stateStarted = true;
@@ -1468,7 +1468,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private void CalibrationStepHandler(int objectiveTarget, string objective, bool progressWave = true, bool startSkipStimulus = false, string nextState = "")
+    private void CalibrationStepHandler(int objectiveTarget, string objective, bool progressWave = true, bool startSkipStimulus = false, string nextState = "", string secondObjectiveText = "")
     {
         if (!stateStarted)
         {
@@ -1493,7 +1493,7 @@ public class GameController : MonoBehaviour
             {
                 if (objectiveCounter >= objectiveTargetCounter)
                 {
-                    objectiveText.text = "Destroy the remaining enemies.";
+                    objectiveText.text = secondObjectiveText == "" ? "Destroy the remaining enemies." : secondObjectiveText;
                     objectiveTargetText.text = "";
                 }
             }
