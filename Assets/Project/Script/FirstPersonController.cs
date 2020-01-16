@@ -1491,7 +1491,7 @@ public class FirstPersonController : MonoBehaviour
                 ssvepCounter++;
             }
         }
-        if (ssvepCounter >= InputUDP.GetThreshold() && grad1 < 0f)
+        if (ssvepCounter >= InputUDP.GetThreshold() /*&& grad1 < 0f*/)
         {
             return true;
         }
