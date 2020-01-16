@@ -46,8 +46,16 @@ public class SniperRifleController : GunController
         }
     }
 
-    public void Update()
+    private void Update()
     {
+        if (GameController.IsPause() || GameController.IsGameOver())
+        {
+            if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
+            {
+                crosshairStimulusController.StopFlickering();
+            }
+            return;
+        }
         Ray ray = fpcCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         RaycastHit hit;
         if (Physics.Raycast(ray.origin, ray.direction, out hit))
@@ -85,30 +93,23 @@ public class SniperRifleController : GunController
                     {
                         crosshairStimulusController.StopFlickering();
                     }
-                    if (currentEnemyBehavior != null)
-                    {
-                        currentEnemyBehavior.StopFlickering();
-                        currentEnemyBehavior = null;
-                    }
-                }
-            }
-            else
-            {
-                if (currentEnemyBehavior != null)
-                {
-                    currentEnemyBehavior.StopFlickering();
-                    currentEnemyBehavior = null;
+                    ClearEnemyBehavior();
                 }
             }
         }
         else
         {
             isRaycastHit = false;
-            if (currentEnemyBehavior != null)
-            {
-                currentEnemyBehavior.StopFlickering();
-                currentEnemyBehavior = null;
-            }
+            ClearEnemyBehavior();
+        }
+    }
+
+    private void ClearEnemyBehavior()
+    {
+        if (currentEnemyBehavior != null)
+        {
+            currentEnemyBehavior.StopFlickering();
+            currentEnemyBehavior = null;
         }
     }
 
@@ -167,6 +168,7 @@ public class SniperRifleController : GunController
         scope.gameObject.SetActive(false);
         scopeCrosshair.gameObject.SetActive(false);
         crosshairStimulusController.StopFlickering();
+        ClearEnemyBehavior();
     }
 
     public void ShowGunParts()
