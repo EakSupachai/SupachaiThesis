@@ -352,7 +352,8 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 1:\nDestroy the enemies with auto rifle.\nDon't blink while shooting.", false);
                 break;
             case "STEP1_2":
-                if (!stateStarted)
+                CalibrationStepHandler(4, "Destroy the enemies with auto rifle.\nDon't blink while shooting.");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -372,13 +373,14 @@ public class GameController : MonoBehaviour
                         objectiveText.text = "Destroy the remaining enemies.";
                         objectiveTargetText.text = "";
                     }
-                }
+                }*/
                 break;
             case "STEP2_2 INS":
                 CalibrationInsStepHandler("Step 2:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP2_2");
                 break;
             case "STEP2_2":
-                if (!stateStarted)
+                CalibrationStepHandler(1, "Look at the core and\npay attention to the stimulus.", false, false, "STEP3_2 INS");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -392,13 +394,14 @@ public class GameController : MonoBehaviour
                     objectiveText.text = "";
                     objectiveTargetText.text = "";
                     currentState = "STEP3_2 INS";
-                }
+                }*/
                 break;
             case "STEP3_2 INS":
                 CalibrationInsStepHandler("Step 3:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP3_2");
                 break;
             case "STEP3_2":
-                if (!stateStarted)
+                CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP4_2 INS");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -414,13 +417,14 @@ public class GameController : MonoBehaviour
                     objectiveTargetText.text = "";
                     currentState = "STEP4_2 INS";
                     player.StopSkipStimulus();
-                }
+                }*/
                 break;
             case "STEP4_2 INS":
                 CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus.", true);
                 break;
             case "STEP4_2":
-                if (!stateStarted)
+                CalibrationStepHandler(4, "Use sniper rifle to aim at the enemies\nand pay attention to the stimulus.");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -440,13 +444,14 @@ public class GameController : MonoBehaviour
                         objectiveText.text = "Destroy the remaining enemies.";
                         objectiveTargetText.text = "";
                     }
-                }
+                }*/
                 break;
             case "STEP5_2 INS":
                 CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
                 break;
             case "STEP5_2":
-                if (!stateStarted)
+                CalibrationStepHandler(1, "Look at the core and\npay attention to the stimulus.", false, false, "STEP6_2 INS");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -460,13 +465,14 @@ public class GameController : MonoBehaviour
                     objectiveText.text = "";
                     objectiveTargetText.text = "";
                     currentState = "STEP6_2 INS";
-                }
+                }*/
                 break;
             case "STEP6_2 INS":
                 CalibrationInsStepHandler("Step 6:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP6_2");
                 break;
             case "STEP6_2":
-                if (!stateStarted)
+                CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP7_2 INS");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -482,13 +488,14 @@ public class GameController : MonoBehaviour
                     objectiveTargetText.text = "";
                     currentState = "STEP7_2 INS";
                     player.StopSkipStimulus();
-                }
+                }*/
                 break;
             case "STEP7_2 INS":
                 CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope\nand pay attention to the stimulus.", false);
                 break;
             case "STEP7_2":
-                if (!stateStarted)
+                CalibrationStepHandler(4, "Use sniper rifle to aim at the enemies\nand pay attention to the stimulus.");
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                     objectiveCounter = 0;
@@ -508,7 +515,7 @@ public class GameController : MonoBehaviour
                         objectiveText.text = "Destroy the remaining enemies.";
                         objectiveTargetText.text = "";
                     }
-                }
+                }*/
                 break;
             /*case "STEP1 INS":
                 CalibrationInsStepHandler("Step 1:\nTry to walk around without blinking\nfor " + 
@@ -684,7 +691,8 @@ public class GameController : MonoBehaviour
                 break;
             // normal state
             case "WAVE1":
-                if (!stateStarted)
+                WaveHandler();
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                 }
@@ -692,10 +700,11 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "WAVE COMPLETED";
-                }
+                }*/
                 break;
             case "WAVE2":
-                if (!stateStarted)
+                WaveHandler();
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                 }
@@ -703,10 +712,11 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "WAVE COMPLETED";
-                }
+                }*/
                 break;
             case "WAVE3":
-                if (!stateStarted)
+                WaveHandler(true);
+                /*if (!stateStarted)
                 {
                     stateStarted = true;
                 }
@@ -714,7 +724,7 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     currentState = coreHp == 0f ? "GAME OVER" : "END";
-                }
+                }*/
                 break;
             case "WAVE COMPLETED":
                 if (!stateStarted)
@@ -1454,6 +1464,72 @@ public class GameController : MonoBehaviour
             else
             {
                 currentState = nextState;
+            }
+        }
+    }
+
+    private void CalibrationStepHandler(int objectiveTarget, string objective, bool progressWave = true, bool startSkipStimulus = false, string nextState = "")
+    {
+        if (!stateStarted)
+        {
+            stateStarted = true;
+            objectiveCounter = 0;
+            objectiveTargetCounter = objectiveTarget;
+            objectiveText.text = objective;
+            objectiveTargetText.text = objectiveCounter + " / " + objectiveTargetCounter;
+            if (startSkipStimulus)
+            {
+                player.StartSkipStimulus();
+            }
+        }
+        if (progressWave)
+        {
+            if (ProgressEnemyWave())
+            {
+                stateStarted = false;
+                currentState = "WAVE COMPLETED";
+            }
+            else
+            {
+                if (objectiveCounter >= objectiveTargetCounter)
+                {
+                    objectiveText.text = "Destroy the remaining enemies.";
+                    objectiveTargetText.text = "";
+                }
+            }
+        }
+        else
+        {
+            if (objectiveCounter >= objectiveTargetCounter)
+            {
+                stateStarted = false;
+                objectiveText.text = "";
+                objectiveTargetText.text = "";
+                currentState = nextState;
+                if (startSkipStimulus)
+                {
+                    player.StopSkipStimulus();
+                }
+            }
+        }
+    }
+    
+    private void WaveHandler(bool finalWave = false)
+    {
+        if (!stateStarted)
+        {
+            stateStarted = true;
+        }
+        if (ProgressEnemyWave())
+        {
+            stateStarted = false;
+            if (finalWave)
+            {
+                currentState = coreHp == 0f ? "GAME OVER" : "END";
+            }
+            else
+            {
+                currentState = coreHp == 0f ? "GAME OVER" : "WAVE COMPLETED";
             }
         }
     }

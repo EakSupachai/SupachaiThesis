@@ -68,10 +68,7 @@ public class SniperRifleController : GunController
                 EnemyBehavior enemyBehavior = hit.transform.gameObject.GetComponent<EnemyBehavior>();
                 if (enemyBehavior != null && !enemyBehavior.IsDestroyed())
                 {
-                    if (GameModeRecorder.useCrosshairStimulus && !crosshairStimulusController.IsFlickering())
-                    {
-                        crosshairStimulusController.StartFlickering();
-                    }
+                    StartCrosshairFlickering();
                     if (currentEnemyBehavior == null)
                     {
                         enemyBehavior.StartFlickering();
@@ -89,10 +86,7 @@ public class SniperRifleController : GunController
                 }
                 else
                 {
-                    if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
-                    {
-                        crosshairStimulusController.StopFlickering();
-                    }
+                    StopCrosshairFlickering();
                     ClearEnemyBehavior();
                 }
             }
@@ -110,6 +104,22 @@ public class SniperRifleController : GunController
         {
             currentEnemyBehavior.StopFlickering();
             currentEnemyBehavior = null;
+        }
+    }
+
+    private void StartCrosshairFlickering()
+    {
+        if (GameModeRecorder.useCrosshairStimulus && !crosshairStimulusController.IsFlickering())
+        {
+            crosshairStimulusController.StartFlickering();
+        }
+    }
+
+    private void StopCrosshairFlickering()
+    {
+        if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
+        {
+            crosshairStimulusController.StopFlickering();
         }
     }
 
@@ -167,7 +177,8 @@ public class SniperRifleController : GunController
     {
         scope.gameObject.SetActive(false);
         scopeCrosshair.gameObject.SetActive(false);
-        crosshairStimulusController.StopFlickering();
+        //crosshairStimulusController.StopFlickering();
+        StopCrosshairFlickering();
         ClearEnemyBehavior();
     }
 
