@@ -439,6 +439,10 @@ public class FirstPersonController : MonoBehaviour
                             {
                                 gazeToActivateCoreCommand = true;
                                 savedStimulusGazeDuration = stimulusGazeDuration;
+                                if (gameController.CanActivateLaserFence())
+                                {
+                                    gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                                }
                             }
                             else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                             {
