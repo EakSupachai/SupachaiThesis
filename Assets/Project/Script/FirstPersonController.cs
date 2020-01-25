@@ -425,6 +425,21 @@ public class FirstPersonController : MonoBehaviour
                         stimulusGazeDuration += unscaledDeltaTime;
                         if (bciInput.input != "NULL")
                         {
+                            if (tempGazeInCoreStimulus)
+                            {
+                                if (gameController.IsAlreadyStartFixingCore())
+                                {
+                                    InputUDP.LowerThreshold();
+                                }
+                                else
+                                {
+                                    InputUDP.ResetThreshold();
+                                }
+                            }
+                            else
+                            {
+                                InputUDP.ResetThreshold();
+                            }
                             ssvepReceived = isSSVEPdetected(bciInput);
                             previousSsvepInput = ssvepReceived;
                         }

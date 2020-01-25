@@ -576,7 +576,6 @@ public class GameController : MonoBehaviour
                 {
                     Time.timeScale = 0.15f;
                     stateStarted = true;
-                    waiting_alreadyBeginFixing = false;
                     currentStateDuration = waveCompleteStateDuration;
                 }
                 currentStateDuration -= Time.deltaTime;
@@ -769,6 +768,7 @@ public class GameController : MonoBehaviour
     private void StartEnemyWave()
     {
         timesUpFlag = false;
+        waiting_alreadyBeginFixing = false;
         currentStateDuration = waveDuration;
         if (!calibrationMode)
         {
@@ -1498,6 +1498,11 @@ public class GameController : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    public bool IsAlreadyStartFixingCore()
+    {
+        return waiting_alreadyBeginFixing;
     }
 
     public static bool IsInWaveCompletedState()

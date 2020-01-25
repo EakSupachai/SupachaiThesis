@@ -22,6 +22,8 @@ public class InputUDP : MonoBehaviour
     private static bool inputLockStatus = true;
     private static int bufferSize = 5;
     private static int threshold = 4;
+    private static int defaultThreshold = 4;
+    private static int loweredThreshold = 3;
     private static Random random = new Random();
 
     // start from unity3d
@@ -234,6 +236,16 @@ public class InputUDP : MonoBehaviour
         {
             bufferedInput = "00000";
         }
+    }
+
+    public static void LowerThreshold()
+    {
+        threshold = loweredThreshold;
+    }
+
+    public static void ResetThreshold()
+    {
+        threshold = defaultThreshold;
     }
 
     public static int GetThreshold()
