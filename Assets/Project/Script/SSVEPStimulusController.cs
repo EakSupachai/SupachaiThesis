@@ -28,7 +28,7 @@ public class SSVEPStimulusController : MonoBehaviour
         }
         if (flickering)
         {
-            if (frameCount > 2)
+            if (frameCount > 3)
             {
                 frameCount = 1;
                 image.sprite = spriteFlag ? whiteSprite : blackSprite;

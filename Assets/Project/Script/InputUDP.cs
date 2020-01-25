@@ -20,10 +20,10 @@ public class InputUDP : MonoBehaviour
     private static bool newInputReceived = false;
     private static bool inputAvailableStatus = false;
     private static bool inputLockStatus = true;
-    private static int bufferSize = 5;
-    private static int threshold = 4;
-    private static int defaultThreshold = 4;
-    private static int loweredThreshold = 3;
+    private static int bufferSize = 4;
+    private static int threshold = 3;
+    private static int defaultThreshold = 3;
+    private static int loweredThreshold = 2;
     private static Random random = new Random();
 
     // start from unity3d
@@ -234,7 +234,7 @@ public class InputUDP : MonoBehaviour
     {
         lock (lockObject)
         {
-            bufferedInput = "00000";
+            bufferedInput = "0000";
         }
     }
 
@@ -257,7 +257,7 @@ public class InputUDP : MonoBehaviour
     {
         lock (lockObject)
         {
-            bufferedInput = "00000";
+            bufferedInput = "0000";
             inputLockStatus = true;
         }
     }
@@ -266,7 +266,7 @@ public class InputUDP : MonoBehaviour
     {
         lock (lockObject)
         {
-            bufferedInput = "00000";
+            bufferedInput = "0000";
             inputLockStatus = false;
         }
     }
