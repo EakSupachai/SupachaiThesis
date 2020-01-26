@@ -50,7 +50,7 @@ public class SniperRifleController : GunController
     {
         if (GameController.IsPause() || GameController.IsGameOver())
         {
-            if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
+            if (GameModeRecorder.shootingStimulusMode == 1 && crosshairStimulusController.IsFlickering())
             {
                 crosshairStimulusController.StopFlickering();
             }
@@ -109,7 +109,7 @@ public class SniperRifleController : GunController
 
     private void StartCrosshairFlickering()
     {
-        if (GameModeRecorder.useCrosshairStimulus && !crosshairStimulusController.IsFlickering())
+        if (GameModeRecorder.shootingStimulusMode == 1 && !crosshairStimulusController.IsFlickering())
         {
             crosshairStimulusController.StartFlickering();
         }
@@ -117,7 +117,7 @@ public class SniperRifleController : GunController
 
     private void StopCrosshairFlickering()
     {
-        if (GameModeRecorder.useCrosshairStimulus && crosshairStimulusController.IsFlickering())
+        if (GameModeRecorder.shootingStimulusMode == 1 && crosshairStimulusController.IsFlickering())
         {
             crosshairStimulusController.StopFlickering();
         }
