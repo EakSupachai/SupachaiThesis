@@ -343,7 +343,12 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     oneLineText.text = "";
-                    currentState = "STEP1_2 INS";
+                    // choose this if don't want to skip step 1
+                    // currentState = "STEP1_2 INS";
+                    // choose this if want to skip step 1
+                    nextWave++;
+                    currentState = "STEP2_2 INS";
+                    ////////////////////////////////
                     player.StopSkipStimulus();
                 }
                 break;
