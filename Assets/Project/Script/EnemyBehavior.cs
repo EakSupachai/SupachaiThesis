@@ -199,7 +199,7 @@ public class EnemyBehavior : MonoBehaviour
             if (frameCount > 3)
             {
                 frameCount = 1;
-                if (!GameModeRecorder.useCrosshairStimulus)
+                if (GameModeRecorder.shootingStimulusMode == 2)
                 {
                     foreach (MeshRenderer mr in meshRenderers)
                     {
@@ -533,7 +533,7 @@ public class EnemyBehavior : MonoBehaviour
             frameCount = 1;
             flickering = true;
             materialFlag = false;
-            if (!GameModeRecorder.useCrosshairStimulus)
+            if (GameModeRecorder.shootingStimulusMode == 2)
             {
                 foreach (MeshRenderer mr in meshRenderers)
                 {
@@ -558,7 +558,7 @@ public class EnemyBehavior : MonoBehaviour
         {
             flickering = false;
             int index = 0;
-            if (!GameModeRecorder.useCrosshairStimulus)
+            if (GameModeRecorder.shootingStimulusMode == 2)
             {
                 foreach (MeshRenderer mr in meshRenderers)
                 {
