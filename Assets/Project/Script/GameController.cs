@@ -239,14 +239,15 @@ public class GameController : MonoBehaviour
     {
         if (fpsText != null)
         {
-            if (fpsTime >= 1f)
+            float deltaTime = Time.deltaTime / Time.timeScale;
+            if (fpsTime > 1f)
             {
                 fpsText.text = "" + frameCount;
-                frameCount = -1;
-                fpsTime = 0;
+                frameCount = 0;
+                fpsTime = deltaTime;
             }
             frameCount++;
-            fpsTime += Time.deltaTime / Time.timeScale;
+            fpsTime += deltaTime;
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
