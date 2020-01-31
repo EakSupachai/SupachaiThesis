@@ -196,7 +196,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         if (flickering)
         {
-            if (frameCount > 3)
+            if (frameCount > 2)
             {
                 frameCount = 1;
                 if (GameModeRecorder.shootingStimulusMode == 2)

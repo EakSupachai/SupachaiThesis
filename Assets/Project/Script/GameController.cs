@@ -239,14 +239,15 @@ public class GameController : MonoBehaviour
     {
         if (fpsText != null)
         {
-            if (fpsTime >= 1f)
+            float deltaTime = Time.deltaTime / Time.timeScale;
+            if (fpsTime > 1f)
             {
                 fpsText.text = "" + frameCount;
-                frameCount = -1;
-                fpsTime = 0;
+                frameCount = 0;
+                fpsTime = deltaTime;
             }
             frameCount++;
-            fpsTime += Time.deltaTime / Time.timeScale;
+            fpsTime += deltaTime;
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
@@ -343,7 +344,12 @@ public class GameController : MonoBehaviour
                 {
                     stateStarted = false;
                     oneLineText.text = "";
-                    currentState = "STEP1_2 INS";
+                    // choose this if don't want to skip step 1
+                    // currentState = "STEP1_2 INS";
+                    // choose this if want to skip step 1
+                    nextWave++;
+                    currentState = "STEP2_2 INS";
+                    ////////////////////////////////
                     player.StopSkipStimulus();
                 }
                 break;
@@ -351,7 +357,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 1:\nDestroy the enemies with auto rifle.\nDon't blink while shooting.", false);
                 break;
             case "STEP1_2":
-                CalibrationStepHandler(4, "Destroy the enemies with auto rifle.\nDon't blink while shooting.");
+                CalibrationStepHandler(1, "Destroy the enemies with auto rifle.\nDon't blink while shooting.");
                 break;
             case "STEP2_2 INS":
                 CalibrationInsStepHandler("Step 2:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP2_2");
@@ -369,7 +375,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus.", true);
                 break;
             case "STEP4_2":
-                CalibrationStepHandler(4, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
                 break;
             case "STEP5_2 INS":
                 CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
@@ -387,7 +393,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope.\nPay attention to the stimulus.", false);
                 break;
             case "STEP7_2":
-                CalibrationStepHandler(4, "Look at the enemies through the scope.\nPay attention to the stimulus.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus.");
                 break;
             /*case "STEP1 INS":
                 CalibrationInsStepHandler("Step 1:\nTry to walk around without blinking\nfor " + 
