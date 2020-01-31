@@ -339,6 +339,7 @@ public class FirstPersonController : MonoBehaviour
                     {
                         float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
                         float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
+                        gameController.IncreaseBlinkInsideHudCommandCount();
                         if (d1 <= d2)
                         {
                             blinkToChangeGun = true;
@@ -348,21 +349,19 @@ public class FirstPersonController : MonoBehaviour
                             blinkToUseSkill = true;
                         }
                     }
-                    else if (blinkInGunModeCA && !g_Aiming)
+                    else if ((blinkInGunModeCA && !g_Aiming) || (blinkInGunModeAimCA && g_Aiming))
                     {
                         blinkToChangeMode = true;
-                    }
-                    else if (blinkInGunModeAimCA && g_Aiming)
-                    {
-                        blinkToChangeMode = true;
+                        gameController.IncreaseBlinkOutsideHudCommandCount();
                     }
                     else
                     {
+                        gameController.IncreaseBlinkOutsideHudCommandCount();
                         if (blinkStatus.left)
                         {
                             blinkToAim = true;
                         }
-                        else if (blinkStatus.right)
+                        else
                         {
                             blinkToUseSkill = true;
                         }
@@ -456,18 +455,18 @@ public class FirstPersonController : MonoBehaviour
                                 savedStimulusGazeDuration = stimulusGazeDuration;
                                 if (gameController.CanActivateLaserFence())
                                 {
-                                    gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                                    gameController.UpdateCoreCommandDelay(stimulusGazeDuration);
                                 }
                             }
                             else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                             {
                                 gazeToActivateSkipCommand = true;
-                                gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateCoreCommandDelay(stimulusGazeDuration);
                             }
                             else if (tempGazeInEnemyStimulus && currentGazeZone == "ENEMY")
                             {
                                 gazeToActivateShootCommand = true;
-                                gameController.UpdateAccCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateShootCommandDelay(stimulusGazeDuration);
                             }
                             stimulusGazeDuration = 0f;
                         }

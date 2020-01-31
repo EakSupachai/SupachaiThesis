@@ -120,11 +120,19 @@ public class GameController : MonoBehaviour
     private int fixingCost;
     private int objectiveCounter;
     private int objectiveTargetCounter;
+    private int enemiesSpawn;
+    private int enemiesMiss;
     private int enemiesTakenOutByAR;
     private int enemiesTakenOutBySR;
     private int enemiesTakenOutByLaser;
+    private int blinkInsideHudCommandCount;
+    private int blinkOutsideHudCommandCount;
     private int ssvepCommandCount;
+    private int ssvepCoreCommandCount;
     private float accSsvepCommandDelay;
+    private float accShootSsvepCommandDelay;
+    private float accCoreSsvepCommandDelay;
+    private float totalGameTime;
 
     private List<float> spawnTimeLimits = new List<float>();
     private List<float> spawnTimers = new List<float>();
@@ -237,17 +245,22 @@ public class GameController : MonoBehaviour
     private int frameCount = -1;
     private void Update()
     {
-        if (fpsText != null)
+        if (Time.timeScale != 0f)
         {
             float deltaTime = Time.deltaTime / Time.timeScale;
-            if (fpsTime > 1f)
+            totalGameTime += deltaTime;
+            if (fpsText != null)
             {
-                fpsText.text = "" + frameCount;
-                frameCount = 0;
-                fpsTime = deltaTime;
+                if (fpsTime > 1f)
+                {
+                    Debug.Log(totalGameTime);
+                    fpsText.text = "" + frameCount;
+                    frameCount = 0;
+                    fpsTime = deltaTime;
+                }
+                frameCount++;
+                fpsTime += deltaTime;
             }
-            frameCount++;
-            fpsTime += deltaTime;
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
@@ -914,6 +927,7 @@ public class GameController : MonoBehaviour
                 }
 
                 enemyOnScreen++;
+                enemiesSpawn++;
                 GameObject enemy = null;
                 if (rand <= smallEnemySpawnChance)
                 {
@@ -1112,6 +1126,7 @@ public class GameController : MonoBehaviour
 
     public void ReduceCoreHp(int enemyType)
     {
+        enemiesMiss++;
         if (testMode || calibrationMode)
         {
             return;
@@ -1146,7 +1161,7 @@ public class GameController : MonoBehaviour
             scoreText.text = "" + score;
             if (stimulusGazeDuration != -1f)
             {
-                UpdateAccCommandDelay(stimulusGazeDuration);
+                UpdateCoreCommandDelay(stimulusGazeDuration);
             }
         }
         if (coreHp < coreFullHp)
@@ -1462,6 +1477,16 @@ public class GameController : MonoBehaviour
         scoreText.text = "" + score;
     }
 
+    public void IncreaseBlinkInsideHudCommandCount()
+    {
+        blinkInsideHudCommandCount++;
+    }
+
+    public void IncreaseBlinkOutsideHudCommandCount()
+    {
+        blinkOutsideHudCommandCount++;
+    }
+
     public void IncreaseEnemiesTakenOutByAR()
     {
         enemiesTakenOutByAR++;
@@ -1477,10 +1502,19 @@ public class GameController : MonoBehaviour
         enemiesTakenOutByLaser++;
     }
 
-    public void UpdateAccCommandDelay(float delay)
+    public void UpdateShootCommandDelay(float delay)
     {
         accSsvepCommandDelay += delay;
+        accShootSsvepCommandDelay += delay;
         ssvepCommandCount++;
+    }
+
+    public void UpdateCoreCommandDelay(float delay)
+    {
+        accSsvepCommandDelay += delay;
+        accCoreSsvepCommandDelay += delay;
+        ssvepCommandCount++;
+        ssvepCoreCommandCount++;
     }
 
     public void SkipWaitingState()
