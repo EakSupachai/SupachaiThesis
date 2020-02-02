@@ -20,6 +20,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] Image h_GunAndSkillCommandArea;
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
+    [SerializeField] Image h_StimulusHighlightBlank;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
     [SerializeField] Image g_GunHUD;
@@ -132,6 +133,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] shootCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
+    private Color stimulusHighlightBlankColor; 
     private float skipPressDuration;
     private float stimulusGazeDuration;
     private float savedStimulusGazeDuration;
@@ -143,6 +145,8 @@ public class FirstPersonController : MonoBehaviour
 
     private Color redColor = new Color(1f, 0.133f, 0.133f);
     private Color greenColor = new Color(0.318f, 0.965f, 0f);
+
+    private DepthOfFieldModel.Settings ppSetting;
 
     // Use this for initialization
     private void Start()
@@ -183,6 +187,7 @@ public class FirstPersonController : MonoBehaviour
         s_FailFadeOutTime = 0.05f;
         s_SkillCooldownOverlay = s_SkillCooldownHUD.transform.Find("Overlay").gameObject.GetComponent<Image>();
         s_SkillCooldownOverlay.fillAmount = 1f;
+        stimulusHighlightBlankColor = h_StimulusHighlightBlank.color;
         Color color = s_SkillCooldownOverlay.color;
         color.a = 0f;
         s_SkillCooldownOverlay.color = color;
@@ -193,6 +198,8 @@ public class FirstPersonController : MonoBehaviour
         color = g_SniperRifleIcon.color;
         color.a = 0.1f;
         g_SniperRifleIcon.color = color;
+
+        ppSetting = postProcessingProfile.depthOfField.settings;
     }
 
     private void Update()
@@ -304,6 +311,7 @@ public class FirstPersonController : MonoBehaviour
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
             gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping;
+            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus);
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -1187,7 +1195,6 @@ public class FirstPersonController : MonoBehaviour
         PlayFootStepAudio();
     }
 
-
     private void PlayFootStepAudio()
     {
         if (!m_CharacterController.isGrounded)
@@ -1350,6 +1357,83 @@ public class FirstPersonController : MonoBehaviour
         g_HolsterStartAngle = g_GunController.transform.localRotation;
         g_HolsterIntendedAngle = Quaternion.Euler(g_HolsterStartAngle.eulerAngles - new Vector3(40f, 0f, 10f));
         g_GunController.SwitchToDefaultCrosshair();
+    }
+
+    private bool highlightingStimulus;
+    private bool turningOffHighlight;
+    private bool highlightOn;
+    private float highlightStartTime;
+    private float highlightDuration;
+    private float highlightDefaultDuration = 0.25f;
+    private float turnOffDefaultDuration = 0.12f;
+    private float highlightStartFocus;
+    private float highlightDefaultStartFocus = 4f;
+    private float highlightStartAlpha;
+    private float highlightDefaultAlpha = 0.784f;
+    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus)
+    {
+        if ((gazeInCoreStimulus || gazeInSkipStimulus) && !highlightOn && !highlightingStimulus)
+        {
+            highlightStartAlpha = h_StimulusHighlightBlank.color.a;
+            highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
+            highlightDuration = ((highlightDefaultAlpha - highlightStartAlpha) / highlightDefaultAlpha) * highlightDefaultDuration;
+            //highlightDuration = ((highlightStartFocus - 0.1f) / (highlightDefaultStartFocus - 0.1f)) * highlightDefaultDuration;
+            postProcessingProfile.depthOfField.enabled = true;
+            highlightStartTime = Time.time;
+            highlightingStimulus = true;
+            turningOffHighlight = false;
+        }
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !turningOffHighlight)
+        {
+            highlightStartAlpha = h_StimulusHighlightBlank.color.a;
+            highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
+            highlightDuration = (highlightStartAlpha / highlightDefaultAlpha) * turnOffDefaultDuration;
+            postProcessingProfile.depthOfField.enabled = true;
+            highlightStartTime = Time.time;
+            highlightOn = false;
+            highlightingStimulus = false;
+            turningOffHighlight = true;
+        }
+        if (highlightingStimulus && !highlightOn)
+        {
+            float aPlus = 0f;
+            float fdMinus = 0f;
+            float maxAPlus = highlightDefaultAlpha - highlightStartAlpha;
+            float maxFdMinus = highlightStartFocus - 0.1f;
+            aPlus = (Time.time - highlightStartTime) * maxAPlus / highlightDuration;
+            fdMinus = (Time.time - highlightStartTime) * maxFdMinus / highlightDuration;
+            if (fdMinus >= maxFdMinus)
+            {
+                highlightOn = true;
+                highlightingStimulus = false;
+                aPlus = maxAPlus;
+                fdMinus = maxFdMinus;
+            }
+            stimulusHighlightBlankColor.a = highlightStartAlpha + aPlus;
+            h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+            ppSetting.focusDistance = highlightStartFocus - fdMinus;
+            postProcessingProfile.depthOfField.settings = ppSetting;
+        }
+        else if (turningOffHighlight)
+        {
+            float aMinus = 0f;
+            float fdPlus = 0f;
+            float maxAMinus = highlightStartAlpha;
+            float maxFdPlus = highlightDefaultStartFocus - highlightStartFocus;
+            aMinus = (Time.time - highlightStartTime) * maxAMinus / highlightDuration;
+            fdPlus = (Time.time - highlightStartTime) * maxFdPlus / highlightDuration;
+            if (fdPlus >= maxFdPlus)
+            {
+                turningOffHighlight = false;
+                aMinus = maxAMinus;
+                fdPlus = maxFdPlus;
+                postProcessingProfile.depthOfField.enabled = true;
+            }
+            stimulusHighlightBlankColor.a = highlightStartAlpha - aMinus;
+            h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+            ppSetting.focusDistance = highlightStartFocus + fdPlus;
+            postProcessingProfile.depthOfField.settings = ppSetting;
+        }
     }
 
     private IEnumerator FlashSkillEffect(float startTime, bool success)
@@ -1579,11 +1663,15 @@ public class FirstPersonController : MonoBehaviour
 
     public void TurnOnDOF()
     {
+        ppSetting.focusDistance = 0.1f;
+        postProcessingProfile.depthOfField.settings = ppSetting;
         postProcessingProfile.depthOfField.enabled = true;
     }
 
     public void TurnOffDOF()
     {
+        ppSetting.focusDistance = 4f;
+        postProcessingProfile.depthOfField.settings = ppSetting;
         postProcessingProfile.depthOfField.enabled = false;
     }
 
