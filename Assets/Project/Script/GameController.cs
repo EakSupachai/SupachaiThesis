@@ -253,7 +253,6 @@ public class GameController : MonoBehaviour
             {
                 if (fpsTime > 1f)
                 {
-                    Debug.Log(totalGameTime);
                     fpsText.text = "" + frameCount;
                     frameCount = 0;
                     fpsTime = deltaTime;
