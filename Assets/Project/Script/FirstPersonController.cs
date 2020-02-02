@@ -1661,18 +1661,31 @@ public class FirstPersonController : MonoBehaviour
         return g_Aiming;
     }
 
-    public void TurnOnDOF()
+    public void EnablePauseDofEffect()
     {
         ppSetting.focusDistance = 0.1f;
         postProcessingProfile.depthOfField.settings = ppSetting;
         postProcessingProfile.depthOfField.enabled = true;
     }
 
-    public void TurnOffDOF()
+    public void DisablePauseDofEffect()
     {
-        ppSetting.focusDistance = 4f;
-        postProcessingProfile.depthOfField.settings = ppSetting;
-        postProcessingProfile.depthOfField.enabled = false;
+        if (!highlightingStimulus && !highlightOn && !turningOffHighlight)
+        {
+            ppSetting.focusDistance = 4f;
+            postProcessingProfile.depthOfField.settings = ppSetting;
+            postProcessingProfile.depthOfField.enabled = false;
+        }
+    }
+
+    public void EnableStimulusHighlightBg()
+    {
+        h_StimulusHighlightBlank.gameObject.SetActive(true);
+    }
+
+    public void DisableStimulusHighlightBg()
+    {
+        h_StimulusHighlightBlank.gameObject.SetActive(false);
     }
 
     public void SetLockonEnemy(EnemyBehavior enemy)
