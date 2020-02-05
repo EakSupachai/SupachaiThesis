@@ -20,6 +20,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] Image h_GunAndSkillCommandArea;
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
+    [SerializeField] Image h_StimulusHighlightBlank;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
     [SerializeField] Image g_GunHUD;
@@ -132,6 +133,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] shootCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
+    private Color stimulusHighlightBlankColor; 
     private float skipPressDuration;
     private float stimulusGazeDuration;
     private float savedStimulusGazeDuration;
@@ -143,6 +145,19 @@ public class FirstPersonController : MonoBehaviour
 
     private Color redColor = new Color(1f, 0.133f, 0.133f);
     private Color greenColor = new Color(0.318f, 0.965f, 0f);
+
+    private DepthOfFieldModel.Settings ppSetting;
+    private bool highlightingStimulus;
+    private bool turningOffHighlight;
+    private bool highlightOn;
+    private float highlightStartTime;
+    private float highlightDuration;
+    private float highlightDefaultDuration = 0.075f;
+    private float turnOffDefaultDuration = 0.1f;
+    private float highlightStartFocus;
+    private float highlightDefaultStartFocus = 4f;
+    private float highlightStartAlpha;
+    private float highlightDefaultAlpha = 0.8245f;
 
     // Use this for initialization
     private void Start()
@@ -172,8 +187,11 @@ public class FirstPersonController : MonoBehaviour
         g_SniperRifleController.transform.localPosition = g_OriginalPosition - new Vector3(0f, 0.275f, 0.17f);
         g_SniperRifleController.transform.localRotation = Quaternion.Euler(g_SniperRifleController.transform.localRotation.eulerAngles + new Vector3(40f, 0f, 10f));
         g_SniperRifleController.gameObject.SetActive(false);
-
+        
         postProcessingProfile = m_Camera.gameObject.GetComponent<PostProcessingBehaviour>().profile;
+        ppSetting = postProcessingProfile.depthOfField.settings;
+        ppSetting.focusDistance = highlightDefaultStartFocus;
+        postProcessingProfile.depthOfField.settings = ppSetting;
         postProcessingProfile.colorGrading.enabled = false;
         postProcessingProfile.depthOfField.enabled = false;
 
@@ -183,6 +201,7 @@ public class FirstPersonController : MonoBehaviour
         s_FailFadeOutTime = 0.05f;
         s_SkillCooldownOverlay = s_SkillCooldownHUD.transform.Find("Overlay").gameObject.GetComponent<Image>();
         s_SkillCooldownOverlay.fillAmount = 1f;
+        stimulusHighlightBlankColor = h_StimulusHighlightBlank.color;
         Color color = s_SkillCooldownOverlay.color;
         color.a = 0f;
         s_SkillCooldownOverlay.color = color;
@@ -304,6 +323,7 @@ public class FirstPersonController : MonoBehaviour
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
             gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping;
+            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus);
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -1187,7 +1207,6 @@ public class FirstPersonController : MonoBehaviour
         PlayFootStepAudio();
     }
 
-
     private void PlayFootStepAudio()
     {
         if (!m_CharacterController.isGrounded)
@@ -1350,6 +1369,227 @@ public class FirstPersonController : MonoBehaviour
         g_HolsterStartAngle = g_GunController.transform.localRotation;
         g_HolsterIntendedAngle = Quaternion.Euler(g_HolsterStartAngle.eulerAngles - new Vector3(40f, 0f, 10f));
         g_GunController.SwitchToDefaultCrosshair();
+    }
+    
+    private float coreStimulusStartAlpha;
+    private float skipStimulusStartAlpha;
+    private float stimulusFadeAlpha = 0.35f;
+    private bool coreStimulusFadingIn;
+    private bool coreStimulusFadingOut;
+    private bool skipStimulusFadingIn;
+    private bool skipStimulusFadingOut;
+    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus)
+    {
+        if ((gazeInCoreStimulus || gazeInSkipStimulus) && !highlightOn && !highlightingStimulus)
+        {
+            highlightStartAlpha = h_StimulusHighlightBlank.color.a;
+            coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
+            skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
+            highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
+            highlightDuration = ((highlightDefaultAlpha - highlightStartAlpha) / highlightDefaultAlpha) * highlightDefaultDuration;
+            postProcessingProfile.depthOfField.enabled = true;
+            highlightStartTime = Time.time;
+            highlightingStimulus = true;
+            turningOffHighlight = false;
+            if (gazeInCoreStimulus/* && h_SkipStimulusController.IsFlickering()*/)
+            {
+                coreStimulusFadingIn = true;
+                coreStimulusFadingOut = false;
+                skipStimulusFadingIn = false;
+                skipStimulusFadingOut = true;
+            }
+            else if (gazeInSkipStimulus/* && h_CoreStimulusController.IsFlickering()*/)
+            {
+                coreStimulusFadingIn = false;
+                coreStimulusFadingOut = true;
+                skipStimulusFadingIn = true;
+                skipStimulusFadingOut = false;
+            }
+        }
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && (highlightingStimulus || highlightOn))
+        {
+            highlightStartAlpha = h_StimulusHighlightBlank.color.a;
+            coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
+            skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
+            highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
+            highlightDuration = (highlightStartAlpha / highlightDefaultAlpha) * turnOffDefaultDuration;
+            postProcessingProfile.depthOfField.enabled = true;
+            highlightStartTime = Time.time;
+            highlightOn = false;
+            highlightingStimulus = false;
+            turningOffHighlight = true;
+            coreStimulusFadingIn = true;
+            coreStimulusFadingOut = false;
+            skipStimulusFadingIn = true;
+            skipStimulusFadingOut = false;
+        }
+        else if ((gazeInCoreStimulus || gazeInSkipStimulus) && (highlightOn || highlightingStimulus))
+        {
+            if (gazeInCoreStimulus && !coreStimulusFadingIn)
+            {
+                coreStimulusFadingIn = true;
+                coreStimulusFadingOut = false;
+                skipStimulusFadingIn = false;
+                skipStimulusFadingOut = true;
+            }
+            else if (gazeInSkipStimulus && !skipStimulusFadingIn)
+            {
+                coreStimulusFadingIn = false;
+                coreStimulusFadingOut = true;
+                skipStimulusFadingIn = true;
+                skipStimulusFadingOut = false;
+            }
+        }
+        if (highlightingStimulus && !highlightOn)
+        {
+            float aPlus = 0f;
+            float fdMinus = 0f;
+            float maxAPlus = highlightDefaultAlpha - highlightStartAlpha;
+            float maxFdMinus = highlightStartFocus - 0.1f;
+            aPlus = (Time.time - highlightStartTime) * maxAPlus / highlightDuration;
+            fdMinus = (Time.time - highlightStartTime) * maxFdMinus / highlightDuration;
+            bool nanCheck = float.IsNaN(fdMinus) || float.IsNaN(aPlus) || float.IsNaN(maxFdMinus) || float.IsNaN(maxAPlus);
+            if (fdMinus >= maxFdMinus)
+            {
+                highlightOn = true;
+                highlightingStimulus = false;
+                aPlus = maxAPlus;
+                fdMinus = maxFdMinus;
+            }
+            else if (nanCheck)
+            {
+                highlightOn = true;
+                highlightingStimulus = false;
+                stimulusHighlightBlankColor.a = highlightDefaultAlpha;
+                h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+                ppSetting.focusDistance = 0.1f;
+                postProcessingProfile.depthOfField.settings = ppSetting;
+            }
+            if (!nanCheck)
+            {
+                stimulusHighlightBlankColor.a = highlightStartAlpha + aPlus;
+                h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+                ppSetting.focusDistance = highlightStartFocus - fdMinus;
+                postProcessingProfile.depthOfField.settings = ppSetting;
+            }
+        }
+        else if (turningOffHighlight)
+        {
+            float aMinus = 0f;
+            float fdPlus = 0f;
+            float maxAMinus = highlightStartAlpha;
+            float maxFdPlus = highlightDefaultStartFocus - highlightStartFocus;
+            aMinus = (Time.time - highlightStartTime) * maxAMinus / highlightDuration;
+            fdPlus = (Time.time - highlightStartTime) * maxFdPlus / highlightDuration;
+            bool nanCheck = float.IsNaN(fdPlus) || float.IsNaN(aMinus) || float.IsNaN(maxFdPlus) || float.IsNaN(maxAMinus);
+            if (fdPlus >= maxFdPlus)
+            {
+                turningOffHighlight = false;
+                aMinus = maxAMinus;
+                fdPlus = maxFdPlus;
+                postProcessingProfile.depthOfField.enabled = false;
+            }
+            else if (nanCheck)
+            {
+                turningOffHighlight = false;
+                stimulusHighlightBlankColor.a = 0f;
+                h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+                ppSetting.focusDistance = highlightDefaultStartFocus;
+                postProcessingProfile.depthOfField.settings = ppSetting;
+                postProcessingProfile.depthOfField.enabled = false;
+            }
+            if (!nanCheck)
+            {
+                stimulusHighlightBlankColor.a = highlightStartAlpha - aMinus;
+                h_StimulusHighlightBlank.color = stimulusHighlightBlankColor;
+                ppSetting.focusDistance = highlightStartFocus + fdPlus;
+                postProcessingProfile.depthOfField.settings = ppSetting;
+            }
+        }
+        if (coreStimulusFadingIn && !coreStimulusFadingOut)
+        {
+            float aPlus = 0f;
+            float maxAPlus = 1f - coreStimulusStartAlpha;
+            aPlus = (Time.time - highlightStartTime) * maxAPlus / highlightDuration;
+            bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
+            if (aPlus >= maxAPlus)
+            {
+                coreStimulusFadingIn = false;
+                aPlus = maxAPlus;
+            }
+            else if (nanCheck)
+            {
+                coreStimulusFadingIn = false;
+                h_CoreStimulusController.SetAlpha(1f);
+            }
+            if (!nanCheck)
+            {
+                h_CoreStimulusController.SetAlpha(coreStimulusStartAlpha + aPlus);
+            }
+        }
+        else if (!coreStimulusFadingIn && coreStimulusFadingOut)
+        {
+            float aMinus = 0f;
+            float maxAMinus = coreStimulusStartAlpha - 0.2f;
+            aMinus = (Time.time - highlightStartTime) * maxAMinus / highlightDuration;
+            bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
+            if (aMinus >= maxAMinus)
+            {
+                coreStimulusFadingOut = false;
+                aMinus = maxAMinus;
+            }
+            else if (nanCheck)
+            {
+                coreStimulusFadingOut = false;
+                h_CoreStimulusController.SetAlpha(0.2f);
+            }
+            if (!nanCheck)
+            {
+                h_CoreStimulusController.SetAlpha(coreStimulusStartAlpha - aMinus);
+            }
+        }
+        if (skipStimulusFadingIn && !skipStimulusFadingOut)
+        {
+            float aPlus = 0f;
+            float maxAPlus = 1f - skipStimulusStartAlpha;
+            aPlus = (Time.time - highlightStartTime) * maxAPlus / highlightDuration;
+            bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
+            if (aPlus >= maxAPlus)
+            {
+                skipStimulusFadingIn = false;
+                aPlus = maxAPlus;
+            }
+            else if (nanCheck)
+            {
+                skipStimulusFadingIn = false;
+                h_SkipStimulusController.SetAlpha(1f);
+            }
+            if (!nanCheck)
+            {
+                h_SkipStimulusController.SetAlpha(skipStimulusStartAlpha + aPlus);
+            }
+        }
+        else if (!skipStimulusFadingIn && skipStimulusFadingOut)
+        {
+            float aMinus = 0f;
+            float maxAMinus = skipStimulusStartAlpha - 0.2f;
+            aMinus = (Time.time - highlightStartTime) * maxAMinus / highlightDuration;
+            bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
+            if (aMinus >= maxAMinus)
+            {
+                skipStimulusFadingOut = false;
+                aMinus = maxAMinus;
+            }
+            else if (nanCheck)
+            {
+                skipStimulusFadingOut = false;
+                h_SkipStimulusController.SetAlpha(0.2f);
+            }
+            if (!nanCheck)
+            {
+                h_SkipStimulusController.SetAlpha(skipStimulusStartAlpha - aMinus);
+            }
+        }
     }
 
     private IEnumerator FlashSkillEffect(float startTime, bool success)
@@ -1577,14 +1817,31 @@ public class FirstPersonController : MonoBehaviour
         return g_Aiming;
     }
 
-    public void TurnOnDOF()
+    public void EnablePauseDofEffect()
     {
+        ppSetting.focusDistance = 0.1f;
+        postProcessingProfile.depthOfField.settings = ppSetting;
         postProcessingProfile.depthOfField.enabled = true;
     }
 
-    public void TurnOffDOF()
+    public void DisablePauseDofEffect()
     {
-        postProcessingProfile.depthOfField.enabled = false;
+        if (!highlightingStimulus && !highlightOn && !turningOffHighlight)
+        {
+            ppSetting.focusDistance = 4f;
+            postProcessingProfile.depthOfField.settings = ppSetting;
+            postProcessingProfile.depthOfField.enabled = false;
+        }
+    }
+
+    public void EnableStimulusHighlightBg()
+    {
+        h_StimulusHighlightBlank.gameObject.SetActive(true);
+    }
+
+    public void DisableStimulusHighlightBg()
+    {
+        h_StimulusHighlightBlank.gameObject.SetActive(false);
     }
 
     public void SetLockonEnemy(EnemyBehavior enemy)

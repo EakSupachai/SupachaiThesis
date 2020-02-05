@@ -7,6 +7,7 @@ public class SSVEPStimulusController : MonoBehaviour
     [SerializeField] private Sprite blackSprite;
 
     private Image image;
+    private Color color;
     private int frameCount;
     private bool flickering;
     private bool spriteFlag;
@@ -15,6 +16,7 @@ public class SSVEPStimulusController : MonoBehaviour
     private void Start()
     {
         image = GetComponent<Image>();
+        color = image.color;
         image.sprite = null;
         gameObject.SetActive(false);
     }
@@ -57,5 +59,16 @@ public class SSVEPStimulusController : MonoBehaviour
     public bool IsFlickering()
     {
         return flickering;
+    }
+
+    public float GetAlpha()
+    {
+        return image.color.a;
+    }
+
+    public void SetAlpha(float alpha)
+    {
+        color.a = alpha;
+        image.color = color;
     }
 }

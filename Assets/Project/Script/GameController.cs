@@ -253,7 +253,6 @@ public class GameController : MonoBehaviour
             {
                 if (fpsTime > 1f)
                 {
-                    Debug.Log(totalGameTime);
                     fpsText.text = "" + frameCount;
                     frameCount = 0;
                     fpsTime = deltaTime;
@@ -278,7 +277,8 @@ public class GameController : MonoBehaviour
                 {
                     UnlockCursor();
                     coreAudioSource.Pause();
-                    player.TurnOnDOF();
+                    player.EnablePauseDofEffect();
+                    player.DisableStimulusHighlightBg();
                     DisableHUD();
                     pauseCanvas.gameObject.SetActive(true);
                     EyeTrackerController.TurnOffBlinkRecording();
@@ -287,7 +287,8 @@ public class GameController : MonoBehaviour
                 {
                     LockCursor();
                     coreAudioSource.UnPause();
-                    player.TurnOffDOF();
+                    player.DisablePauseDofEffect();
+                    player.EnableStimulusHighlightBg();
                     EnableHUD();
                     pauseCanvas.gameObject.SetActive(false);
                     EyeTrackerController.TurnOnBlinkRecording();
@@ -705,7 +706,7 @@ public class GameController : MonoBehaviour
                     gameOver = true;
                     Time.timeScale = 0f;
                     UnlockCursor();
-                    player.TurnOnDOF();
+                    player.EnablePauseDofEffect();
                     coreAudioSource.Pause();
                     DisableHUD();
                     double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
@@ -724,7 +725,7 @@ public class GameController : MonoBehaviour
                     gameOver = true;
                     Time.timeScale = 0f;
                     UnlockCursor();
-                    player.TurnOnDOF();
+                    player.EnablePauseDofEffect();
                     coreAudioSource.Pause();
                     DisableHUD();
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();

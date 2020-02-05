@@ -26,6 +26,7 @@ public class SniperRifleController : GunController
     private EnemyBehavior currentEnemyBehavior;
     private Vector3 impactPoint;
     private Vector3 impactNormal;
+    private Color blankColor;
 
     private Camera fpcCamera;
 
@@ -36,6 +37,7 @@ public class SniperRifleController : GunController
         lowerTime = spr * 0.84f;
         timeLastRound = -1f;
         fpcCamera = Camera.main;
+        blankColor = blank.color;
         gunParts = new List<GameObject>();
         foreach (Transform gunPart in transform)
         {
@@ -162,9 +164,8 @@ public class SniperRifleController : GunController
         {
             alpha = 0f;
         }
-        Color color = blank.color;
-        color.a = alpha;
-        blank.color = color;
+        blankColor.a = alpha;
+        blank.color = blankColor;
     }
 
     public void TurnOnScope()
