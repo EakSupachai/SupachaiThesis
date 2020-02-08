@@ -475,18 +475,18 @@ public class FirstPersonController : MonoBehaviour
                                 savedStimulusGazeDuration = stimulusGazeDuration;
                                 if (gameController.CanActivateLaserFence())
                                 {
-                                    gameController.UpdateCoreCommandDelay(stimulusGazeDuration);
+                                    gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
                                 }
                             }
                             else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                             {
                                 gazeToActivateSkipCommand = true;
-                                gameController.UpdateCoreCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
                             }
                             else if (tempGazeInEnemyStimulus && currentGazeZone == "ENEMY")
                             {
                                 gazeToActivateShootCommand = true;
-                                gameController.UpdateShootCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateSsvepShootCommandDelay(stimulusGazeDuration);
                             }
                             stimulusGazeDuration = 0f;
                         }

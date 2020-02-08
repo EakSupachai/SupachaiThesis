@@ -120,18 +120,29 @@ public class GameController : MonoBehaviour
     private int fixingCost;
     private int objectiveCounter;
     private int objectiveTargetCounter;
-    private int enemiesSpawn;
-    private int enemiesMiss;
-    private int enemiesTakenOutByAR;
-    private int enemiesTakenOutBySR;
-    private int enemiesTakenOutByLaser;
+    private int smallEnemySpawn;
+    private int mediumEnemySpawn;
+    private int largeEnemySpawn;
+    private int smallEnemyMiss;
+    private int mediumEnemyMiss;
+    private int largeEnemyMiss;
+    private int smallEnemyTakenOutByAR;
+    private int mediumEnemyTakenOutByAR;
+    private int largeEnemyTakenOutByAR;
+    private int smallEnemyTakenOutBySR;
+    private int mediumEnemyTakenOutBySR;
+    private int largeEnemyTakenOutBySR;
+    private int smallEnemyTakenOutByLaser;
+    private int mediumEnemyTakenOutByLaser;
+    private int largeEnemyTakenOutByLaser;
     private int blinkInsideHudCommandCount;
     private int blinkOutsideHudCommandCount;
-    private int ssvepCommandCount;
     private int ssvepCoreCommandCount;
-    private float accSsvepCommandDelay;
-    private float accShootSsvepCommandDelay;
-    private float accCoreSsvepCommandDelay;
+    private int ssvepShootCommandCount;
+    private float lastSsvepCommandDelay;
+    private float totalSsvepCommandDelay;
+    private float totalSsvepShootCommandDelay;
+    private float totalSsvepCoreCommandDelay;
     private float totalGameTime;
 
     private List<float> spawnTimeLimits = new List<float>();
@@ -297,11 +308,7 @@ public class GameController : MonoBehaviour
         }
         if (pause)
         {
-            double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
-            pauseTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
-                "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
-                "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
-                "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
+            pauseTestResultText.text = GetPlayStatistic();
             return;
         }
 
@@ -709,11 +716,7 @@ public class GameController : MonoBehaviour
                     player.EnablePauseDofEffect();
                     coreAudioSource.Pause();
                     DisableHUD();
-                    double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
-                    gameOverTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
-                        "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
-                        "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
-                        "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
+                    gameOverTestResultText.text = GetPlayStatistic();
                     gameOverCanvas.gameObject.SetActive(true);
                     OutputUDP.CloseConnection();
                 }
@@ -730,11 +733,7 @@ public class GameController : MonoBehaviour
                     DisableHUD();
                     Text finalScore = gameCompletedCanvas.transform.Find("Score").GetComponent<Text>();
                     finalScore.text = "Score: " + score;
-                    double avgCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(accSsvepCommandDelay / ssvepCommandCount, 3);
-                    gameCompleteTestResultText.text = "Enemies taken out by AR: " + enemiesTakenOutByAR +
-                        "\nEnemies taken out by SR: " + enemiesTakenOutBySR +
-                        "\nEnemies taken out by Laser: " + enemiesTakenOutByLaser +
-                        "\nAvg SSVEP command delay: " + avgCommandDelay + " sec";
+                    gameCompleteTestResultText.text = GetPlayStatistic();
                     gameCompletedCanvas.gameObject.SetActive(true);
                     OutputUDP.CloseConnection();
                 }
@@ -928,20 +927,22 @@ public class GameController : MonoBehaviour
                 }
 
                 enemyOnScreen++;
-                enemiesSpawn++;
                 GameObject enemy = null;
                 if (rand <= smallEnemySpawnChance)
                 {
+                    smallEnemySpawn++;
                     enemy = Instantiate(smallEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
                 else if (rand <= mediumEnemySpawnChance)
                 {
+                    mediumEnemySpawn++;
                     enemy = Instantiate(mediumEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
                 else if (rand <= largeEnemySpawnChance)
                 {
+                    largeEnemySpawn++;
                     enemy = Instantiate(largeEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
@@ -1127,21 +1128,23 @@ public class GameController : MonoBehaviour
 
     public void ReduceCoreHp(int enemyType)
     {
-        enemiesMiss++;
         if (testMode || calibrationMode)
         {
             return;
         }
         if (enemyType == 1)
         {
+            smallEnemyMiss++;
             coreHp -= smallEnemyDamage;
         }
         else if (enemyType == 2)
         {
+            mediumEnemyMiss++;
             coreHp -= mediumEnemyDamage;
         }
         else if (enemyType == 3)
         {
+            largeEnemyMiss++;
             coreHp -= largeEnemyDamage;
         }
         else
@@ -1162,7 +1165,7 @@ public class GameController : MonoBehaviour
             scoreText.text = "" + score;
             if (stimulusGazeDuration != -1f)
             {
-                UpdateCoreCommandDelay(stimulusGazeDuration);
+                UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
             }
         }
         if (coreHp < coreFullHp)
@@ -1488,33 +1491,67 @@ public class GameController : MonoBehaviour
         blinkOutsideHudCommandCount++;
     }
 
-    public void IncreaseEnemiesTakenOutByAR()
+    public void IncreaseEnemiesTakenOutByAR(int enemyType)
     {
-        enemiesTakenOutByAR++;
+        if (enemyType == 1)
+        {
+            smallEnemyTakenOutByAR++;
+        }
+        else if (enemyType == 2)
+        {
+            mediumEnemyTakenOutByAR++;
+        }
+        else if (enemyType == 3)
+        {
+            largeEnemyTakenOutByAR++;
+        }
     }
 
-    public void IncreaseEnemiesTakenOutBySR()
+    public void IncreaseEnemiesTakenOutBySR(int enemyType)
     {
-        enemiesTakenOutBySR++;
+        if (enemyType == 1)
+        {
+            smallEnemyTakenOutBySR++;
+        }
+        else if (enemyType == 2)
+        {
+            mediumEnemyTakenOutBySR++;
+        }
+        else if (enemyType == 3)
+        {
+            largeEnemyTakenOutBySR++;
+        }
     }
 
-    public void IncreaseEnemiesTakenOutByLaser()
+    public void IncreaseEnemiesTakenOutByLaser(int enemyType)
     {
-        enemiesTakenOutByLaser++;
+        if (enemyType == 1)
+        {
+            smallEnemyTakenOutByLaser++;
+        }
+        else if (enemyType == 2)
+        {
+            mediumEnemyTakenOutByLaser++;
+        }
+        else if (enemyType == 3)
+        {
+            largeEnemyTakenOutByLaser++;
+        }
     }
 
-    public void UpdateShootCommandDelay(float delay)
+    public void UpdateSsvepShootCommandDelay(float delay)
     {
-        accSsvepCommandDelay += delay;
-        accShootSsvepCommandDelay += delay;
-        ssvepCommandCount++;
+        lastSsvepCommandDelay = delay;
+        totalSsvepCommandDelay += delay;
+        totalSsvepShootCommandDelay += delay;
+        ssvepShootCommandCount++;
     }
 
-    public void UpdateCoreCommandDelay(float delay)
+    public void UpdateSsvepCoreCommandDelay(float delay)
     {
-        accSsvepCommandDelay += delay;
-        accCoreSsvepCommandDelay += delay;
-        ssvepCommandCount++;
+        lastSsvepCommandDelay = delay;
+        totalSsvepCommandDelay += delay;
+        totalSsvepCoreCommandDelay += delay;
         ssvepCoreCommandCount++;
     }
 
@@ -1544,6 +1581,29 @@ public class GameController : MonoBehaviour
     public bool IsAlreadyStartFixingCore()
     {
         return waiting_alreadyBeginFixing;
+    }
+
+    public string GetPlayStatistic()
+    {
+        int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
+        double avgSsvepCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(totalSsvepCommandDelay / ssvepCommandCount, 3);
+        double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
+        double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
+        return "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
+            "\nMax possible score:" +
+            "\nScore percentage: " +
+            "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
+            "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
+            "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
+            "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
+            "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
+            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
+            "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
+            "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
+            "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
+            "\n" +
+            "\nLast SSVEP command delay: " + lastSsvepCommandDelay;
     }
 
     public static bool IsInWaveCompletedState()
