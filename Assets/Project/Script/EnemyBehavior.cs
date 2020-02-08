@@ -354,7 +354,7 @@ public class EnemyBehavior : MonoBehaviour
                         hp = 0f;
                         forceDirection = fd;
                         forcePosition = fp;
-                        Explode(true, 2f);
+                        Explode(true);
                     }
                 }
                 else
@@ -362,7 +362,7 @@ public class EnemyBehavior : MonoBehaviour
                     hp = 0f;
                     forceDirection = fd;
                     forcePosition = fp;
-                    Explode(true, 2f);
+                    Explode(true);
                 }
             }
         }
@@ -371,28 +371,27 @@ public class EnemyBehavior : MonoBehaviour
             if (!IsDestroyed())
             {
                 hp = 0f;
-                Explode(true, 1.5f);
+                Explode(true);
                 gameController.IncreaseEnemiesTakenOutByLaser(type);
             }
         }
     }
 
-    private void Explode(bool showScore, float modifier = 1f)
+    private void Explode(bool addScore)
     {
         StopFlickering();
         audioSource.Pause();
         hpCanvas.gameObject.SetActive(false);
         lockonCanvas.gameObject.SetActive(false);
         gameController.RemoveEnemyOnScreen();
-        if (showScore)
+        if (addScore)
         {
             Vector3 scorePanelDirection = transform.position - gameController.GetPlayerCameraPosition();
             scorePanelDirection.y = 0f;
             GameObject scorePopUp = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
-            int realScore = (int)(score * modifier);
-            scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + realScore;
+            scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + score;
             Destroy(scorePopUp, 2f);
-            gameController.AddScore(realScore);
+            gameController.AddScore(score);
         }
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
@@ -630,6 +629,11 @@ public class EnemyBehavior : MonoBehaviour
     public float GetAngleToCamera()
     {
         return angleToCamera;
+    }
+
+    public int GetScore()
+    {
+        return score;
     }
 
     public void TurnOnLockonCanvas()

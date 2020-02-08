@@ -58,6 +58,7 @@ public class GameController : MonoBehaviour
     private bool classifyMode;
     private bool testMode;
     private bool calibrationMode;
+    private bool ssvepRunning;
 
     public static bool pause;
     public static bool gameOver;
@@ -117,6 +118,7 @@ public class GameController : MonoBehaviour
     private GameObject currentDecreaseCoreHpAudioPrefab;
 
     private int score;
+    private int maximumScore;
     private int fixingCost;
     private int objectiveCounter;
     private int objectiveTargetCounter;
@@ -156,6 +158,7 @@ public class GameController : MonoBehaviour
         classifyMode = GameModeRecorder.classifyMode;
         testMode = GameModeRecorder.testMode;
         calibrationMode = GameModeRecorder.calibrationMode;
+        ssvepRunning = InputUDP.GetInputAvailableStatus();
 
         pause = false;
         gameOver = false;
@@ -1032,6 +1035,7 @@ public class GameController : MonoBehaviour
                                 enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
+                            maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
                             enemies.Add(enemy);
                         }
                     }
@@ -1585,13 +1589,18 @@ public class GameController : MonoBehaviour
 
     public string GetPlayStatistic()
     {
+        if (calibrationMode || !ssvepRunning)
+        {
+            return "";
+        }
         int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
+        double scorePercentage = maximumScore  == 0 ? 0 : Math.Round(score * 100f / maximumScore, 3);
         double avgSsvepCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(totalSsvepCommandDelay / ssvepCommandCount, 3);
         double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
         return "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
-            "\nMax possible score:" +
-            "\nScore percentage: " +
+            "\nMax possible score:" + maximumScore +
+            "\nScore percentage: " + scorePercentage +
             "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
             "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
             "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
