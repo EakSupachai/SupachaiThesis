@@ -7,6 +7,7 @@ public class ButtonController : MonoBehaviour
 {
     [SerializeField] private List<GameObject> hoverMarkers = new List<GameObject>();
     [SerializeField] private AudioClip hoverAudio;
+    [SerializeField] private GameController gameController;
     [SerializeField] private GameObject clickAudioPrefab;
     [SerializeField] private GameObject errorAudioPrefab;
 
@@ -103,18 +104,6 @@ public class ButtonController : MonoBehaviour
             EyeTrackerController.CleanUp();
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(1));
-            /*if (SceneManager.GetActiveScene().name == "Calibration")
-            {
-                StartCoroutine(StallBeforeLoadingScene(3));
-            }
-            else if (SceneManager.GetActiveScene().name == "Test")
-            {
-                StartCoroutine(StallBeforeLoadingScene(2));
-            }
-            else
-            {
-                StartCoroutine(StallBeforeLoadingScene(1));
-            }*/
         }
         else if (command == "back")
         {
@@ -125,6 +114,14 @@ public class ButtonController : MonoBehaviour
         {
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeQuit());
+        }
+        else if (command == "show stat" && gameController != null)
+        {
+            statPanel.SetActive(true);
+        }
+        else if (command == "save stat")
+        {
+
         }
         else
         {

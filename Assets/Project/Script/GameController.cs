@@ -243,6 +243,9 @@ public class GameController : MonoBehaviour
         laserFence.SetActive(false);
         laserFenceCooldownIcon.gameObject.SetActive(false);
 
+        pauseStat.SetActive(false);
+        missionFailedStat.SetActive(false);
+        missionCompleteStat.SetActive(false);
         hudCanvas.gameObject.SetActive(true);
         pauseCanvas.gameObject.SetActive(false);
         gameOverCanvas.gameObject.SetActive(false);
@@ -1613,6 +1616,16 @@ public class GameController : MonoBehaviour
             "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
             "\n" +
             "\nLast SSVEP command delay: " + lastSsvepCommandDelay;
+    }
+
+    public void EnableShowStat()
+    {
+        pauseTestResultText
+    }
+
+    public void DisableShowStat()
+    {
+
     }
 
     public static bool IsInWaveCompletedState()
