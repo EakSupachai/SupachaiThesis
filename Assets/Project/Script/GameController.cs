@@ -62,6 +62,7 @@ public class GameController : MonoBehaviour
     public static bool pause;
     public static bool gameOver;
     public static float defaultTimeScale;
+    public static float slowedTimeScale;
 
     private bool stateStarted;
     private float currentStateDuration;
@@ -150,6 +151,7 @@ public class GameController : MonoBehaviour
         gameOver = false;
         LockCursor();
         defaultTimeScale = 1f;
+        slowedTimeScale = 0.075f;
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
@@ -594,7 +596,7 @@ public class GameController : MonoBehaviour
             case "WAVE COMPLETED":
                 if (!stateStarted)
                 {
-                    Time.timeScale = 0.15f;
+                    Time.timeScale = slowedTimeScale;
                     stateStarted = true;
                     currentStateDuration = waveCompleteStateDuration;
                 }

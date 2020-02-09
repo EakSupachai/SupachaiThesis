@@ -592,7 +592,7 @@ public class FirstPersonController : MonoBehaviour
             if ((scoping && rayHitEnemy && isCurrentEnemyNotNull) || 
                 (gazeInCoreStimulus && !gameController.CanFixCore()))
             {
-                Time.timeScale = 0.15f;
+                Time.timeScale = GameController.slowedTimeScale;
             }
             else if (!GameController.IsInWaveCompletedState() && Time.timeScale != GameController.defaultTimeScale)
             {
