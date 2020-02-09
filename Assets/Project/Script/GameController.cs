@@ -49,6 +49,12 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject coreDamagedAudioPrefab;
     [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
     [SerializeField] private GameObject laserFenceHummingAudioPrefab;
+    [SerializeField] private GameObject pauseShowStatButton;
+    [SerializeField] private GameObject gameOverShowStatButton;
+    [SerializeField] private GameObject gameCompleteShowStatButton;
+    [SerializeField] private GameObject pauseSaveStatButton;
+    [SerializeField] private GameObject gameOverSaveStatButton;
+    [SerializeField] private GameObject gameCompleteSaveStatButton;
 
     [SerializeField] private Text fpsText;
 
@@ -216,6 +222,9 @@ public class GameController : MonoBehaviour
         countdownText.gameObject.SetActive(true);
         objectiveText.gameObject.SetActive(true);
         objectiveTargetText.gameObject.SetActive(true);
+        pauseTestResultText.gameObject.SetActive(false);
+        gameOverTestResultText.gameObject.SetActive(false);
+        gameCompleteTestResultText.gameObject.SetActive(false);
         waveTimerText.text = "W0  0:00";
         laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
@@ -227,6 +236,12 @@ public class GameController : MonoBehaviour
         objectiveTargetText.text = "";
         if (calibrationMode)
         {
+            pauseSaveStatButton.SetActive(false);
+            pauseShowStatButton.SetActive(false);
+            gameOverSaveStatButton.SetActive(false);
+            gameOverShowStatButton.SetActive(false);
+            gameCompleteSaveStatButton.SetActive(false);
+            gameCompleteShowStatButton.SetActive(false);
             oneLineText.text = "Welcome to the calibration phase.";
         }
         else if (testMode)
@@ -242,10 +257,7 @@ public class GameController : MonoBehaviour
 
         laserFence.SetActive(false);
         laserFenceCooldownIcon.gameObject.SetActive(false);
-
-        pauseStat.SetActive(false);
-        missionFailedStat.SetActive(false);
-        missionCompleteStat.SetActive(false);
+        
         hudCanvas.gameObject.SetActive(true);
         pauseCanvas.gameObject.SetActive(false);
         gameOverCanvas.gameObject.SetActive(false);
@@ -1618,14 +1630,29 @@ public class GameController : MonoBehaviour
             "\nLast SSVEP command delay: " + lastSsvepCommandDelay;
     }
 
-    public void EnableShowStat()
+    public void SwitchShowStat()
     {
-        pauseTestResultText
+        if (pauseTestResultText.gameObject.activeSelf)
+        {
+            pauseTestResultText.gameObject.SetActive(false);
+            gameOverTestResultText.gameObject.SetActive(false);
+            gameCompleteTestResultText.gameObject.SetActive(false);
+        }
+        else
+        {
+            pauseTestResultText.gameObject.SetActive(true);
+            gameOverTestResultText.gameObject.SetActive(true);
+            gameCompleteTestResultText.gameObject.SetActive(true);
+        }
     }
 
-    public void DisableShowStat()
+    public void SaveStat()
     {
-
+        string result = GetPlayStatistic();
+        if (result != "")
+        {
+            FileWritingController.SaveResult("", result);
+        }
     }
 
     public static bool IsInWaveCompletedState()

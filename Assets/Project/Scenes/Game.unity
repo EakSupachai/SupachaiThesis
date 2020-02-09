@@ -251,7 +251,7 @@ RectTransform:
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.14254546, y: 0.9344331}
-  m_AnchorMax: {x: 0.19700001, y: 0.9696391}
+  m_AnchorMax: {x: 0.19582768, y: 0.9696391}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1756,6 +1756,7 @@ MonoBehaviour:
   - {fileID: 741735272}
   - {fileID: 1327153746}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -2486,6 +2487,7 @@ MonoBehaviour:
   - {fileID: 2120563366}
   - {fileID: 1589098544}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -9334,7 +9336,7 @@ RectTransform:
   m_Father: {fileID: 52185161}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -10325,7 +10327,7 @@ RectTransform:
   m_Father: {fileID: 979876406}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -10938,6 +10940,12 @@ MonoBehaviour:
     type: 3}
   laserFenceHummingAudioPrefab: {fileID: 9140486118980727924, guid: b6b80ede5a7f0614db26cf477efc02d5,
     type: 3}
+  pauseShowStatButton: {fileID: 1069358178}
+  gameOverShowStatButton: {fileID: 1414668247}
+  gameCompleteShowStatButton: {fileID: 1129795132}
+  pauseSaveStatButton: {fileID: 979876405}
+  gameOverSaveStatButton: {fileID: 52185160}
+  gameCompleteSaveStatButton: {fileID: 1274944034}
   fpsText: {fileID: 570039096}
 --- !u!4 &637552325
 Transform:
@@ -11581,6 +11589,7 @@ MonoBehaviour:
   - {fileID: 1715321597}
   - {fileID: 1239319360}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -23042,7 +23051,7 @@ RectTransform:
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.14254546, y: 0.9344331}
-  m_AnchorMax: {x: 0.19700001, y: 0.9696391}
+  m_AnchorMax: {x: 0.19582768, y: 0.9696391}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -23201,7 +23210,7 @@ RectTransform:
   m_Father: {fileID: 1069358179}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -23772,7 +23781,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1069358181}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1069358183}
+        m_MethodName: OnPointerClick
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: show stat
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1069358181
@@ -23826,6 +23846,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoverMarkers: []
   hoverAudio: {fileID: 0}
+  gameController: {fileID: 637552324}
   clickAudioPrefab: {fileID: 0}
   errorAudioPrefab: {fileID: 0}
 --- !u!1001 &1072269407
@@ -24066,6 +24087,7 @@ MonoBehaviour:
   - {fileID: 165762445}
   - {fileID: 119821871}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -24889,7 +24911,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1129795135}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1129795137}
+        m_MethodName: OnPointerClick
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: show stat
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1129795135
@@ -24943,6 +24976,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoverMarkers: []
   hoverAudio: {fileID: 0}
+  gameController: {fileID: 637552324}
   clickAudioPrefab: {fileID: 0}
   errorAudioPrefab: {fileID: 0}
 --- !u!4 &1143258007 stripped
@@ -25104,6 +25138,7 @@ MonoBehaviour:
   - {fileID: 412795178}
   - {fileID: 433872081}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -26120,7 +26155,7 @@ RectTransform:
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.14254546, y: 0.9344331}
-  m_AnchorMax: {x: 0.19700001, y: 0.9696391}
+  m_AnchorMax: {x: 0.19582768, y: 0.9696391}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -26719,6 +26754,7 @@ MonoBehaviour:
   - {fileID: 1127090707}
   - {fileID: 1765075566}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -27040,7 +27076,7 @@ RectTransform:
   m_Father: {fileID: 1414668248}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -27464,7 +27500,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1414668250}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1414668252}
+        m_MethodName: OnPointerClick
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: show stat
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1414668250
@@ -27518,6 +27565,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoverMarkers: []
   hoverAudio: {fileID: 0}
+  gameController: {fileID: 637552324}
   clickAudioPrefab: {fileID: 0}
   errorAudioPrefab: {fileID: 0}
 --- !u!1001 &1424201117
@@ -28539,6 +28587,7 @@ MonoBehaviour:
   - {fileID: 162843676}
   - {fileID: 452305679}
   hoverAudio: {fileID: 8300000, guid: a27535eee6821e448a11da4db783c0b8, type: 3}
+  gameController: {fileID: 0}
   clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   errorAudioPrefab: {fileID: 0}
@@ -29507,7 +29556,7 @@ RectTransform:
   m_Father: {fileID: 1274944035}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -32024,7 +32073,7 @@ RectTransform:
   m_Father: {fileID: 1129795133}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.13822019}
+  m_AnchorMin: {x: 0, y: 0.19739565}
   m_AnchorMax: {x: 1, y: 0.8617798}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}

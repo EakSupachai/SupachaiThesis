@@ -117,7 +117,7 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "show stat" && gameController != null)
         {
-            statPanel.SetActive(true);
+            gameController.SwitchShowStat();
         }
         else if (command == "save stat")
         {
