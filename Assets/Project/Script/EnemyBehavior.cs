@@ -372,7 +372,7 @@ public class EnemyBehavior : MonoBehaviour
             {
                 hp = 0f;
                 Explode(true, 1.5f);
-                gameController.IncreaseEnemiesTakenOutByLaser();
+                gameController.IncreaseEnemiesTakenOutByLaser(type);
             }
         }
     }
@@ -493,11 +493,11 @@ public class EnemyBehavior : MonoBehaviour
                 Explode(true);
                 if (ammoType == "ORANGE")
                 {
-                    gameController.IncreaseEnemiesTakenOutBySR();
+                    gameController.IncreaseEnemiesTakenOutBySR(type);
                 }
                 else
                 {
-                    gameController.IncreaseEnemiesTakenOutByAR();
+                    gameController.IncreaseEnemiesTakenOutByAR(type);
                 }
             }
             else

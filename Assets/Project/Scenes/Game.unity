@@ -1953,8 +1953,8 @@ RectTransform:
   m_Father: {fileID: 1362985917}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.01978273, y: 0.753}
-  m_AnchorMax: {x: 0.27800003, y: 0.9132364}
+  m_AnchorMin: {x: 0.01978273, y: 0.346}
+  m_AnchorMax: {x: 0.279, y: 0.9132364}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
@@ -1991,13 +1991,13 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.5
-  m_Text: 'Enemies taken out by AR: --
-
-    Enemies taken out by SR: --
-
-    Enemies taken out by Laser: --
-
-    Avg SSVEP command delay: -.--'
+  m_Text: "Play time: --:--\nMax possible score: --\nScore percentage: --\nScore rank:
+    --\nEnemy spawn  Small: --  Medium: --  Large: --\nEnemy miss  Small: --  Medium:
+    --  Large: --\nAR  Small: --  Medium: --  Large: --\nSR  Small: --  Medium: --
+    \ Large: --\nLaser  Small: --  Medium: --  Large: --\nAvg core SSVEP command delay:
+    --\nAvg shoot SSVEP command delay: -- \nAvg all SSVEP command delay: -.--\nBlink
+    inside HUD command count: --\nBlink outside HUD command count: --\n\nLast SSVEP
+    command delay: --"
 --- !u!222 &215879706
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3029,7 +3029,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 18
+  m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.2688099, y: 0.24958454}
   m_AnchorMax: {x: 0.731, y: 0.384504}
@@ -10205,8 +10205,8 @@ RectTransform:
   m_Father: {fileID: 263872023}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.01978273, y: 0.753}
-  m_AnchorMax: {x: 0.27800003, y: 0.9132364}
+  m_AnchorMin: {x: 0.01978273, y: 0.346}
+  m_AnchorMax: {x: 0.279, y: 0.9132364}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
@@ -10243,13 +10243,13 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.5
-  m_Text: 'Enemies taken out by AR: --
-
-    Enemies taken out by SR: --
-
-    Enemies taken out by Laser: --
-
-    Avg SSVEP command delay: -.--'
+  m_Text: "Play time: --:--\nMax possible score: --\nScore percentage: --\nScore rank:
+    --\nEnemy spawn  Small: --  Medium: --  Large: --\nEnemy miss  Small: --  Medium:
+    --  Large: --\nAR  Small: --  Medium: --  Large: --\nSR  Small: --  Medium: --
+    \ Large: --\nLaser  Small: --  Medium: --  Large: --\nAvg core SSVEP command delay:
+    --\nAvg shoot SSVEP command delay: -- \nAvg all SSVEP command delay: -.--\nBlink
+    inside HUD command count: --\nBlink outside HUD command count: --\n\nLast SSVEP
+    command delay: --"
 --- !u!222 &593702062
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11799,10 +11799,6 @@ RectTransform:
   - {fileID: 1767106208}
   - {fileID: 60324545}
   - {fileID: 2070133694}
-  - {fileID: 1832633499}
-  - {fileID: 2104330127}
-  - {fileID: 274852841}
-  - {fileID: 2084830932}
   - {fileID: 2109469426}
   - {fileID: 863535226}
   - {fileID: 831935732}
@@ -11812,6 +11808,10 @@ RectTransform:
   - {fileID: 2025750669}
   - {fileID: 1287521248}
   - {fileID: 1552016935}
+  - {fileID: 1832633499}
+  - {fileID: 2104330127}
+  - {fileID: 274852841}
+  - {fileID: 2084830932}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -16769,7 +16769,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 22
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.39600003, y: 0.69600004}
   m_AnchorMax: {x: 0.6042728, y: 0.933}
@@ -21848,7 +21848,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 21
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0.41352937, y: 0.71000004}
   m_AnchorMax: {x: 0.586, y: 0.9188993}
@@ -24684,7 +24684,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 24
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.41352937, y: 0.032699373}
   m_AnchorMax: {x: 0.586, y: 0.24958454}
@@ -25482,7 +25482,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 27
+  m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3663278, y: 0.933}
   m_AnchorMax: {x: 0.634, y: 0.9622617}
@@ -26993,7 +26993,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 28
+  m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.37932777, y: 0.933}
   m_AnchorMax: {x: 0.6206723, y: 0.9622617}
@@ -27841,8 +27841,8 @@ RectTransform:
   m_Father: {fileID: 2099900534}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.01978273, y: 0.753}
-  m_AnchorMax: {x: 0.27800003, y: 0.9132364}
+  m_AnchorMin: {x: 0.01978273, y: 0.34600002}
+  m_AnchorMax: {x: 0.279, y: 0.9132364}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
@@ -27879,13 +27879,13 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.5
-  m_Text: 'Enemies taken out by AR: --
-
-    Enemies taken out by SR: --
-
-    Enemies taken out by Laser: --
-
-    Avg SSVEP command delay: -.--'
+  m_Text: "Play time: --:--\nMax possible score: --\nScore percentage: --\nScore rank:
+    --\nEnemy spawn  Small: --  Medium: --  Large: --\nEnemy miss  Small: --  Medium:
+    --  Large: --\nAR  Small: --  Medium: --  Large: --\nSR  Small: --  Medium: --
+    \ Large: --\nLaser  Small: --  Medium: --  Large: --\nAvg core SSVEP command delay:
+    --\nAvg shoot SSVEP command delay: -- \nAvg all SSVEP command delay: -.--\nBlink
+    inside HUD command count: --\nBlink outside HUD command count: --\n\nLast SSVEP
+    command delay: --"
 --- !u!222 &1637653609
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -29191,7 +29191,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 16
+  m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.39126104, y: 0.30628276}
   m_AnchorMax: {x: 0.60961497, y: 0.3907677}
@@ -29319,7 +29319,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 25
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.39600003, y: 0}
   m_AnchorMax: {x: 0.6042728, y: 0.27641666}
@@ -29474,7 +29474,7 @@ RectTransform:
   m_Children:
   - {fileID: 39951119}
   m_Father: {fileID: 731895335}
-  m_RootOrder: 23
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.45900002, y: 0.79053986}
   m_AnchorMax: {x: 0.541, y: 0.933}
@@ -30544,7 +30544,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 26
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.4362126, y: 0.31717172}
   m_AnchorMax: {x: 0.56378746, y: 0.483}
@@ -31130,7 +31130,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 19
+  m_RootOrder: 28
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.46551782, y: 0.266}
   m_AnchorMax: {x: 0.534482, y: 0.3426699}
@@ -31335,7 +31335,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 17
+  m_RootOrder: 26
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.223, y: 0.3462286}
   m_AnchorMax: {x: 0.7795148, y: 0.384504}
@@ -31498,7 +31498,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 20
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
