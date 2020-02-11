@@ -74,7 +74,6 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.testMode = true;
                 GameModeRecorder.calibrationMode = false;
                 StartCoroutine(StallBeforeLoadingScene(1));
-                //StartCoroutine(StallBeforeLoadingScene(2));
             }
             else
             {
@@ -90,7 +89,6 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.testMode = false;
                 GameModeRecorder.calibrationMode = true;
                 StartCoroutine(StallBeforeLoadingScene(1));
-                //StartCoroutine(StallBeforeLoadingScene(3));
             }
             else
             {
@@ -121,7 +119,7 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "save stat")
         {
-
+            gameController.SwitchSaveStat();
         }
         else
         {

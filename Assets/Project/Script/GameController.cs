@@ -43,6 +43,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private Canvas gameOverCanvas;
     [SerializeField] private Canvas gameCompletedCanvas;
+    [SerializeField] private Canvas saveStatCanvas;
     [SerializeField] private GameObject pauseAudioPrefab;
     [SerializeField] private GameObject decreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject finishedDecreaseCoreHpAudioPrefab;
@@ -66,8 +67,11 @@ public class GameController : MonoBehaviour
     private bool calibrationMode;
     private bool ssvepRunning;
 
+    private Canvas canvasBeforeSaveStat;
+
     public static bool pause;
     public static bool gameOver;
+    public static bool openSaveStat;
     public static float defaultTimeScale;
 
     private bool stateStarted;
@@ -168,6 +172,7 @@ public class GameController : MonoBehaviour
 
         pause = false;
         gameOver = false;
+        openSaveStat = false;
         LockCursor();
         defaultTimeScale = 1f;
         Time.timeScale = defaultTimeScale;
@@ -262,6 +267,7 @@ public class GameController : MonoBehaviour
         pauseCanvas.gameObject.SetActive(false);
         gameOverCanvas.gameObject.SetActive(false);
         gameCompletedCanvas.gameObject.SetActive(false);
+        saveStatCanvas.gameObject.SetActive(false);
 
         foreach (Transform point in spawnPoints)
         {
@@ -292,7 +298,7 @@ public class GameController : MonoBehaviour
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
-            if (Input.GetKeyDown(KeyCode.Escape) || ButtonController.IsResumePressed())
+            if ((Input.GetKeyDown(KeyCode.Escape) || ButtonController.IsResumePressed()) && !openSaveStat)
             {
                 if (!pause)
                 {
@@ -1644,6 +1650,43 @@ public class GameController : MonoBehaviour
             gameOverTestResultText.gameObject.SetActive(true);
             gameCompleteTestResultText.gameObject.SetActive(true);
         }
+    }
+
+    public void SwitchSaveStat()
+    {
+        if (openSaveStat)
+        {
+            openSaveStat = false;
+            saveStatCanvas.gameObject.SetActive(false);
+            canvasBeforeSaveStat.gameObject.SetActive(true);
+        }
+        else
+        {
+            openSaveStat = true;
+            saveStatCanvas.gameObject.SetActive(true);
+            if (pauseCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = pauseCanvas;
+                pauseCanvas.gameObject.SetActive(false);
+            }
+            else if (gameOverCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = gameOverCanvas;
+                gameOverCanvas.gameObject.SetActive(false);
+            }
+            else if (gameCompletedCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = gameCompletedCanvas;
+                gameCompletedCanvas.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void TurnOffSaveStat()
+    {
+        openSaveStat = false;
+        saveStatCanvas.gameObject.SetActive(false);
+        canvasBeforeSaveStat.gameObject.SetActive(true);
     }
 
     public void SaveStat()
