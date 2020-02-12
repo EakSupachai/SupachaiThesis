@@ -44,6 +44,10 @@ public class GameController : MonoBehaviour
     [SerializeField] private Canvas gameOverCanvas;
     [SerializeField] private Canvas gameCompletedCanvas;
     [SerializeField] private Canvas saveStatCanvas;
+    [SerializeField] private ButtonController pauseResumeButton;
+    [SerializeField] private ButtonController pauseRetryButton;
+    [SerializeField] private ButtonController pauseBackButton;
+    [SerializeField] private ButtonController saveStatBackButton;
     [SerializeField] private GameObject pauseAudioPrefab;
     [SerializeField] private GameObject decreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject finishedDecreaseCoreHpAudioPrefab;
@@ -326,6 +330,9 @@ public class GameController : MonoBehaviour
                     player.EnableStimulusHighlightBg();
                     EnableHUD();
                     pauseCanvas.gameObject.SetActive(false);
+                    pauseResumeButton.OnPointerExit();
+                    pauseRetryButton.OnPointerExit();
+                    pauseBackButton.OnPointerExit();
                     EyeTrackerController.TurnOnBlinkRecording();
                 }
             }
@@ -1657,6 +1664,7 @@ public class GameController : MonoBehaviour
         if (openSaveStat)
         {
             openSaveStat = false;
+            saveStatBackButton.OnPointerExit();
             saveStatCanvas.gameObject.SetActive(false);
             canvasBeforeSaveStat.gameObject.SetActive(true);
         }
@@ -1680,13 +1688,6 @@ public class GameController : MonoBehaviour
                 gameCompletedCanvas.gameObject.SetActive(false);
             }
         }
-    }
-
-    public void TurnOffSaveStat()
-    {
-        openSaveStat = false;
-        saveStatCanvas.gameObject.SetActive(false);
-        canvasBeforeSaveStat.gameObject.SetActive(true);
     }
 
     public void SaveStat()

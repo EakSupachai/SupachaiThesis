@@ -11923,6 +11923,10 @@ MonoBehaviour:
   gameOverCanvas: {fileID: 1362985916}
   gameCompletedCanvas: {fileID: 263872022}
   saveStatCanvas: {fileID: 1294907610}
+  pauseResumeButton: {fileID: 1611127787}
+  pauseRetryButton: {fileID: 702956198}
+  pauseBackButton: {fileID: 183400045}
+  saveStatBackButton: {fileID: 693792584}
   pauseAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
     type: 3}
   decreaseCoreHpAudioPrefab: {fileID: 2415498803632055737, guid: bb03395bbc3e5ac42b698ac3557ce8b2,
