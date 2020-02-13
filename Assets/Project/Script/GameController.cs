@@ -1643,8 +1643,12 @@ public class GameController : MonoBehaviour
             "\nLast SSVEP command delay: " + lastSsvepCommandDelay;
     }
 
-    public void SwitchShowStat()
+    public bool SwitchShowStat()
     {
+        if (calibrationMode || !ssvepRunning)
+        {
+            return false;
+        }
         if (pauseTestResultText.gameObject.activeSelf)
         {
             pauseTestResultText.gameObject.SetActive(false);
@@ -1657,6 +1661,7 @@ public class GameController : MonoBehaviour
             gameOverTestResultText.gameObject.SetActive(true);
             gameCompleteTestResultText.gameObject.SetActive(true);
         }
+        return true;
     }
 
     public void SwitchSaveStat()

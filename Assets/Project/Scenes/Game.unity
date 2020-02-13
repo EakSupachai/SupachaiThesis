@@ -304,7 +304,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: save stat
+          m_StringArgument: show save stat panel
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -361,7 +361,8 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
   errorAudioPrefab: {fileID: 0}
 --- !u!1 &59524701
 GameObject:
@@ -799,7 +800,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 93779585}
   m_OnClick:
     m_PersistentCalls:
@@ -1263,6 +1264,7 @@ GameObject:
   - component: {fileID: 138036911}
   - component: {fileID: 138036910}
   - component: {fileID: 138036909}
+  - component: {fileID: 138036912}
   m_Layer: 5
   m_Name: FileNameInputField
   m_TagString: Untagged
@@ -1340,7 +1342,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 138036912}
+        m_MethodName: RecordSaveStatInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: file name
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
@@ -1392,6 +1405,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 138036907}
   m_CullTransparentMesh: 0
+--- !u!114 &138036912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138036907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02e4a0ab70eb9444b8727cae04aed790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveButton: {fileID: 93779584}
 --- !u!1 &144130260
 GameObject:
   m_ObjectHideFlags: 0
@@ -2466,7 +2492,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -4033,7 +4059,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -9531,7 +9557,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 2
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -9827,7 +9853,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -11004,7 +11030,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 2
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -11274,7 +11300,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 2
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -11763,7 +11789,7 @@ GameObject:
   - component: {fileID: 620343085}
   - component: {fileID: 620343084}
   m_Layer: 5
-  m_Name: Outside HUD
+  m_Name: OutsideHUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12406,7 +12432,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: save stat
+          m_StringArgument: show save stat panel
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -24782,7 +24808,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: save stat
+          m_StringArgument: show save stat panel
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -24839,7 +24865,8 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
   errorAudioPrefab: {fileID: 0}
 --- !u!4 &985698105 stripped
 Transform:
@@ -25356,7 +25383,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -25712,8 +25739,10 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
-  errorAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
+  errorAudioPrefab: {fileID: 3389123639316111984, guid: 7b9155625911c1942aec2e16332bce80,
+    type: 3}
 --- !u!1001 &1072269407
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26921,8 +26950,10 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
-  errorAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
+  errorAudioPrefab: {fileID: 3389123639316111984, guid: 7b9155625911c1942aec2e16332bce80,
+    type: 3}
 --- !u!1 &1134856038
 GameObject:
   m_ObjectHideFlags: 0
@@ -28310,7 +28341,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: save stat
+          m_StringArgument: show save stat panel
           m_BoolArgument: 0
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -28367,7 +28398,8 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
   errorAudioPrefab: {fileID: 0}
 --- !u!1 &1282516869
 GameObject:
@@ -29606,6 +29638,7 @@ GameObject:
   - component: {fileID: 1387972820}
   - component: {fileID: 1387972819}
   - component: {fileID: 1387972818}
+  - component: {fileID: 1387972821}
   m_Layer: 5
   m_Name: CoreInputField
   m_TagString: Untagged
@@ -29683,7 +29716,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1387972821}
+        m_MethodName: RecordSaveStatInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: core false trigger
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
@@ -29735,6 +29779,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1387972816}
   m_CullTransparentMesh: 0
+--- !u!114 &1387972821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387972816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02e4a0ab70eb9444b8727cae04aed790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveButton: {fileID: 93779584}
 --- !u!1 &1388780540
 GameObject:
   m_ObjectHideFlags: 0
@@ -29955,8 +30012,10 @@ MonoBehaviour:
   hoverMarkers: []
   hoverAudio: {fileID: 0}
   gameController: {fileID: 637552324}
-  clickAudioPrefab: {fileID: 0}
-  errorAudioPrefab: {fileID: 0}
+  clickAudioPrefab: {fileID: 756463617056997862, guid: 3a51ffe2f4b1fdb49bc4c72cc52a2572,
+    type: 3}
+  errorAudioPrefab: {fileID: 3389123639316111984, guid: 7b9155625911c1942aec2e16332bce80,
+    type: 3}
 --- !u!1001 &1424201117
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31762,7 +31821,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -32719,7 +32778,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 0
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 1
@@ -32798,7 +32857,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 5
     m_MaxSize: 120
-    m_Alignment: 2
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -32993,6 +33052,7 @@ GameObject:
   - component: {fileID: 1817246046}
   - component: {fileID: 1817246045}
   - component: {fileID: 1817246044}
+  - component: {fileID: 1817246047}
   m_Layer: 5
   m_Name: OutsideHUDInputField
   m_TagString: Untagged
@@ -33070,7 +33130,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1817246047}
+        m_MethodName: RecordSaveStatInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: blink outside HUD false trigger
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
@@ -33122,6 +33193,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817246042}
   m_CullTransparentMesh: 0
+--- !u!114 &1817246047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817246042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02e4a0ab70eb9444b8727cae04aed790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveButton: {fileID: 93779584}
 --- !u!1 &1822475960
 GameObject:
   m_ObjectHideFlags: 0
@@ -34427,6 +34511,7 @@ GameObject:
   - component: {fileID: 1999258526}
   - component: {fileID: 1999258525}
   - component: {fileID: 1999258524}
+  - component: {fileID: 1999258527}
   m_Layer: 5
   m_Name: InsideHUDInputField
   m_TagString: Untagged
@@ -34504,7 +34589,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1999258527}
+        m_MethodName: RecordSaveStatInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: blink inside HUD false trigger
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
@@ -34556,6 +34652,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1999258522}
   m_CullTransparentMesh: 0
+--- !u!114 &1999258527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999258522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02e4a0ab70eb9444b8727cae04aed790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveButton: {fileID: 93779584}
 --- !u!1001 &2009465416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35479,6 +35588,7 @@ GameObject:
   - component: {fileID: 2091388745}
   - component: {fileID: 2091388744}
   - component: {fileID: 2091388743}
+  - component: {fileID: 2091388746}
   m_Layer: 5
   m_Name: ShootingInputField
   m_TagString: Untagged
@@ -35556,7 +35666,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2091388746}
+        m_MethodName: RecordSaveStatInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: shoot false trigger
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.InputField+SubmitEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
@@ -35608,6 +35729,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2091388741}
   m_CullTransparentMesh: 0
+--- !u!114 &2091388746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091388741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02e4a0ab70eb9444b8727cae04aed790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveButton: {fileID: 93779584}
 --- !u!1 &2099900530
 GameObject:
   m_ObjectHideFlags: 0

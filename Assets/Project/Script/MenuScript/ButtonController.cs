@@ -58,6 +58,7 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.classifyMode = true;
                 GameModeRecorder.testMode = false;
                 GameModeRecorder.calibrationMode = false;
+                SaveStatInputRecorder.ResetValue();
                 StartCoroutine(StallBeforeLoadingScene(1));
             }
             else
@@ -73,6 +74,7 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.classifyMode = true;
                 GameModeRecorder.testMode = true;
                 GameModeRecorder.calibrationMode = false;
+                SaveStatInputRecorder.ResetValue();
                 StartCoroutine(StallBeforeLoadingScene(1));
             }
             else
@@ -100,6 +102,7 @@ public class ButtonController : MonoBehaviour
             InputUDP.CloseConnection();
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
+            SaveStatInputRecorder.ResetValue();
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(1));
         }
@@ -115,11 +118,23 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "show stat" && gameController != null)
         {
-            gameController.SwitchShowStat();
+            if (gameController.SwitchShowStat())
+            {
+                Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(errorAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
         }
-        else if (command == "save stat")
+        else if (command == "show save stat panel" && gameController != null)
         {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             gameController.SwitchSaveStat();
+        }
+        else if (command == "save stat" && gameController != null)
+        {
+
         }
         else
         {
