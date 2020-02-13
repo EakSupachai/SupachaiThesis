@@ -43,12 +43,23 @@ public class GameController : MonoBehaviour
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private Canvas gameOverCanvas;
     [SerializeField] private Canvas gameCompletedCanvas;
+    [SerializeField] private Canvas saveStatCanvas;
+    [SerializeField] private ButtonController pauseResumeButton;
+    [SerializeField] private ButtonController pauseRetryButton;
+    [SerializeField] private ButtonController pauseBackButton;
+    [SerializeField] private ButtonController saveStatBackButton;
     [SerializeField] private GameObject pauseAudioPrefab;
     [SerializeField] private GameObject decreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject finishedDecreaseCoreHpAudioPrefab;
     [SerializeField] private GameObject coreDamagedAudioPrefab;
     [SerializeField] private GameObject laserFenceActivatedAudioPrefab;
     [SerializeField] private GameObject laserFenceHummingAudioPrefab;
+    [SerializeField] private GameObject pauseShowStatButton;
+    [SerializeField] private GameObject gameOverShowStatButton;
+    [SerializeField] private GameObject gameCompleteShowStatButton;
+    [SerializeField] private GameObject pauseSaveStatButton;
+    [SerializeField] private GameObject gameOverSaveStatButton;
+    [SerializeField] private GameObject gameCompleteSaveStatButton;
 
     [SerializeField] private Text fpsText;
 
@@ -58,9 +69,13 @@ public class GameController : MonoBehaviour
     private bool classifyMode;
     private bool testMode;
     private bool calibrationMode;
+    private bool ssvepRunning;
+
+    private Canvas canvasBeforeSaveStat;
 
     public static bool pause;
     public static bool gameOver;
+    public static bool openSaveStat;
     public static float defaultTimeScale;
     public static float slowedTimeScale;
 
@@ -118,6 +133,7 @@ public class GameController : MonoBehaviour
     private GameObject currentDecreaseCoreHpAudioPrefab;
 
     private int score;
+    private int maximumScore;
     private int fixingCost;
     private int objectiveCounter;
     private int objectiveTargetCounter;
@@ -157,9 +173,11 @@ public class GameController : MonoBehaviour
         classifyMode = GameModeRecorder.classifyMode;
         testMode = GameModeRecorder.testMode;
         calibrationMode = GameModeRecorder.calibrationMode;
+        ssvepRunning = InputUDP.GetInputAvailableStatus();
 
         pause = false;
         gameOver = false;
+        openSaveStat = false;
         LockCursor();
         defaultTimeScale = 1f;
         slowedTimeScale = 0.075f;
@@ -215,6 +233,9 @@ public class GameController : MonoBehaviour
         countdownText.gameObject.SetActive(true);
         objectiveText.gameObject.SetActive(true);
         objectiveTargetText.gameObject.SetActive(true);
+        pauseTestResultText.gameObject.SetActive(false);
+        gameOverTestResultText.gameObject.SetActive(false);
+        gameCompleteTestResultText.gameObject.SetActive(false);
         waveTimerText.text = "W0  0:00";
         laserFenceRemainText.text = "" + laserFenceAvailable;
         scoreText.text = "0";
@@ -226,6 +247,12 @@ public class GameController : MonoBehaviour
         objectiveTargetText.text = "";
         if (calibrationMode)
         {
+            pauseSaveStatButton.SetActive(false);
+            pauseShowStatButton.SetActive(false);
+            gameOverSaveStatButton.SetActive(false);
+            gameOverShowStatButton.SetActive(false);
+            gameCompleteSaveStatButton.SetActive(false);
+            gameCompleteShowStatButton.SetActive(false);
             oneLineText.text = "Welcome to the calibration phase.";
         }
         else if (testMode)
@@ -241,11 +268,12 @@ public class GameController : MonoBehaviour
 
         laserFence.SetActive(false);
         laserFenceCooldownIcon.gameObject.SetActive(false);
-
+        
         hudCanvas.gameObject.SetActive(true);
         pauseCanvas.gameObject.SetActive(false);
         gameOverCanvas.gameObject.SetActive(false);
         gameCompletedCanvas.gameObject.SetActive(false);
+        saveStatCanvas.gameObject.SetActive(false);
 
         foreach (Transform point in spawnPoints)
         {
@@ -276,7 +304,7 @@ public class GameController : MonoBehaviour
         }
         if (currentState != "GAME OVER" && currentState != "END")
         {
-            if (Input.GetKeyDown(KeyCode.Escape) || ButtonController.IsResumePressed())
+            if ((Input.GetKeyDown(KeyCode.Escape) || ButtonController.IsResumePressed()) && !openSaveStat)
             {
                 if (!pause)
                 {
@@ -304,6 +332,9 @@ public class GameController : MonoBehaviour
                     player.EnableStimulusHighlightBg();
                     EnableHUD();
                     pauseCanvas.gameObject.SetActive(false);
+                    pauseResumeButton.OnPointerExit();
+                    pauseRetryButton.OnPointerExit();
+                    pauseBackButton.OnPointerExit();
                     EyeTrackerController.TurnOnBlinkRecording();
                 }
             }
@@ -1034,6 +1065,7 @@ public class GameController : MonoBehaviour
                                 enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
+                            maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
                             enemies.Add(enemy);
                         }
                     }
@@ -1587,25 +1619,110 @@ public class GameController : MonoBehaviour
 
     public string GetPlayStatistic()
     {
+        if (calibrationMode || !ssvepRunning)
+        {
+            return "";
+        }
         int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
+        double scorePercentage = maximumScore  == 0 ? 0 : Math.Round(score * 100f / maximumScore, 3);
         double avgSsvepCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(totalSsvepCommandDelay / ssvepCommandCount, 3);
         double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
         return "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
-            "\nMax possible score:" +
-            "\nScore percentage: " +
+            "\nMax possible score:" + maximumScore +
+            "\nScore percentage: " + scorePercentage +
             "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
             "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
             "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
             "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
             "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
-            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
             "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
             "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
             "\n" +
             "\nLast SSVEP command delay: " + lastSsvepCommandDelay;
+    }
+
+    public bool SwitchShowStat()
+    {
+        if (calibrationMode || !ssvepRunning)
+        {
+            return false;
+        }
+        if (pauseTestResultText.gameObject.activeSelf)
+        {
+            pauseTestResultText.gameObject.SetActive(false);
+            gameOverTestResultText.gameObject.SetActive(false);
+            gameCompleteTestResultText.gameObject.SetActive(false);
+        }
+        else
+        {
+            pauseTestResultText.gameObject.SetActive(true);
+            gameOverTestResultText.gameObject.SetActive(true);
+            gameCompleteTestResultText.gameObject.SetActive(true);
+        }
+        return true;
+    }
+
+    public void SwitchSaveStat()
+    {
+        if (openSaveStat)
+        {
+            openSaveStat = false;
+            saveStatBackButton.OnPointerExit();
+            saveStatCanvas.gameObject.SetActive(false);
+            canvasBeforeSaveStat.gameObject.SetActive(true);
+        }
+        else
+        {
+            openSaveStat = true;
+            saveStatCanvas.gameObject.SetActive(true);
+            if (pauseCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = pauseCanvas;
+                pauseCanvas.gameObject.SetActive(false);
+            }
+            else if (gameOverCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = gameOverCanvas;
+                gameOverCanvas.gameObject.SetActive(false);
+            }
+            else if (gameCompletedCanvas.gameObject.activeSelf)
+            {
+                canvasBeforeSaveStat = gameCompletedCanvas;
+                gameCompletedCanvas.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void SaveStat()
+    {
+        int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
+        double scorePercentage = maximumScore == 0 ? 0 : Math.Round(score * 100f / maximumScore, 3);
+        double avgSsvepCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(totalSsvepCommandDelay / ssvepCommandCount, 3);
+        double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
+        double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
+        string content = "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
+            "\nMax possible score:" + maximumScore +
+            "\nScore percentage: " + scorePercentage +
+            "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
+            "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
+            "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
+            "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
+            "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
+            "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
+            "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
+            "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
+            "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
+            "\nFalse trigger" +
+            "\nShoot SSVEP command: " + SaveStatInputRecorder.shootFalseTrigger +
+            "\nCore SSVEP command: " + SaveStatInputRecorder.coreFalseTrigger +
+            "\nBlink inside HUD command: " + SaveStatInputRecorder.blinkInsideFalseTrigger +
+            "\nBlink outside HUD command: " + SaveStatInputRecorder.blinkOutsideFalseTrigger;
+        FileWritingController.SaveResult(SaveStatInputRecorder.fileName, content);
     }
 
     public static bool IsInWaveCompletedState()

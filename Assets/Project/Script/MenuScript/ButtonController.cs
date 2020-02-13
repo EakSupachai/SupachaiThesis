@@ -7,6 +7,7 @@ public class ButtonController : MonoBehaviour
 {
     [SerializeField] private List<GameObject> hoverMarkers = new List<GameObject>();
     [SerializeField] private AudioClip hoverAudio;
+    [SerializeField] private GameController gameController;
     [SerializeField] private GameObject clickAudioPrefab;
     [SerializeField] private GameObject errorAudioPrefab;
 
@@ -57,6 +58,7 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.classifyMode = true;
                 GameModeRecorder.testMode = false;
                 GameModeRecorder.calibrationMode = false;
+                SaveStatInputRecorder.ResetValue();
                 StartCoroutine(StallBeforeLoadingScene(1));
             }
             else
@@ -72,8 +74,8 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.classifyMode = true;
                 GameModeRecorder.testMode = true;
                 GameModeRecorder.calibrationMode = false;
+                SaveStatInputRecorder.ResetValue();
                 StartCoroutine(StallBeforeLoadingScene(1));
-                //StartCoroutine(StallBeforeLoadingScene(2));
             }
             else
             {
@@ -89,7 +91,6 @@ public class ButtonController : MonoBehaviour
                 GameModeRecorder.testMode = false;
                 GameModeRecorder.calibrationMode = true;
                 StartCoroutine(StallBeforeLoadingScene(1));
-                //StartCoroutine(StallBeforeLoadingScene(3));
             }
             else
             {
@@ -101,20 +102,9 @@ public class ButtonController : MonoBehaviour
             InputUDP.CloseConnection();
             OutputUDP.CloseConnection();
             EyeTrackerController.CleanUp();
+            SaveStatInputRecorder.ResetValue();
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeLoadingScene(1));
-            /*if (SceneManager.GetActiveScene().name == "Calibration")
-            {
-                StartCoroutine(StallBeforeLoadingScene(3));
-            }
-            else if (SceneManager.GetActiveScene().name == "Test")
-            {
-                StartCoroutine(StallBeforeLoadingScene(2));
-            }
-            else
-            {
-                StartCoroutine(StallBeforeLoadingScene(1));
-            }*/
         }
         else if (command == "back")
         {
@@ -125,6 +115,27 @@ public class ButtonController : MonoBehaviour
         {
             Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
             StartCoroutine(StallBeforeQuit());
+        }
+        else if (command == "show stat" && gameController != null)
+        {
+            if (gameController.SwitchShowStat())
+            {
+                Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(errorAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
+        }
+        else if (command == "show save stat panel" && gameController != null)
+        {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            gameController.SwitchSaveStat();
+        }
+        else if (command == "save stat" && gameController != null)
+        {
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            gameController.SaveStat();
         }
         else
         {
