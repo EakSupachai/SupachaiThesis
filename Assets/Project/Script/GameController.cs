@@ -1634,8 +1634,8 @@ public class GameController : MonoBehaviour
             "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
             "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
             "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
-            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
             "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
             "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
@@ -1697,11 +1697,30 @@ public class GameController : MonoBehaviour
 
     public void SaveStat()
     {
-        string result = GetPlayStatistic();
-        if (result != "")
-        {
-            FileWritingController.SaveResult("", result);
-        }
+        int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
+        double scorePercentage = maximumScore == 0 ? 0 : Math.Round(score * 100f / maximumScore, 3);
+        double avgSsvepCommandDelay = ssvepCommandCount == 0 ? 0 : Math.Round(totalSsvepCommandDelay / ssvepCommandCount, 3);
+        double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
+        double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
+        string content = "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
+            "\nMax possible score:" + maximumScore +
+            "\nScore percentage: " + scorePercentage +
+            "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
+            "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
+            "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
+            "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
+            "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
+            "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
+            "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
+            "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
+            "\nBlink outside HUD command count: " + blinkOutsideHudCommandCount +
+            "\nFalse trigger" +
+            "\nShoot SSVEP command: " + SaveStatInputRecorder.shootFalseTrigger +
+            "\nCore SSVEP command: " + SaveStatInputRecorder.coreFalseTrigger +
+            "\nBlink inside HUD command: " + SaveStatInputRecorder.blinkInsideFalseTrigger +
+            "\nBlink outside HUD command: " + SaveStatInputRecorder.blinkOutsideFalseTrigger;
+        FileWritingController.SaveResult(SaveStatInputRecorder.fileName, content);
     }
 
     public static bool IsInWaveCompletedState()

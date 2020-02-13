@@ -134,7 +134,8 @@ public class ButtonController : MonoBehaviour
         }
         else if (command == "save stat" && gameController != null)
         {
-
+            Instantiate(clickAudioPrefab, Vector3.zero, Quaternion.identity);
+            gameController.SaveStat();
         }
         else
         {
