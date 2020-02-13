@@ -601,36 +601,6 @@ public class EnemyBehavior : MonoBehaviour
         hpBar.sprite = isRedType ? redHpBar : yellowHpBar;
     }
 
-    private float angleToCamera = 0f;
-
-    public bool IsInLockedOnVicinity()
-    {
-        if (IsDestroyed())
-        {
-            return false;
-        }
-        Vector3 playerPosition = gameController.GetPlayerCameraPosition();
-        Vector3 enemyDirection = transform.position - gameController.GetPlayerCameraPosition();
-        angleToCamera = Vector3.Angle(gameController.GetPlayerLookingDirection(), enemyDirection);
-        if (angleToCamera <= 20f)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(playerPosition, enemyDirection, out hit))
-            {
-                if (hit.transform.gameObject.tag == "Enemy")
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public float GetAngleToCamera()
-    {
-        return angleToCamera;
-    }
-
     public int GetScore()
     {
         return score;

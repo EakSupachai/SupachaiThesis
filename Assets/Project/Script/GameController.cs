@@ -880,8 +880,7 @@ public class GameController : MonoBehaviour
         objectiveCounter = 0;
         nextWave++;
     }
-
-    private List<GameObject> enemies = new List<GameObject>();
+    
     private int lastSpawnPointIndex = 0;
     private bool ProgressEnemyWave()
     {
@@ -979,7 +978,6 @@ public class GameController : MonoBehaviour
                     enemy = Instantiate(largeEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
-                enemies.Add(enemy);
             }
             else
             {
@@ -1066,59 +1064,10 @@ public class GameController : MonoBehaviour
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
                             maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
-                            enemies.Add(enemy);
                         }
                     }
                 }
             }
-        }
-
-        List<GameObject> enemiesInSight = new List<GameObject>();
-        for (int i = enemies.Count - 1; i >= 0; i--)
-        {
-            if (enemies[i] == null)
-            {
-                enemies.RemoveAt(i);
-            }
-            else
-            {
-                EnemyBehavior eb = enemies[i].GetComponent<EnemyBehavior>();
-                eb.TurnOffLockonCanvas();
-                if (eb.IsInLockedOnVicinity())
-                {
-                    enemiesInSight.Add(enemies[i]);
-                }
-            }
-        }
-        bool lockedTarget = false;
-        int lockedTargetIndex = 0;
-        if (enemiesInSight.Count == 1)
-        {
-            lockedTarget = true;
-            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
-        }
-        else if (enemiesInSight.Count > 1)
-        {
-            lockedTarget = true;
-            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
-            for (int i = 1; i < enemiesInSight.Count; i++)
-            {
-                float angle = enemiesInSight[i].GetComponent<EnemyBehavior>().GetAngleToCamera();
-                if (angle < smallestAngle)
-                {
-                    lockedTargetIndex = i;
-                }
-            }
-        }
-        if (lockedTarget)
-        {
-            EnemyBehavior eb = enemiesInSight[lockedTargetIndex].GetComponent<EnemyBehavior>();
-            eb.TurnOnLockonCanvas();
-            player.SetLockonEnemy(eb);
-        }
-        else
-        {
-            player.ClearLockonEnemy();
         }
 
         if ((timesUpFlag && enemyOnScreen <= 0) || coreHp == 0f)

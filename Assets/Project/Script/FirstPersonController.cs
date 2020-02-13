@@ -116,8 +116,7 @@ public class FirstPersonController : MonoBehaviour
 
     private AudioSource audioSource;
     private GameObject fixingCoreAudioPrefab;
-
-    private EnemyBehavior lockedOnEnemy;
+    
     private EnemyBehavior currentEnemyInCrosshair;
     private bool notBlinkDuringShootingEnemy;
     private bool forceToChangeGun;
@@ -635,7 +634,7 @@ public class FirstPersonController : MonoBehaviour
         if (useSkillCommandIssued)
         {
             bool useSkillSuccessfully = false;
-            if (lockedOnEnemy != null)
+            /*if (lockedOnEnemy != null)
             {
                 if (!lockedOnEnemy.IsDestroyed())
                 {
@@ -646,7 +645,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     useSkillSuccessfully = false;
                 }
-            }
+            }*/
             StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));
         }
 
@@ -1842,16 +1841,6 @@ public class FirstPersonController : MonoBehaviour
     public void DisableStimulusHighlightBg()
     {
         h_StimulusHighlightBlank.gameObject.SetActive(false);
-    }
-
-    public void SetLockonEnemy(EnemyBehavior enemy)
-    {
-        lockedOnEnemy = enemy;
-    }
-
-    public void ClearLockonEnemy()
-    {
-        lockedOnEnemy = null;
     }
     
     public void StartSkipStimulus()
