@@ -113,7 +113,6 @@ public class FirstPersonController : MonoBehaviour
     private float s_SkillAvailableTime;
     private float s_SkillTimeOut;
     private float s_UseSkillFadeInTime;
-    private float s_UseSkillFadeOutTime;
     private float s_CancelSkillFadeInTime;
     private float s_CancelSkillFadeOutTime;
 
@@ -200,7 +199,6 @@ public class FirstPersonController : MonoBehaviour
         s_SkillTimeOut = 7f;
         s_UseSkillFadeInTime = 0.12f;
         //s_UseSkillFadeOutTime = 0.75f;
-        s_UseSkillFadeOutTime = s_SkillTimeOut;
         //s_CancelSkillFadeInTime = 0.034f;
         //s_CancelSkillFadeOutTime = 0.05f;
         s_CancelSkillFadeInTime = 0.12f;
@@ -639,12 +637,12 @@ public class FirstPersonController : MonoBehaviour
             (Input.GetKeyDown(KeyCode.F) /*&& Time.time > s_SkillAvailableTime*/);
         if (useSkillCommandIssued)
         {
-            if (s_UsingSkill && !s_CancellingSkill)
+            if (s_UsingSkill && !s_CancellingSkill && gameController.CanUseSkill())
             {
                 StopCoroutine(skillEffectCoroutine);
                 StartCoroutine(FlashSkillEffect(false, true));
             }
-            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f)
+            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f && gameController.CanUseSkill())
             {
                 s_SkillAvailableTime = -1f;
                 skillEffectCoroutine = FlashSkillEffect(true);

@@ -1443,6 +1443,15 @@ public class GameController : MonoBehaviour
         return true;
     }
 
+    public bool CanUseSkill()
+    {
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public Vector3 GetPlayerCameraPosition()
     {
         return player.GetCameraPosition();
