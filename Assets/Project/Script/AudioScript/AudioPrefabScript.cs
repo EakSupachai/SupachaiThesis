@@ -38,10 +38,10 @@ public class AudioPrefabScript : MonoBehaviour
             }
             else
             {
-                audioSource.pitch = Time.timeScale;
+                audioSource.pitch = Time.timeScale + 0.15f;
             }
         }
-        //audioSource.pitch = Time.timeScale != GameController.defaultTimeScale ? Time.timeScale + 0.1f : Time.timeScale;
+
         if (!audioSource.isPlaying)
         {
             Destroy(this.gameObject);

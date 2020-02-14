@@ -108,11 +108,14 @@ public class FirstPersonController : MonoBehaviour
     private PostProcessingProfile postProcessingProfile;
 
     private Image s_SkillCooldownOverlay;
+    private bool s_UsingSkill;
+    private bool s_CancellingSkill;
     private float s_SkillAvailableTime;
-    private float s_SuccessFadeInTime;
-    private float s_SuccessFadeOutTime;
-    private float s_FailFadeInTime;
-    private float s_FailFadeOutTime;
+    private float s_SkillTimeOut;
+    private float s_UseSkillFadeInTime;
+    private float s_UseSkillFadeOutTime;
+    private float s_CancelSkillFadeInTime;
+    private float s_CancelSkillFadeOutTime;
 
     private AudioSource audioSource;
     private GameObject fixingCoreAudioPrefab;
@@ -194,10 +197,14 @@ public class FirstPersonController : MonoBehaviour
         postProcessingProfile.colorGrading.enabled = false;
         postProcessingProfile.depthOfField.enabled = false;
 
-        s_SuccessFadeInTime = 0.12f;
-        s_SuccessFadeOutTime = 0.75f;
-        s_FailFadeInTime = 0.034f;
-        s_FailFadeOutTime = 0.05f;
+        s_SkillTimeOut = 7f;
+        s_UseSkillFadeInTime = 0.12f;
+        //s_UseSkillFadeOutTime = 0.75f;
+        s_UseSkillFadeOutTime = s_SkillTimeOut;
+        //s_CancelSkillFadeInTime = 0.034f;
+        //s_CancelSkillFadeOutTime = 0.05f;
+        s_CancelSkillFadeInTime = 0.12f;
+        s_CancelSkillFadeOutTime = 0.1f;
         s_SkillCooldownOverlay = s_SkillCooldownHUD.transform.Find("Overlay").gameObject.GetComponent<Image>();
         s_SkillCooldownOverlay.fillAmount = 1f;
         stimulusHighlightBlankColor = h_StimulusHighlightBlank.color;
@@ -213,6 +220,7 @@ public class FirstPersonController : MonoBehaviour
         g_SniperRifleIcon.color = color;
     }
 
+    private IEnumerator skillEffectCoroutine;
     private void Update()
     {
         if (GameController.IsPause() || GameController.IsGameOver())
@@ -303,8 +311,6 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
-        /*bool gazeInGunPanel = false;
-        bool gazeInSkillPanel = false;*/
         bool gazeInCoreStimulus = false;
         bool gazeInSkipStimulus = false;
         bool gazeInEnemyStimulus = false;
@@ -584,9 +590,9 @@ public class FirstPersonController : MonoBehaviour
                 skipPressDuration = 0f;
             }
         }
-
+        
         // trigger slow motion
-        if (eyeTrackerRunning)
+        /*if (eyeTrackerRunning)
         {
             if ((scoping && rayHitEnemy && isCurrentEnemyNotNull) || 
                 (gazeInCoreStimulus && !gameController.CanFixCore()))
@@ -597,7 +603,7 @@ public class FirstPersonController : MonoBehaviour
             {
                 Time.timeScale = GameController.defaultTimeScale;
             }
-        }
+        }*/
 
         // rotate view & scope kick
         if (scoping)
@@ -628,13 +634,24 @@ public class FirstPersonController : MonoBehaviour
             m_MouseLook.LookRotation(transform, m_Camera.transform);
         }
 
-        // use skill
-        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill && Time.time > s_SkillAvailableTime) : 
-            (Input.GetKeyDown(KeyCode.F) && Time.time > s_SkillAvailableTime);
+        // use skill and cancel skill
+        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill /*&& Time.time > s_SkillAvailableTime*/) : 
+            (Input.GetKeyDown(KeyCode.F) /*&& Time.time > s_SkillAvailableTime*/);
         if (useSkillCommandIssued)
         {
-            bool useSkillSuccessfully = false;
-            /*if (lockedOnEnemy != null)
+            if (s_UsingSkill && !s_CancellingSkill)
+            {
+                StopCoroutine(skillEffectCoroutine);
+                StartCoroutine(FlashSkillEffect(false, true));
+            }
+            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f)
+            {
+                s_SkillAvailableTime = -1f;
+                skillEffectCoroutine = FlashSkillEffect(true);
+                StartCoroutine(skillEffectCoroutine);
+            }
+            /*bool useSkillSuccessfully = false;
+            if (lockedOnEnemy != null)
             {
                 if (!lockedOnEnemy.IsDestroyed())
                 {
@@ -645,8 +662,8 @@ public class FirstPersonController : MonoBehaviour
                 {
                     useSkillSuccessfully = false;
                 }
-            }*/
-            StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));
+            }
+            StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));*/
         }
 
         // skip waiting state
@@ -1591,27 +1608,48 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    private IEnumerator FlashSkillEffect(float startTime, bool success)
+    private float savedSkillFlashAlpha;
+    private GameObject savedSkillFlashAudioPrefab;
+    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false)
     {
+        s_SkillAvailableTime = -1f;
         float fadeInTime = 0f;
         float fadeOutTime = 0f;
-        if (success)
+        float unscaledTime = 0f;
+        if (useSkill)
         {
-            Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
-            fadeInTime = s_SuccessFadeInTime;
-            fadeOutTime = s_SuccessFadeOutTime;
+            savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+            fadeInTime = s_UseSkillFadeInTime;
+            fadeOutTime = s_SkillTimeOut;
+            s_UsingSkill = true;
+            Time.timeScale = GameController.slowedTimeScale;
         }
         else
         {
-            Instantiate(s_SkillMissAudioPrefab, Vector3.zero, Quaternion.identity);
-            fadeInTime = s_FailFadeInTime;
-            fadeOutTime = s_FailFadeOutTime;
+            if (savedSkillFlashAudioPrefab != null)
+            {
+                Destroy(savedSkillFlashAudioPrefab);
+            }
+            Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+            fadeInTime = s_CancelSkillFadeInTime;
+            fadeOutTime = s_CancelSkillFadeOutTime;
+            s_CancellingSkill = true;
+            Time.timeScale = GameController.defaultTimeScale;
         }
         float alpha = 0f;
-        while (Time.time - startTime <= fadeInTime || alpha < 1f)
+        while (unscaledTime <= fadeInTime || alpha < 1f)
         {
-            alpha = (Time.time - startTime) / fadeInTime;
-            if (Time.time - startTime > fadeInTime)
+            while (GameController.IsPause())
+            {
+                yield return null;
+            }
+            unscaledTime += (Time.deltaTime / Time.timeScale);
+            alpha = useSavedAlpha ? (unscaledTime / fadeInTime) + savedSkillFlashAlpha : unscaledTime / fadeInTime;
+            if (!useSavedAlpha)
+            {
+                savedSkillFlashAlpha = alpha;
+            }
+            if (alpha >= 1f)
             {
                 alpha = 1f;
             }
@@ -1621,36 +1659,40 @@ public class FirstPersonController : MonoBehaviour
             color = s_SkillUseEffect.color;
             color.a = alpha;
             s_SkillUseEffect.color = color;
+            yield return null;
+        }
+        unscaledTime = 0f;
+        while (unscaledTime <= fadeOutTime || alpha > 0f)
+        {
             while (GameController.IsPause())
             {
                 yield return null;
             }
-            yield return null;
-        }
-        startTime = Time.time;
-        StartCoroutine(ReduceSkillOverlay(success));
-        while (Time.time - startTime <= fadeOutTime || alpha > 0f)
-        {
-            alpha = 1f - ((Time.time - startTime) / fadeOutTime);
-            if (Time.time - startTime > fadeOutTime)
+            unscaledTime += (Time.deltaTime / Time.timeScale);
+            alpha = 1f - (unscaledTime / fadeOutTime);
+            if (!useSavedAlpha)
+            {
+                savedSkillFlashAlpha = alpha;
+            }
+            if (alpha <= 0f)
             {
                 alpha = 0f;
             }
             Color color = s_SkillUseEffect.color;
             color.a = alpha;
             s_SkillUseEffect.color = color;
-            while (GameController.IsPause())
-            {
-                yield return null;
-            }
             yield return null;
         }
+        s_UsingSkill = false;
+        s_CancellingSkill = false;
+        Time.timeScale = GameController.defaultTimeScale;
+        StartCoroutine(ReduceSkillOverlay());
     }
 
-    private IEnumerator ReduceSkillOverlay(bool success)
+    private IEnumerator ReduceSkillOverlay()
     {
         float ratio = 1f;
-        float cooldown = success ? s_SkillCooldown : s_SkillCooldown / 2f;
+        float cooldown = s_SkillCooldown;
         s_SkillAvailableTime = Time.time + cooldown;
         while (Time.time < s_SkillAvailableTime)
         {

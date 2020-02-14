@@ -180,7 +180,7 @@ public class GameController : MonoBehaviour
         openSaveStat = false;
         LockCursor();
         defaultTimeScale = 1f;
-        slowedTimeScale = 0.075f;
+        slowedTimeScale = 0.08f;
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
