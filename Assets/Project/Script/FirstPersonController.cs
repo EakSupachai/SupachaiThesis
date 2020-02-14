@@ -1683,7 +1683,10 @@ public class FirstPersonController : MonoBehaviour
         }
         s_UsingSkill = false;
         s_CancellingSkill = false;
-        Time.timeScale = GameController.defaultTimeScale;
+        if (!GameController.IsInWaveCompletedState())
+        {
+            Time.timeScale = GameController.defaultTimeScale;
+        }
         StartCoroutine(ReduceSkillOverlay());
     }
 
