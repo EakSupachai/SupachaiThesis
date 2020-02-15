@@ -95,7 +95,11 @@ public class FirstPersonController : MonoBehaviour
     private CharacterController m_CharacterController;
     private CollisionFlags m_CollisionFlags;
     private bool m_PreviouslyGrounded;
-    private float m_YRotation;
+    private float m_MaxCompensateLookRotation;
+    private float m_CompensateLookRotationPercentage = 0.5f;
+    private float m_CompensateLookRotation;
+    private float m_ScopeRotation = 0.4f;
+    private float m_CompensateScopeRotation;
     private float m_StepCycle;
     private float m_NextStep;
     private float m_PreviousNextStep;
@@ -177,6 +181,9 @@ public class FirstPersonController : MonoBehaviour
         m_LastTimeMoving = -1f;
         audioSource = GetComponent<AudioSource>();
 		m_MouseLook.Init(transform , m_Camera.transform);
+        m_MaxCompensateLookRotation = GameController.defaultTimeScale / GameController.slowedTimeScale;
+        m_CompensateLookRotation = m_MaxCompensateLookRotation * m_CompensateLookRotationPercentage;
+        m_CompensateScopeRotation = (m_ScopeRotation / GameController.slowedTimeScale) * m_CompensateLookRotationPercentage;
 
         SetGunController("AR");
         g_PreviousGun = "AR";
@@ -588,20 +595,6 @@ public class FirstPersonController : MonoBehaviour
                 skipPressDuration = 0f;
             }
         }
-        
-        // trigger slow motion
-        /*if (eyeTrackerRunning)
-        {
-            if ((scoping && rayHitEnemy && isCurrentEnemyNotNull) || 
-                (gazeInCoreStimulus && !gameController.CanFixCore()))
-            {
-                Time.timeScale = GameController.slowedTimeScale;
-            }
-            else if (!GameController.IsInWaveCompletedState() && Time.timeScale != GameController.defaultTimeScale)
-            {
-                Time.timeScale = GameController.defaultTimeScale;
-            }
-        }*/
 
         // rotate view & scope kick
         if (scoping)
@@ -613,28 +606,27 @@ public class FirstPersonController : MonoBehaviour
                 g_ScopeKickUpAcc = g_ScopeKickUpAcc >= (scopeRecoilUp * 2f) ? g_ScopeKickUpAcc : g_ScopeKickUpAcc + scopeRecoilUp;
                 if (g_ScopeKickUpAcc - oldAcc > 0f)
                 {
-                    m_MouseLook.LookRotation(transform, m_Camera.transform, 1f, scopeRecoilUp);
+                    m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f, s_UsingSkill ? (scopeRecoilUp * 5.5f) : scopeRecoilUp);
                 }
             }
             else if (!g_KickingUp && g_ScopeKickUpAcc > 0.001f)
             {
                 float scopeRecoilDown = g_SniperRifleController.GetScopeRecoilDown();
                 g_ScopeKickUpAcc -= scopeRecoilDown;
-                m_MouseLook.LookRotation(transform, m_Camera.transform, 1f ,-scopeRecoilDown);
+                m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f, s_UsingSkill ? (-scopeRecoilDown * 5.5f) : -scopeRecoilDown);
             }
             else
             {
-                m_MouseLook.LookRotation(transform, m_Camera.transform, 0.4f);
+                m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateScopeRotation : m_ScopeRotation);
             }
         }
         else
         {
-            m_MouseLook.LookRotation(transform, m_Camera.transform);
+            m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f);
         }
 
         // use skill and cancel skill
-        bool useSkillCommandIssued = eyeTrackerRunning ? (blinkToUseSkill /*&& Time.time > s_SkillAvailableTime*/) : 
-            (Input.GetKeyDown(KeyCode.F) /*&& Time.time > s_SkillAvailableTime*/);
+        bool useSkillCommandIssued = eyeTrackerRunning ? blinkToUseSkill : Input.GetKeyDown(KeyCode.F);
         if (useSkillCommandIssued)
         {
             if (s_UsingSkill && !s_CancellingSkill && gameController.CanUseSkill())
@@ -648,20 +640,6 @@ public class FirstPersonController : MonoBehaviour
                 skillEffectCoroutine = FlashSkillEffect(true);
                 StartCoroutine(skillEffectCoroutine);
             }
-            /*bool useSkillSuccessfully = false;
-            if (lockedOnEnemy != null)
-            {
-                if (!lockedOnEnemy.IsDestroyed())
-                {
-                    useSkillSuccessfully = true;
-                    lockedOnEnemy.Freeze();
-                }
-                else
-                {
-                    useSkillSuccessfully = false;
-                }
-            }
-            StartCoroutine(FlashSkillEffect(Time.time, useSkillSuccessfully));*/
         }
 
         // skip waiting state

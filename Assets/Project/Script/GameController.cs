@@ -76,8 +76,8 @@ public class GameController : MonoBehaviour
     public static bool pause;
     public static bool gameOver;
     public static bool openSaveStat;
-    public static float defaultTimeScale;
-    public static float slowedTimeScale;
+    public static float defaultTimeScale = 1f;
+    public static float slowedTimeScale = 0.08f;
 
     private bool stateStarted;
     private float currentStateDuration;
@@ -179,15 +179,13 @@ public class GameController : MonoBehaviour
         gameOver = false;
         openSaveStat = false;
         LockCursor();
-        defaultTimeScale = 1f;
-        slowedTimeScale = 0.08f;
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
         startDuration = 5.9f;
         instructionDuration = 4.25f;
         waitingDuration = 10.9f;
-        waveDuration = 30.9f;
+        waveDuration = 5.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
