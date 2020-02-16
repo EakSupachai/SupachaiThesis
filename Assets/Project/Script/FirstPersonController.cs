@@ -329,7 +329,7 @@ public class FirstPersonController : MonoBehaviour
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
-            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping;
+            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill;
             StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus);
             if (calibrating)
             {

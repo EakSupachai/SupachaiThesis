@@ -1394,7 +1394,8 @@ public class GameController : MonoBehaviour
 
     public bool CanActivateLaserFence()
     {
-        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf)
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") 
+            && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf && Time.timeScale != defaultTimeScale)
         {
             if (waveDuration - currentStateDuration > 1.5f)
             {
