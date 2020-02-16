@@ -35,7 +35,7 @@ public class EnemyBehavior : MonoBehaviour
     private float hp;
     private float fadeOutTime;
     private float forceMagnitude;
-    private float spawnTime;
+    private float accTravelTime;
     private float distanceToDestination;
     private float distanceToDeceleration;
     private GameController gameController;
@@ -63,7 +63,6 @@ public class EnemyBehavior : MonoBehaviour
         hp = fullHp;
         fadeOutTime = 0.5f;
         forceMagnitude = 100f;
-        spawnTime = Time.time;
         startPosition = transform.position;
         destinationPosition = new Vector3(0f, 15f, 0f);
         frontImpactPoint = transform.Find("FrontImpactPoint");
@@ -113,7 +112,8 @@ public class EnemyBehavior : MonoBehaviour
         {
             audioSource.UnPause();
         }
-        audioSource.pitch = Time.timeScale == 1f ? 1f : Time.timeScale + 0.15f;
+        audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? GameController.defaultTimeScale : Time.timeScale + 0.08f;
+        accTravelTime += Time.timeScale == GameController.defaultTimeScale ? Time.deltaTime : (Time.deltaTime * 2f / 3f);
 
         // Rotate canvas
         Vector3 canvasDirection = transform.position - gameController.GetPlayerCameraPosition();
@@ -123,17 +123,16 @@ public class EnemyBehavior : MonoBehaviour
 
         if (!IsDestroyed() && decelerationPosition != Vector3.zero)
         {
-            float timePassed = Time.time - spawnTime;
             float distanceRatio = 0f;
             if (passedDecelerationPoint)
             {
-                distanceRatio = (speed * timePassed) / distanceToDestination;
+                distanceRatio = (speed * accTravelTime) / distanceToDestination;
                 distanceRatio = distanceRatio > 1f ? 1 : distanceRatio;
                 transform.position = Vector3.Lerp(decelerationPosition, destinationPosition, distanceRatio);
             }
             else
             {
-                distanceRatio = (speed * timePassed * 10f) / distanceToDeceleration;
+                distanceRatio = (speed * accTravelTime * 10f) / distanceToDeceleration;
                 distanceRatio = distanceRatio > 1f ? 1 : distanceRatio;
                 transform.position = Vector3.Lerp(startPosition, decelerationPosition, distanceRatio);
             }
@@ -199,7 +198,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         else if (other.gameObject.tag == "Deceleration Point")
         {
-            spawnTime = Time.time;
+            accTravelTime = 0f;
             passedDecelerationPoint = true;
         }
         else if (other.gameObject.tag == "Enemy")
@@ -271,6 +270,7 @@ public class EnemyBehavior : MonoBehaviour
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
         explosion.transform.localScale = new Vector3(explosionScale, explosionScale, explosionScale);
+        explosionAudio.GetComponent<AudioPrefabScript>().SetAddedPitch(0.24f);
         Destroy(explosion, 5f);
         Destroy(explosionAudio, 2f);
         body.useGravity = true;

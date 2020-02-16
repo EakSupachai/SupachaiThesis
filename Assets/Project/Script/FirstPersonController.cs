@@ -203,11 +203,8 @@ public class FirstPersonController : MonoBehaviour
         postProcessingProfile.colorGrading.enabled = false;
         postProcessingProfile.depthOfField.enabled = false;
 
-        s_SkillTimeOut = 7f;
+        s_SkillTimeOut = 8f;
         s_UseSkillFadeInTime = 0.12f;
-        //s_UseSkillFadeOutTime = 0.75f;
-        //s_CancelSkillFadeInTime = 0.034f;
-        //s_CancelSkillFadeOutTime = 0.05f;
         s_CancelSkillFadeInTime = 0.12f;
         s_CancelSkillFadeOutTime = 0.1f;
         s_SkillCooldownOverlay = s_SkillCooldownHUD.transform.Find("Overlay").gameObject.GetComponent<Image>();
@@ -763,7 +760,8 @@ public class FirstPersonController : MonoBehaviour
             }
             if (g_DelayingGunSwitching)
             {
-                if (Time.time - g_HolsterStartTime < g_HolsterDuration + 0.3f)
+                float changingGunDuration = s_UsingSkill ? 0.15f : 0.3f;
+                if (Time.time - g_HolsterStartTime < g_HolsterDuration + changingGunDuration)
                 {
                     return;
                 }
@@ -1383,14 +1381,14 @@ public class FirstPersonController : MonoBehaviour
             highlightStartTime = Time.time;
             highlightingStimulus = true;
             turningOffHighlight = false;
-            if (gazeInCoreStimulus/* && h_SkipStimulusController.IsFlickering()*/)
+            if (gazeInCoreStimulus)
             {
                 coreStimulusFadingIn = true;
                 coreStimulusFadingOut = false;
                 skipStimulusFadingIn = false;
                 skipStimulusFadingOut = true;
             }
-            else if (gazeInSkipStimulus/* && h_CoreStimulusController.IsFlickering()*/)
+            else if (gazeInSkipStimulus)
             {
                 coreStimulusFadingIn = false;
                 coreStimulusFadingOut = true;
@@ -1595,6 +1593,7 @@ public class FirstPersonController : MonoBehaviour
         if (useSkill)
         {
             savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+            savedSkillFlashAudioPrefab.GetComponent<AudioPrefabScript>().SetAddedPitch(0f);
             fadeInTime = s_UseSkillFadeInTime;
             fadeOutTime = s_SkillTimeOut;
             s_UsingSkill = true;

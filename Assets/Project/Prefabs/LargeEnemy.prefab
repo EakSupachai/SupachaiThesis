@@ -20198,7 +20198,6 @@ MonoBehaviour:
   score: 200
   fullHp: 20
   speed: 3
-  freezeTime: 8
   explosionScale: 2.3
   isRedType: 0
   redTypeMaterial: {fileID: 2100000, guid: 0e9dc84823e36f84ba8042f4879a51f3, type: 2}
@@ -20216,8 +20215,6 @@ MonoBehaviour:
     type: 3}
   hpCanvas: {fileID: 8758842845498739544}
   hpBar: {fileID: 1779181525688355950}
-  freezeBar: {fileID: 0}
-  lockonCanvas: {fileID: 0}
   redHpBar: {fileID: 21300000, guid: 5989c644f77acf84882e45d67974d336, type: 3}
   yellowHpBar: {fileID: 21300000, guid: 6ddbc81b711c12c478a6f2d37bdfab5b, type: 3}
 --- !u!82 &2814594169187823440
@@ -20232,7 +20229,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: c4e5fb25a090e5d4585731d35099f2a3, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.6
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0

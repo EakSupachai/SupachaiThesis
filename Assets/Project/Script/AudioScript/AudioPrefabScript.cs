@@ -3,6 +3,7 @@
 public class AudioPrefabScript : MonoBehaviour
 {
     private AudioSource audioSource;
+    private float addedPitch = 0.08f;
 
     // Start is called before the first frame update
     void Start()
@@ -28,7 +29,7 @@ public class AudioPrefabScript : MonoBehaviour
         
         if (GameController.IsInWaveCompletedState() && !GameController.IsGameOver())
         {
-            audioSource.pitch = Time.timeScale + 0.15f;
+            audioSource.pitch = Time.timeScale + addedPitch;
         }
         else
         {
@@ -38,7 +39,7 @@ public class AudioPrefabScript : MonoBehaviour
             }
             else
             {
-                audioSource.pitch = Time.timeScale + 0.15f;
+                audioSource.pitch = Time.timeScale != GameController.defaultTimeScale ? Time.timeScale + addedPitch : Time.timeScale;
             }
         }
 
@@ -46,5 +47,10 @@ public class AudioPrefabScript : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+    }
+
+    public void SetAddedPitch(float pitch)
+    {
+        addedPitch = pitch;
     }
 }

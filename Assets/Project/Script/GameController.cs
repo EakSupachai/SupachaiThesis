@@ -77,7 +77,7 @@ public class GameController : MonoBehaviour
     public static bool gameOver;
     public static bool openSaveStat;
     public static float defaultTimeScale = 1f;
-    public static float slowedTimeScale = 0.08f;
+    public static float slowedTimeScale = 0.16f;
 
     private bool stateStarted;
     private float currentStateDuration;
@@ -185,7 +185,7 @@ public class GameController : MonoBehaviour
         startDuration = 5.9f;
         instructionDuration = 4.25f;
         waitingDuration = 10.9f;
-        waveDuration = 5.9f;
+        waveDuration = 20.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -812,6 +812,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        coreAudioSource.pitch = Time.timeScale == defaultTimeScale ? defaultTimeScale : Time.timeScale + 0.08f;
     }
 
     private bool timesUpFlag;
@@ -1134,7 +1135,8 @@ public class GameController : MonoBehaviour
         }
         coreHp = coreHp < 0f ? 0f : coreHp;
         coreHpBar.fillAmount = coreHp / coreFullHp;
-        Instantiate(coreDamagedAudioPrefab, transform.position, Quaternion.identity);
+        GameObject coreDamagedAudio = Instantiate(coreDamagedAudioPrefab, transform.position, Quaternion.identity);
+        coreDamagedAudio.GetComponent<AudioPrefabScript>().SetAddedPitch(0.24f);
     }
 
     public void IncreaseCoreHp(float stimulusGazeDuration = -1f)
