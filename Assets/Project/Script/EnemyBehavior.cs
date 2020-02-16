@@ -112,7 +112,7 @@ public class EnemyBehavior : MonoBehaviour
         {
             audioSource.UnPause();
         }
-        audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? GameController.defaultTimeScale : Time.timeScale + 0.08f;
+        audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? Time.timeScale : Time.timeScale + 0.08f;
         accTravelTime += Time.timeScale == GameController.defaultTimeScale ? Time.deltaTime : (Time.deltaTime * 2f / 3f);
 
         // Rotate canvas

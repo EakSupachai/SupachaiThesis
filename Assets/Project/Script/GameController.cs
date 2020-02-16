@@ -812,7 +812,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-        coreAudioSource.pitch = Time.timeScale == defaultTimeScale ? defaultTimeScale : Time.timeScale + 0.08f;
+        coreAudioSource.pitch = Time.timeScale == defaultTimeScale ? Time.timeScale : Time.timeScale + 0.08f;
     }
 
     private bool timesUpFlag;

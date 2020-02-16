@@ -39,7 +39,7 @@ public class AudioPrefabScript : MonoBehaviour
             }
             else
             {
-                audioSource.pitch = Time.timeScale != GameController.defaultTimeScale ? Time.timeScale + addedPitch : Time.timeScale;
+                audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? Time.timeScale : Time.timeScale + addedPitch;
             }
         }
 
