@@ -113,7 +113,7 @@ public class EnemyBehavior : MonoBehaviour
             audioSource.UnPause();
         }
         audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? Time.timeScale : Time.timeScale + 0.08f;
-        accTravelTime += Time.timeScale == GameController.defaultTimeScale ? Time.deltaTime : (Time.deltaTime * 2f / 3f);
+        accTravelTime += Time.timeScale == GameController.defaultTimeScale ? Time.deltaTime : (Time.deltaTime * 6f / 10f);
 
         // Rotate canvas
         Vector3 canvasDirection = transform.position - gameController.GetPlayerCameraPosition();

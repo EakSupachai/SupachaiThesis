@@ -424,28 +424,28 @@ public class GameController : MonoBehaviour
                 CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP4_2 INS");
                 break;
             case "STEP4_2 INS":
-                CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus.", true);
+                CalibrationInsStepHandler("Step 1:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus and try not to move the crosshair.", true);
                 break;
             case "STEP4_2":
-                CalibrationStepHandler(8, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
+                CalibrationStepHandler(1, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
                 break;
             case "STEP5_2 INS":
-                CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
+                CalibrationInsStepHandler("Step 2:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
                 break;
             case "STEP5_2":
                 CalibrationStepHandler(1, "Look at the core and\npay attention to the stimulus.", false, false, "STEP6_2 INS");
                 break;
             case "STEP6_2 INS":
-                CalibrationInsStepHandler("Step 6:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP6_2");
+                CalibrationInsStepHandler("Step 3:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP6_2");
                 break;
             case "STEP6_2":
                 CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP7_2 INS");
                 break;
             case "STEP7_2 INS":
-                CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope.\nPay attention to the stimulus.", false);
+                CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nPay attention to the stimulus and try not to move the crosshair.", false);
                 break;
             case "STEP7_2":
-                CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus.");
+                CalibrationStepHandler(1, "Look at the enemies through the scope.\nPay attention to the stimulus.");
                 break;
             case "STEP8_2 INS":
                 CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP8_2");
@@ -1444,7 +1444,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-        else if ((currentState == "STEP3" || currentState == "STEP6" || currentState == "STEP2_2" || currentState == "STEP5_2") && stateStarted)
+        else if ((currentState == "STEP3" || currentState == "STEP6" || currentState == "STEP2_2" || currentState == "STEP5_2" || currentState == "STEP8_2") && stateStarted)
         {
             return true;
         }
@@ -1462,7 +1462,7 @@ public class GameController : MonoBehaviour
 
     public bool CanUseSkill()
     {
-        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted)
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3" || currentState == "STEP1_2" || currentState == "STEP4_2" || currentState == "STEP7_2") && stateStarted)
         {
             return true;
         }

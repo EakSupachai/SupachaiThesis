@@ -546,6 +546,7 @@ public class FirstPersonController : MonoBehaviour
                                 gameController.IncreaseObjectiveCounter("STEP6", 2);*/
                                 gameController.IncreaseObjectiveCounter("STEP2_2", 2);
                                 gameController.IncreaseObjectiveCounter("STEP5_2", 2);
+                                gameController.IncreaseObjectiveCounter("STEP8_2", 2);
                             }
                             else if (gazeInSkipStimulus)
                             {
@@ -554,6 +555,7 @@ public class FirstPersonController : MonoBehaviour
                                 gameController.IncreaseObjectiveCounter("STEP7", 2);*/
                                 gameController.IncreaseObjectiveCounter("STEP3_2", 2);
                                 gameController.IncreaseObjectiveCounter("STEP6_2", 2);
+                                gameController.IncreaseObjectiveCounter("STEP9_2", 2);
                             }
                             else if (tempGazeInEnemyStimulus)
                             {
