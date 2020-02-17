@@ -400,7 +400,7 @@ public class GameController : MonoBehaviour
                     // currentState = "STEP1_2 INS";
                     // choose this if want to skip step 1
                     nextWave++;
-                    currentState = "STEP2_2 INS";
+                    currentState = "STEP4_2 INS";
                     ////////////////////////////////
                     player.StopSkipStimulus();
                 }
@@ -446,6 +446,18 @@ public class GameController : MonoBehaviour
                 break;
             case "STEP7_2":
                 CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus.");
+                break;
+            case "STEP8_2 INS":
+                CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP8_2");
+                break;
+            case "STEP8_2":
+                CalibrationStepHandler(1, "Look at the core and\npay attention to the stimulus.", false, false, "STEP9_2 INS");
+                break;
+            case "STEP9_2 INS":
+                CalibrationInsStepHandler("Step 6:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP9_2");
+                break;
+            case "STEP9_2":
+                CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "FINAL STEP");
                 break;
             /*case "STEP1 INS":
                 CalibrationInsStepHandler("Step 1:\nTry to walk around without blinking\nfor " + 
@@ -654,6 +666,10 @@ public class GameController : MonoBehaviour
                         else if (nextWave == 3)
                         {
                             currentState = "STEP5_2 INS";
+                        }
+                        else if (nextWave == 4)
+                        {
+                            currentState = "STEP8_2 INS";
                         }
                         else
                         {
