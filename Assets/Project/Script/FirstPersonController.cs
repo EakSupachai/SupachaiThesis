@@ -633,12 +633,18 @@ public class FirstPersonController : MonoBehaviour
                 StopCoroutine(skillEffectCoroutine);
                 StartCoroutine(FlashSkillEffect(false, true));
             }
-            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f && gameController.CanUseSkill())
+            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f /*&& gameController.CanUseSkill()*/)
+            {
+                s_SkillAvailableTime = -1f;
+                skillEffectCoroutine = gameController.CanUseSkill() ? FlashSkillEffect(true) : FlashSkillEffect(true, false, true);
+                StartCoroutine(skillEffectCoroutine);
+            }
+            /*else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f && !gameController.CanUseSkill())
             {
                 s_SkillAvailableTime = -1f;
                 skillEffectCoroutine = FlashSkillEffect(true);
                 StartCoroutine(skillEffectCoroutine);
-            }
+            }*/
         }
 
         // skip waiting state
@@ -1586,7 +1592,7 @@ public class FirstPersonController : MonoBehaviour
 
     private float savedSkillFlashAlpha;
     private GameObject savedSkillFlashAudioPrefab;
-    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false)
+    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false, bool cantUseSkill = false)
     {
         s_SkillAvailableTime = -1f;
         float fadeInTime = 0f;
@@ -1594,12 +1600,23 @@ public class FirstPersonController : MonoBehaviour
         float unscaledTime = 0f;
         if (useSkill)
         {
-            savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
-            savedSkillFlashAudioPrefab.GetComponent<AudioPrefabScript>().SetAddedPitch(0f);
-            fadeInTime = s_UseSkillFadeInTime;
-            fadeOutTime = s_SkillTimeOut;
-            s_UsingSkill = true;
-            Time.timeScale = GameController.slowedTimeScale;
+            if (!cantUseSkill)
+            {
+                s_UsingSkill = true;
+                fadeInTime = s_UseSkillFadeInTime;
+                fadeOutTime = s_SkillTimeOut;
+                Time.timeScale = GameController.slowedTimeScale;
+                savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+                savedSkillFlashAudioPrefab.GetComponent<AudioPrefabScript>().SetAddedPitch(0f);
+            }
+            else
+            {
+                s_UsingSkill = false;
+                fadeInTime = s_CancelSkillFadeInTime;
+                fadeOutTime = s_CancelSkillFadeOutTime;
+                Time.timeScale = GameController.defaultTimeScale;
+                Instantiate(s_SkillMissAudioPrefab, Vector3.zero, Quaternion.identity);
+            }
         }
         else
         {
@@ -1607,11 +1624,11 @@ public class FirstPersonController : MonoBehaviour
             {
                 Destroy(savedSkillFlashAudioPrefab);
             }
-            Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+            s_CancellingSkill = true;
             fadeInTime = s_CancelSkillFadeInTime;
             fadeOutTime = s_CancelSkillFadeOutTime;
-            s_CancellingSkill = true;
             Time.timeScale = GameController.defaultTimeScale;
+            Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
         }
         float alpha = 0f;
         while (unscaledTime <= fadeInTime || alpha < 1f)
