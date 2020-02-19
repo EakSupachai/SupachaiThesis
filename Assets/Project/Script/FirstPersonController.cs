@@ -329,7 +329,7 @@ public class FirstPersonController : MonoBehaviour
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
-            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill;
+            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus);
             if (calibrating)
             {
@@ -562,6 +562,8 @@ public class FirstPersonController : MonoBehaviour
                                 if (gameController.CanShootEnemy())
                                 {
                                     gazeToActivateShootCommand = true;
+                                    gameController.IncreaseObjectiveCounter("STEP7_2", 1);
+
                                 }
                                 else
                                 {
@@ -596,6 +598,7 @@ public class FirstPersonController : MonoBehaviour
         }
 
         // rotate view & scope kick
+        float defaultTimeScale = GameController.defaultTimeScale;
         if (scoping)
         {
             if (g_KickingUp)
@@ -605,23 +608,25 @@ public class FirstPersonController : MonoBehaviour
                 g_ScopeKickUpAcc = g_ScopeKickUpAcc >= (scopeRecoilUp * 2f) ? g_ScopeKickUpAcc : g_ScopeKickUpAcc + scopeRecoilUp;
                 if (g_ScopeKickUpAcc - oldAcc > 0f)
                 {
-                    m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f, s_UsingSkill ? (scopeRecoilUp * 5.5f) : scopeRecoilUp);
+                    m_MouseLook.LookRotation(transform, m_Camera.transform, Time.timeScale != defaultTimeScale ? m_CompensateLookRotation : 1f, 
+                        Time.timeScale != defaultTimeScale ? (scopeRecoilUp * 5.5f) : scopeRecoilUp);
                 }
             }
             else if (!g_KickingUp && g_ScopeKickUpAcc > 0.001f)
             {
                 float scopeRecoilDown = g_SniperRifleController.GetScopeRecoilDown();
                 g_ScopeKickUpAcc -= scopeRecoilDown;
-                m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f, s_UsingSkill ? (-scopeRecoilDown * 5.5f) : -scopeRecoilDown);
+                m_MouseLook.LookRotation(transform, m_Camera.transform, Time.timeScale != defaultTimeScale ? m_CompensateLookRotation : 1f, 
+                    Time.timeScale != defaultTimeScale ? (-scopeRecoilDown * 5.5f) : -scopeRecoilDown);
             }
             else
             {
-                m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateScopeRotation : m_ScopeRotation);
+                m_MouseLook.LookRotation(transform, m_Camera.transform, Time.timeScale != defaultTimeScale ? m_CompensateScopeRotation : m_ScopeRotation);
             }
         }
         else
         {
-            m_MouseLook.LookRotation(transform, m_Camera.transform, s_UsingSkill ? m_CompensateLookRotation : 1f);
+            m_MouseLook.LookRotation(transform, m_Camera.transform, Time.timeScale != defaultTimeScale ? m_CompensateLookRotation : 1f);
         }
 
         // use skill and cancel skill
@@ -633,18 +638,12 @@ public class FirstPersonController : MonoBehaviour
                 StopCoroutine(skillEffectCoroutine);
                 StartCoroutine(FlashSkillEffect(false, true));
             }
-            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f /*&& gameController.CanUseSkill()*/)
+            else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f)
             {
                 s_SkillAvailableTime = -1f;
                 skillEffectCoroutine = gameController.CanUseSkill() ? FlashSkillEffect(true) : FlashSkillEffect(true, false, true);
                 StartCoroutine(skillEffectCoroutine);
             }
-            /*else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f && !gameController.CanUseSkill())
-            {
-                s_SkillAvailableTime = -1f;
-                skillEffectCoroutine = FlashSkillEffect(true);
-                StartCoroutine(skillEffectCoroutine);
-            }*/
         }
 
         // skip waiting state
@@ -660,6 +659,8 @@ public class FirstPersonController : MonoBehaviour
             if (gazeToActivateCoreCommand && gameController.CanActivateLaserFence())
             {
                 gameController.ActivateLaserFence();
+                StopCoroutine(skillEffectCoroutine);
+                StartCoroutine(FlashSkillEffect(false, true, false, true));
             }
             else if (gazeToActivateCoreCommand && gameController.CanFixCore())
             {
@@ -687,6 +688,8 @@ public class FirstPersonController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Q) && h_CoreStimulusController.IsFlickering() && gameController.CanActivateLaserFence())
             {
                 gameController.ActivateLaserFence();
+                StopCoroutine(skillEffectCoroutine);
+                StartCoroutine(FlashSkillEffect(false, true, false, true));
             }
             else if (Input.GetKey(KeyCode.Q) && h_CoreStimulusController.IsFlickering() && gameController.CanFixCore())
             {
@@ -768,7 +771,7 @@ public class FirstPersonController : MonoBehaviour
             }
             if (g_DelayingGunSwitching)
             {
-                float changingGunDuration = s_UsingSkill ? 0.15f : 0.3f;
+                float changingGunDuration = Time.timeScale == GameController.defaultTimeScale ? 0.3f : 0.15f;
                 if (Time.time - g_HolsterStartTime < g_HolsterDuration + changingGunDuration)
                 {
                     return;
@@ -946,7 +949,7 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
-            shoot = g_CurrentGun == "AR" ? Input.GetMouseButton(0) : Input.GetMouseButtonDown(0);
+            shoot = g_CurrentGun == "AR" ? Input.GetMouseButton(0) : Input.GetMouseButtonDown(0) && s_UsingSkill && !s_CancellingSkill;
         }
         if (shoot && !g_AimInterpolating)
         {
@@ -969,6 +972,11 @@ public class FirstPersonController : MonoBehaviour
                 {
                     g_RecoilStartPosition = g_GunController.aimPosition;
                     g_RecoilIntendedPosition = g_GunController.aimPosition + g_GunController.aimRecoil;
+                }
+                if (g_CurrentGun == "SR" && s_UsingSkill && !s_CancellingSkill)
+                {
+                    StopCoroutine(skillEffectCoroutine);
+                    StartCoroutine(FlashSkillEffect(false, true, false, true));
                 }
             }
         }
@@ -1004,7 +1012,7 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
-        if (calibrating)
+        /*if (calibrating)
         {
             if (g_CurrentGun == "AR" && isCurrentEnemyNotNull && currentEnemyInCrosshair.IsDestroyed() && notBlinkDuringShootingEnemy)
             {
@@ -1016,7 +1024,7 @@ public class FirstPersonController : MonoBehaviour
                 //gameController.IncreaseObjectiveCounter("STEP5", 1);
                 gameController.IncreaseObjectiveCounter("STEP7_2", 1);
             }
-        }
+        }*/
 
         // gun-bob
         if (!g_Aiming && !g_AimInterpolating)
@@ -1592,12 +1600,13 @@ public class FirstPersonController : MonoBehaviour
 
     private float savedSkillFlashAlpha;
     private GameObject savedSkillFlashAudioPrefab;
-    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false, bool cantUseSkill = false)
+    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false, bool cantUseSkill = false, bool mute = false)
     {
         s_SkillAvailableTime = -1f;
         float fadeInTime = 0f;
         float fadeOutTime = 0f;
-        float unscaledTime = 0f;
+        float unscaledAccTime = 0f;
+        float unscaledDeltaTime = 0f;
         if (useSkill)
         {
             if (!cantUseSkill)
@@ -1606,8 +1615,11 @@ public class FirstPersonController : MonoBehaviour
                 fadeInTime = s_UseSkillFadeInTime;
                 fadeOutTime = s_SkillTimeOut;
                 Time.timeScale = GameController.slowedTimeScale;
-                savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
-                savedSkillFlashAudioPrefab.GetComponent<AudioPrefabScript>().SetAddedPitch(0f);
+                if (!mute)
+                {
+                    savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
+                    savedSkillFlashAudioPrefab.GetComponent<AudioPrefabScript>().SetAddedPitch(0f);
+                }
             }
             else
             {
@@ -1615,7 +1627,10 @@ public class FirstPersonController : MonoBehaviour
                 fadeInTime = s_CancelSkillFadeInTime;
                 fadeOutTime = s_CancelSkillFadeOutTime;
                 Time.timeScale = GameController.defaultTimeScale;
-                Instantiate(s_SkillMissAudioPrefab, Vector3.zero, Quaternion.identity);
+                if (!mute)
+                {
+                    Instantiate(s_SkillMissAudioPrefab, Vector3.zero, Quaternion.identity);
+                }
             }
         }
         else
@@ -1631,14 +1646,15 @@ public class FirstPersonController : MonoBehaviour
             Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
         }
         float alpha = 0f;
-        while (unscaledTime <= fadeInTime || alpha < 1f)
+        while (unscaledAccTime <= fadeInTime || alpha < 1f)
         {
             while (GameController.IsPause())
             {
                 yield return null;
             }
-            unscaledTime += (Time.deltaTime / Time.timeScale);
-            alpha = useSavedAlpha ? (unscaledTime / fadeInTime) + savedSkillFlashAlpha : unscaledTime / fadeInTime;
+            unscaledDeltaTime = Time.deltaTime / Time.timeScale;
+            unscaledAccTime += unscaledDeltaTime;
+            alpha = useSavedAlpha ? (unscaledAccTime / fadeInTime) + savedSkillFlashAlpha : unscaledAccTime / fadeInTime;
             if (!useSavedAlpha)
             {
                 savedSkillFlashAlpha = alpha;
@@ -1655,15 +1671,16 @@ public class FirstPersonController : MonoBehaviour
             s_SkillUseEffect.color = color;
             yield return null;
         }
-        unscaledTime = 0f;
-        while (unscaledTime <= fadeOutTime || alpha > 0f)
+        unscaledAccTime = 0f;
+        while (unscaledAccTime <= fadeOutTime || alpha > 0f)
         {
             while (GameController.IsPause())
             {
                 yield return null;
             }
-            unscaledTime += (Time.deltaTime / Time.timeScale);
-            alpha = 1f - (unscaledTime / fadeOutTime);
+            unscaledDeltaTime = Time.deltaTime / Time.timeScale;
+            unscaledAccTime += unscaledDeltaTime;
+            alpha = 1f - (unscaledAccTime / fadeOutTime);
             if (!useSavedAlpha)
             {
                 savedSkillFlashAlpha = alpha;
