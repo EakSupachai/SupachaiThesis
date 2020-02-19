@@ -427,7 +427,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 1:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus and try not to move the crosshair.", true);
                 break;
             case "STEP4_2":
-                CalibrationStepHandler(1, "Look at the enemies through the scope.\nDon't pay attention to the stimulus and\ntry not to move the crosshair.", true, false, "", "Wait for the enemy to hit the core.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nDon't pay attention to the stimulus and\ntry not to move the crosshair.", true, false, "", "Wait for the enemy to hit the core.");
                 break;
             case "STEP5_2 INS":
                 CalibrationInsStepHandler("Step 2:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
@@ -445,7 +445,7 @@ public class GameController : MonoBehaviour
                 CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nPay attention to the stimulus and try not to move the crosshair.", false);
                 break;
             case "STEP7_2":
-                CalibrationStepHandler(1, "Look at the enemies through the scope.\nPay attention to the stimulus and\ntry not to move the crosshair.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus and\ntry not to move the crosshair.");
                 break;
             case "STEP8_2 INS":
                 CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP8_2");
