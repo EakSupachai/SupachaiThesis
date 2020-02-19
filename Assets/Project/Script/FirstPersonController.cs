@@ -116,6 +116,7 @@ public class FirstPersonController : MonoBehaviour
     private bool s_CancellingSkill;
     private float s_SkillAvailableTime;
     private float s_SkillTimeOut;
+    private float s_SkillCooldownBonus;
     private float s_UseSkillFadeInTime;
     private float s_CancelSkillFadeInTime;
     private float s_CancelSkillFadeOutTime;
@@ -1609,6 +1610,7 @@ public class FirstPersonController : MonoBehaviour
         float unscaledDeltaTime = 0f;
         if (useSkill)
         {
+            s_SkillCooldownBonus = s_SkillCooldown - 1f;
             if (!cantUseSkill)
             {
                 s_UsingSkill = true;
@@ -1689,6 +1691,31 @@ public class FirstPersonController : MonoBehaviour
             {
                 alpha = 0f;
             }
+            if (s_UsingSkill && useSkill)
+            {
+                float bonus = 0f;
+                if (alpha >= 0.5f && alpha < 1f)
+                {
+                    bonus = s_SkillCooldown - 1f;
+                }
+                else if (alpha >= 0.3f)
+                {
+                    bonus = s_SkillCooldown - 1.5f;
+                }
+                else if (alpha >= 0.2f)
+                {
+                    bonus = s_SkillCooldown - 2f;
+                }
+                else if (alpha >= 0.1f)
+                {
+                    bonus = s_SkillCooldown - 2.5f;
+                }
+                else
+                {
+                    bonus = 0f;
+                }
+                s_SkillCooldownBonus = bonus > 0f ? bonus : 0f;
+            }
             Color color = s_SkillUseEffect.color;
             color.a = alpha;
             s_SkillUseEffect.color = color;
@@ -1706,7 +1733,7 @@ public class FirstPersonController : MonoBehaviour
     private IEnumerator ReduceSkillOverlay()
     {
         float ratio = 1f;
-        float cooldown = s_SkillCooldown;
+        float cooldown = s_SkillCooldown - s_SkillCooldownBonus;
         s_SkillAvailableTime = Time.time + cooldown;
         while (Time.time < s_SkillAvailableTime)
         {
