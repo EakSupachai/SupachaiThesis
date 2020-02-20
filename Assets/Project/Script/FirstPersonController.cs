@@ -159,7 +159,6 @@ public class FirstPersonController : MonoBehaviour
     private bool highlightingStimulus;
     private bool turningOffHighlight;
     private bool highlightOn;
-    private float highlightStartTime;
     private float highlightDuration;
     private float highlightDefaultDuration = 0.075f;
     private float turnOffDefaultDuration = 0.1f;
@@ -1409,7 +1408,6 @@ public class FirstPersonController : MonoBehaviour
             highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
             highlightDuration = ((highlightDefaultAlpha - highlightStartAlpha) / highlightDefaultAlpha) * highlightDefaultDuration;
             postProcessingProfile.depthOfField.enabled = true;
-            highlightStartTime = Time.time;
             highlightAccTime = 0f;
             highlightingStimulus = true;
             turningOffHighlight = false;
@@ -1443,7 +1441,6 @@ public class FirstPersonController : MonoBehaviour
             highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
             highlightDuration = (highlightStartAlpha / highlightDefaultAlpha) * turnOffDefaultDuration;
             postProcessingProfile.depthOfField.enabled = true;
-            highlightStartTime = Time.time;
             highlightAccTime = 0f;
             highlightOn = false;
             highlightingStimulus = false;
@@ -1485,8 +1482,8 @@ public class FirstPersonController : MonoBehaviour
             float fdMinus = 0f;
             float maxAPlus = highlightDefaultAlpha - highlightStartAlpha;
             float maxFdMinus = highlightStartFocus - 0.1f;
-            aPlus = (highlightAccTime - highlightStartTime) * maxAPlus / highlightDuration;
-            fdMinus = (highlightAccTime - highlightStartTime) * maxFdMinus / highlightDuration;
+            aPlus = highlightAccTime * maxAPlus / highlightDuration;
+            fdMinus = highlightAccTime * maxFdMinus / highlightDuration;
             bool nanCheck = float.IsNaN(fdMinus) || float.IsNaN(aPlus) || float.IsNaN(maxFdMinus) || float.IsNaN(maxAPlus);
             if (fdMinus >= maxFdMinus)
             {
@@ -1518,8 +1515,8 @@ public class FirstPersonController : MonoBehaviour
             float fdPlus = 0f;
             float maxAMinus = highlightStartAlpha;
             float maxFdPlus = highlightDefaultStartFocus - highlightStartFocus;
-            aMinus = (highlightAccTime - highlightStartTime) * maxAMinus / highlightDuration;
-            fdPlus = (highlightAccTime - highlightStartTime) * maxFdPlus / highlightDuration;
+            aMinus = highlightAccTime * maxAMinus / highlightDuration;
+            fdPlus = highlightAccTime * maxFdPlus / highlightDuration;
             bool nanCheck = float.IsNaN(fdPlus) || float.IsNaN(aMinus) || float.IsNaN(maxFdPlus) || float.IsNaN(maxAMinus);
             if (fdPlus >= maxFdPlus)
             {
@@ -1549,7 +1546,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aPlus = 0f;
             float maxAPlus = 1f - coreStimulusStartAlpha;
-            aPlus = (highlightAccTime - highlightStartTime) * maxAPlus / highlightDuration;
+            aPlus = highlightAccTime * maxAPlus / highlightDuration;
             bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
             if (aPlus >= maxAPlus)
             {
@@ -1570,7 +1567,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aMinus = 0f;
             float maxAMinus = coreStimulusStartAlpha - 0.2f;
-            aMinus = (highlightAccTime - highlightStartTime) * maxAMinus / highlightDuration;
+            aMinus = highlightAccTime * maxAMinus / highlightDuration;
             bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
             if (aMinus >= maxAMinus)
             {
@@ -1591,7 +1588,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aPlus = 0f;
             float maxAPlus = 1f - skipStimulusStartAlpha;
-            aPlus = (highlightAccTime - highlightStartTime) * maxAPlus / highlightDuration;
+            aPlus = highlightAccTime * maxAPlus / highlightDuration;
             bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
             if (aPlus >= maxAPlus)
             {
@@ -1612,7 +1609,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aMinus = 0f;
             float maxAMinus = skipStimulusStartAlpha - 0.2f;
-            aMinus = (highlightAccTime - highlightStartTime) * maxAMinus / highlightDuration;
+            aMinus = highlightAccTime * maxAMinus / highlightDuration;
             bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
             if (aMinus >= maxAMinus)
             {
@@ -1633,7 +1630,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aPlus = 0f;
             float maxAPlus = 1f - skipStimulusStartAlpha;
-            aPlus = (highlightAccTime - highlightStartTime) * maxAPlus / highlightDuration;
+            aPlus = highlightAccTime * maxAPlus / highlightDuration;
             bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
             if (aPlus >= maxAPlus)
             {
@@ -1654,7 +1651,7 @@ public class FirstPersonController : MonoBehaviour
         {
             float aMinus = 0f;
             float maxAMinus = skipStimulusStartAlpha - 0.2f;
-            aMinus = (highlightAccTime - highlightStartTime) * maxAMinus / highlightDuration;
+            aMinus = highlightAccTime * maxAMinus / highlightDuration;
             bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
             if (aMinus >= maxAMinus)
             {
