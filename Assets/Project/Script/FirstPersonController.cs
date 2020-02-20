@@ -1386,7 +1386,9 @@ public class FirstPersonController : MonoBehaviour
         g_HolsterIntendedAngle = Quaternion.Euler(g_HolsterStartAngle.eulerAngles - new Vector3(40f, 0f, 10f));
         g_GunController.SwitchToDefaultCrosshair();
     }
-    
+
+    private float highlightCountdown;
+    private float unhighlightCountdown;
     private float coreStimulusStartAlpha;
     private float skipStimulusStartAlpha;
     private float stimulusFadeAlpha = 0.35f;
@@ -1399,9 +1401,16 @@ public class FirstPersonController : MonoBehaviour
     private bool shootingStimulusFadingOut;
     private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus, bool gazeInShootingStimulus)
     {
-        highlightAccTime += Time.deltaTime / Time.timeScale;
+        float unscaledTimer = Time.deltaTime / Time.timeScale;
+        highlightAccTime += unscaledTimer;
         if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && !highlightOn && !highlightingStimulus)
         {
+            if (!highlightOn && !highlightingStimulus && unhighlightCountdown > 0)
+            {
+                unhighlightCountdown -= unscaledTimer;
+                return;
+            }
+            highlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
             skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
@@ -1435,6 +1444,12 @@ public class FirstPersonController : MonoBehaviour
         }
         else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && (highlightingStimulus || highlightOn))
         {
+            if (highlightOn && highlightCountdown > 0)
+            {
+                highlightCountdown -= unscaledTimer;
+                return;
+            }
+            unhighlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
             skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
@@ -1452,8 +1467,9 @@ public class FirstPersonController : MonoBehaviour
             shootingStimulusFadingIn = true;
             shootingStimulusFadingOut = false;
         }
-        else if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && (highlightOn || highlightingStimulus))
+        else if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && (highlightingStimulus || highlightOn))
         {
+            highlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
             coreStimulusFadingIn = false;
             coreStimulusFadingOut = true;
             skipStimulusFadingIn = false;
@@ -1475,6 +1491,10 @@ public class FirstPersonController : MonoBehaviour
                 shootingStimulusFadingIn = true;
                 shootingStimulusFadingOut = false;
             }
+        }
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && !highlightingStimulus && !highlightOn)
+        {
+            unhighlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
         }
         if (highlightingStimulus && !highlightOn)
         {
