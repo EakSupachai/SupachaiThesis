@@ -3648,7 +3648,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 27
+  m_RootOrder: 28
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.186, y: 0.24958454}
   m_AnchorMax: {x: 0.814, y: 0.384504}
@@ -12054,6 +12054,80 @@ Animator:
     type: 3}
   m_PrefabInstance: {fileID: 1359198279}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &656018292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 656018293}
+  - component: {fileID: 656018295}
+  - component: {fileID: 656018294}
+  m_Layer: 5
+  m_Name: CrosshairArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &656018293
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656018292}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 731895335}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.3617459, y: 0.25365785}
+  m_AnchorMax: {x: 0.63858193, y: 0.7517455}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &656018294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656018292}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+--- !u!222 &656018295
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656018292}
+  m_CullTransparentMesh: 0
 --- !u!1 &661599588
 GameObject:
   m_ObjectHideFlags: 0
@@ -13425,7 +13499,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 2029712916}
-  - {fileID: 1145383925}
+  - {fileID: 656018293}
   - {fileID: 1358956824}
   - {fileID: 417947025}
   - {fileID: 1629848745}
@@ -13447,6 +13521,7 @@ RectTransform:
   - {fileID: 1170684013}
   - {fileID: 1855354018}
   - {fileID: 2025750669}
+  - {fileID: 1145383925}
   - {fileID: 1287521248}
   - {fileID: 1552016935}
   - {fileID: 1832633499}
@@ -27381,7 +27456,7 @@ GameObject:
   - component: {fileID: 1145383927}
   - component: {fileID: 1145383926}
   m_Layer: 5
-  m_Name: CrosshairArea
+  m_Name: ScopeCrosshairStimulusArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27399,10 +27474,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 1
+  m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.39600003, y: 0.31717172}
-  m_AnchorMax: {x: 0.6042728, y: 0.69600004}
+  m_AnchorMin: {x: 0.3617459, y: 0.143}
+  m_AnchorMax: {x: 0.63858193, y: 0.36400002}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -28573,7 +28648,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 23
+  m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3663278, y: 0.933}
   m_AnchorMax: {x: 0.634, y: 0.9622617}
@@ -30677,7 +30752,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 24
+  m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.37932777, y: 0.933}
   m_AnchorMax: {x: 0.6206723, y: 0.9622617}
@@ -33358,7 +33433,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 25
+  m_RootOrder: 26
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.39126104, y: 0.30628276}
   m_AnchorMax: {x: 0.60961497, y: 0.3907677}
@@ -34879,8 +34954,8 @@ RectTransform:
   m_Father: {fileID: 731895335}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.4362126, y: 0.31717172}
-  m_AnchorMax: {x: 0.56378746, y: 0.483}
+  m_AnchorMin: {x: 0.3617459, y: 0.143}
+  m_AnchorMax: {x: 0.63858193, y: 0.36400002}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -34904,7 +34979,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 1dc5cc7353abdfb4d96d30f228665ab6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aaad3e5c094782d4f8aa3ab47b2a8553, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -34933,8 +35008,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48db015afccd6b14e802fe56f3354df9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  whiteSprite: {fileID: 21300000, guid: 1dc5cc7353abdfb4d96d30f228665ab6, type: 3}
-  blackSprite: {fileID: 21300000, guid: ca6847e913723904db40efd5090e233f, type: 3}
+  whiteSprite: {fileID: 21300000, guid: aaad3e5c094782d4f8aa3ab47b2a8553, type: 3}
+  blackSprite: {fileID: 21300000, guid: af73c8305ef5ce74da4a775a892fa12b, type: 3}
 --- !u!1 &2029712915
 GameObject:
   m_ObjectHideFlags: 0
@@ -35542,7 +35617,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 28
+  m_RootOrder: 29
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.46551782, y: 0.266}
   m_AnchorMax: {x: 0.534482, y: 0.3426699}
@@ -35915,7 +35990,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 731895335}
-  m_RootOrder: 26
+  m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.223, y: 0.3462286}
   m_AnchorMax: {x: 0.7795148, y: 0.384504}
@@ -39594,6 +39669,8 @@ MonoBehaviour:
   g_SniperRifleController: {fileID: 693374674}
   h_CoreStimulusController: {fileID: 863535227}
   h_SkipStimulusController: {fileID: 1170684014}
+  h_ShootingStimulusController: {fileID: 2025750672}
+  h_EnemyArea: {fileID: 656018294}
   h_CoreCommandArea: {fileID: 831935734}
   h_SkipCommandArea: {fileID: 1855354020}
   h_ShootCommandArea: {fileID: 1145383926}

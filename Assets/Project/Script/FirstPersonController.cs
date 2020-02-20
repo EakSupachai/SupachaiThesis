@@ -14,6 +14,8 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] SniperRifleController g_SniperRifleController;
     [SerializeField] SSVEPStimulusController h_CoreStimulusController;
     [SerializeField] SSVEPStimulusController h_SkipStimulusController;
+    [SerializeField] SSVEPStimulusController h_ShootingStimulusController;
+    [SerializeField] Image h_EnemyArea;
     [SerializeField] Image h_CoreCommandArea;
     [SerializeField] Image h_SkipCommandArea;
     [SerializeField] Image h_ShootCommandArea;
@@ -134,6 +136,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeAimCommandAreaCorners = new Vector3[4];
+    private Vector3[] enemyAreaCorners = new Vector3[4];
     private Vector3[] coreCommandStimulusAreaCorners = new Vector3[4];
     private Vector3[] skipCommandStimulusAreaCorners = new Vector3[4];
     private Vector3[] shootCommandStimulusAreaCorners = new Vector3[4];
@@ -314,9 +317,10 @@ public class FirstPersonController : MonoBehaviour
         bool blinkToChangeGun = false;
         bool blinkToUseSkill = false;
         bool blinkToChangeMode = false;
+        bool gazeInEnemyArea = false;
         bool gazeInCoreStimulus = false;
         bool gazeInSkipStimulus = false;
-        bool gazeInEnemyStimulus = false;
+        bool gazeInShootingStimulus = false;
         bool gazeToActivateCoreCommand = false;
         bool gazeToActivateSkipCommand = false;
         bool gazeToActivateShootCommand = false;
@@ -328,10 +332,11 @@ public class FirstPersonController : MonoBehaviour
         if (eyeTrackerRunning)
         {
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            gazeInEnemyArea = IsPointInArea(gazePoint, enemyAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
-            gazeInEnemyStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
-            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus);
+            gazeInShootingStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
+            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus, gazeInShootingStimulus);
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -398,8 +403,8 @@ public class FirstPersonController : MonoBehaviour
             }
             else if (!ssvepRunning)
             {
-                bool tempGazeInEnemyStimulus = gazeInEnemyStimulus && isCurrentEnemyNotNull;
-                if (gazeInCoreStimulus || gazeInSkipStimulus || tempGazeInEnemyStimulus)
+                bool tempGazeInShootingStimulus = gazeInShootingStimulus && isCurrentEnemyNotNull;
+                if (gazeInCoreStimulus || gazeInSkipStimulus || tempGazeInShootingStimulus)
                 {
                     stimulusGazeDuration += unscaledDeltaTime;
                     if (stimulusGazeDuration >= EyeTrackerController.GetValidGazeDuration())
@@ -412,7 +417,7 @@ public class FirstPersonController : MonoBehaviour
                         {
                             gazeToActivateSkipCommand = true;
                         }
-                        else if (tempGazeInEnemyStimulus)
+                        else if (tempGazeInShootingStimulus)
                         {
                             gazeToActivateShootCommand = true;
                         }
@@ -425,7 +430,8 @@ public class FirstPersonController : MonoBehaviour
             }
             else if (ssvepRunning && (classifying || calibrating))
             {
-                bool tempGazeInEnemyStimulus = gazeInEnemyStimulus && isCurrentEnemyNotNull;
+                bool tempGazeInEnemyArea = gazeInEnemyArea && isCurrentEnemyNotNull;
+                bool tempGazeInShootingStimulus = gazeInShootingStimulus && isCurrentEnemyNotNull;
                 if (gazeInCoreStimulus)
                 {
                     CurrentGazeZoneSetter("CORE", unscaledDeltaTime);
@@ -434,7 +440,11 @@ public class FirstPersonController : MonoBehaviour
                 {
                     CurrentGazeZoneSetter("SKIP", unscaledDeltaTime);
                 }
-                else if (tempGazeInEnemyStimulus)
+                else if (tempGazeInShootingStimulus)
+                {
+                    CurrentGazeZoneSetter("SHOOT", unscaledDeltaTime);
+                }
+                else if (tempGazeInEnemyArea)
                 {
                     CurrentGazeZoneSetter("ENEMY", unscaledDeltaTime);
                 }
@@ -491,7 +501,7 @@ public class FirstPersonController : MonoBehaviour
                                 gazeToActivateSkipCommand = true;
                                 gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
                             }
-                            else if (tempGazeInEnemyStimulus && currentGazeZone == "ENEMY")
+                            else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT")
                             {
                                 gazeToActivateShootCommand = true;
                                 gameController.UpdateSsvepShootCommandDelay(stimulusGazeDuration);
@@ -524,7 +534,7 @@ public class FirstPersonController : MonoBehaviour
                                 gazeToActivateSkipCommand = true;
                                 gameController.UpdateAccCommandDelay(stimulusGazeDuration);
                             }
-                            else if (tempGazeInEnemyStimulus && currentGazeZone == "ENEMY")
+                            else if (tempGazeInEnemyStimulus && currentGazeZone == "SHOOT")
                             {
                                 gazeToActivateShootCommand = true;
                                 gameController.UpdateAccCommandDelay(stimulusGazeDuration);
@@ -534,7 +544,7 @@ public class FirstPersonController : MonoBehaviour
                     }
                     else if (calibrating)
                     {
-                        if (gazeInCoreStimulus || gazeInSkipStimulus || tempGazeInEnemyStimulus)
+                        if (gazeInCoreStimulus || gazeInSkipStimulus || tempGazeInShootingStimulus || tempGazeInEnemyArea)
                         {
                             stimulusGazeDuration += unscaledDeltaTime;
                         }
@@ -558,7 +568,7 @@ public class FirstPersonController : MonoBehaviour
                                 gameController.IncreaseObjectiveCounter("STEP6_2", 2);
                                 gameController.IncreaseObjectiveCounter("STEP9_2", 2);
                             }
-                            else if (tempGazeInEnemyStimulus)
+                            else if (tempGazeInShootingStimulus)
                             {
                                 if (gameController.CanShootEnemy())
                                 {
@@ -566,10 +576,10 @@ public class FirstPersonController : MonoBehaviour
                                     gameController.IncreaseObjectiveCounter("STEP7_2", 1);
 
                                 }
-                                else
-                                {
-                                    gameController.IncreaseObjectiveCounter("STEP4_2", 3);
-                                }
+                            }
+                            else if (tempGazeInEnemyArea)
+                            {
+                                gameController.IncreaseObjectiveCounter("STEP4_2", 3);
                             }
                             stimulusGazeDuration = 0f;
                         }
@@ -1385,9 +1395,11 @@ public class FirstPersonController : MonoBehaviour
     private bool coreStimulusFadingOut;
     private bool skipStimulusFadingIn;
     private bool skipStimulusFadingOut;
-    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus)
+    private bool shootingStimulusFadingIn;
+    private bool shootingStimulusFadingOut;
+    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus, bool gazeInShootingStimulus)
     {
-        if ((gazeInCoreStimulus || gazeInSkipStimulus) && !highlightOn && !highlightingStimulus)
+        if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && !highlightOn && !highlightingStimulus)
         {
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
@@ -1398,22 +1410,29 @@ public class FirstPersonController : MonoBehaviour
             highlightStartTime = Time.time;
             highlightingStimulus = true;
             turningOffHighlight = false;
+            coreStimulusFadingIn = false;
+            coreStimulusFadingOut = true;
+            skipStimulusFadingIn = false;
+            skipStimulusFadingOut = true;
+            shootingStimulusFadingIn = false;
+            shootingStimulusFadingOut = true;
             if (gazeInCoreStimulus)
             {
                 coreStimulusFadingIn = true;
                 coreStimulusFadingOut = false;
-                skipStimulusFadingIn = false;
-                skipStimulusFadingOut = true;
-            }
+}
             else if (gazeInSkipStimulus)
             {
-                coreStimulusFadingIn = false;
-                coreStimulusFadingOut = true;
                 skipStimulusFadingIn = true;
                 skipStimulusFadingOut = false;
             }
+            else if (gazeInShootingStimulus)
+            {
+                shootingStimulusFadingIn = true;
+                shootingStimulusFadingOut = false;
+            }
         }
-        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && (highlightingStimulus || highlightOn))
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && (highlightingStimulus || highlightOn))
         {
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
@@ -1429,22 +1448,31 @@ public class FirstPersonController : MonoBehaviour
             coreStimulusFadingOut = false;
             skipStimulusFadingIn = true;
             skipStimulusFadingOut = false;
+            shootingStimulusFadingIn = true;
+            shootingStimulusFadingOut = false;
         }
-        else if ((gazeInCoreStimulus || gazeInSkipStimulus) && (highlightOn || highlightingStimulus))
+        else if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && (highlightOn || highlightingStimulus))
         {
+            coreStimulusFadingIn = false;
+            coreStimulusFadingOut = true;
+            skipStimulusFadingIn = false;
+            skipStimulusFadingOut = true;
+            shootingStimulusFadingIn = false;
+            shootingStimulusFadingOut = true;
             if (gazeInCoreStimulus && !coreStimulusFadingIn)
             {
                 coreStimulusFadingIn = true;
                 coreStimulusFadingOut = false;
-                skipStimulusFadingIn = false;
-                skipStimulusFadingOut = true;
             }
             else if (gazeInSkipStimulus && !skipStimulusFadingIn)
             {
-                coreStimulusFadingIn = false;
-                coreStimulusFadingOut = true;
                 skipStimulusFadingIn = true;
                 skipStimulusFadingOut = false;
+            }
+            else if (gazeInShootingStimulus && !shootingStimulusFadingIn)
+            {
+                shootingStimulusFadingIn = true;
+                shootingStimulusFadingOut = false;
             }
         }
         if (highlightingStimulus && !highlightOn)
@@ -1595,6 +1623,48 @@ public class FirstPersonController : MonoBehaviour
             if (!nanCheck)
             {
                 h_SkipStimulusController.SetAlpha(skipStimulusStartAlpha - aMinus);
+            }
+        }
+        if (shootingStimulusFadingIn && !shootingStimulusFadingOut)
+        {
+            float aPlus = 0f;
+            float maxAPlus = 1f - skipStimulusStartAlpha;
+            aPlus = (Time.time - highlightStartTime) * maxAPlus / highlightDuration;
+            bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
+            if (aPlus >= maxAPlus)
+            {
+                shootingStimulusFadingIn = false;
+                aPlus = maxAPlus;
+            }
+            else if (nanCheck)
+            {
+                shootingStimulusFadingIn = false;
+                h_ShootingStimulusController.SetAlpha(1f);
+            }
+            if (!nanCheck)
+            {
+                h_ShootingStimulusController.SetAlpha(skipStimulusStartAlpha + aPlus);
+            }
+        }
+        else if (!shootingStimulusFadingIn && shootingStimulusFadingOut)
+        {
+            float aMinus = 0f;
+            float maxAMinus = skipStimulusStartAlpha - 0.2f;
+            aMinus = (Time.time - highlightStartTime) * maxAMinus / highlightDuration;
+            bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
+            if (aMinus >= maxAMinus)
+            {
+                shootingStimulusFadingOut = false;
+                aMinus = maxAMinus;
+            }
+            else if (nanCheck)
+            {
+                shootingStimulusFadingOut = false;
+                h_ShootingStimulusController.SetAlpha(0.2f);
+            }
+            if (!nanCheck)
+            {
+                h_ShootingStimulusController.SetAlpha(skipStimulusStartAlpha - aMinus);
             }
         }
     }
@@ -1756,6 +1826,7 @@ public class FirstPersonController : MonoBehaviour
         h_GunAndSkillCommandArea.rectTransform.GetWorldCorners(gunAndSkillCommandAreaCorners);
         h_GunModeCommandArea.rectTransform.GetWorldCorners(gunModeCommandAreaCorners);
         h_GunModeAimCommandArea.rectTransform.GetWorldCorners(gunModeAimCommandAreaCorners);
+        h_EnemyArea.rectTransform.GetWorldCorners(enemyAreaCorners);
         h_CoreCommandArea.rectTransform.GetWorldCorners(coreCommandStimulusAreaCorners);
         h_SkipCommandArea.rectTransform.GetWorldCorners(skipCommandStimulusAreaCorners);
         h_ShootCommandArea.rectTransform.GetWorldCorners(shootCommandStimulusAreaCorners);
@@ -1780,6 +1851,11 @@ public class FirstPersonController : MonoBehaviour
         gunModeAimCommandAreaCorners[1].y = windowHeight - gunModeAimCommandAreaCorners[1].y;
         gunModeAimCommandAreaCorners[2].y = windowHeight - gunModeAimCommandAreaCorners[2].y;
         gunModeAimCommandAreaCorners[3].y = windowHeight - gunModeAimCommandAreaCorners[3].y;
+
+        enemyAreaCorners[0].y = windowHeight - enemyAreaCorners[0].y;
+        enemyAreaCorners[1].y = windowHeight - enemyAreaCorners[1].y;
+        enemyAreaCorners[2].y = windowHeight - enemyAreaCorners[2].y;
+        enemyAreaCorners[3].y = windowHeight - enemyAreaCorners[3].y;
 
         coreCommandStimulusAreaCorners[0].y = windowHeight - coreCommandStimulusAreaCorners[0].y;
         coreCommandStimulusAreaCorners[1].y = windowHeight - coreCommandStimulusAreaCorners[1].y;
