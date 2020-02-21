@@ -1776,6 +1776,10 @@ public class FirstPersonController : MonoBehaviour
             unscaledDeltaTime = Time.deltaTime / Time.timeScale;
             unscaledAccTime += unscaledDeltaTime;
             alpha = 1f - (unscaledAccTime / fadeOutTime);
+            if (fadeOutTime - unscaledAccTime < unscaledDeltaTime * 2f)
+            {
+                s_AutoCommandTrigger = true;
+            }
             if (!useSavedAlpha)
             {
                 savedSkillFlashAlpha = alpha;
@@ -1817,10 +1821,6 @@ public class FirstPersonController : MonoBehaviour
         if (!GameController.IsInWaveCompletedState())
         {
             Time.timeScale = GameController.defaultTimeScale;
-        }
-        if (s_UsingSkill && !cantUseSkill)
-        {
-            s_AutoCommandTrigger = true;
         }
         s_UsingSkill = false;
         s_CancellingSkill = false;
