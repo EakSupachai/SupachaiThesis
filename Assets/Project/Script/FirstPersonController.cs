@@ -160,8 +160,8 @@ public class FirstPersonController : MonoBehaviour
     private bool turningOffHighlight;
     private bool highlightOn;
     private float highlightDuration;
-    private float highlightDefaultDuration = 0.075f;
-    private float turnOffDefaultDuration = 0.1f;
+    private float highlightDefaultDuration = 0.2f;
+    private float turnOffDefaultDuration = 0.15f;
     private float highlightStartFocus;
     private float highlightDefaultStartFocus = 4f;
     private float highlightStartAlpha;
