@@ -116,6 +116,7 @@ public class FirstPersonController : MonoBehaviour
     private Image s_SkillCooldownOverlay;
     private bool s_UsingSkill;
     private bool s_CancellingSkill;
+    private bool s_AutoCommandTrigger;
     private float s_SkillAvailableTime;
     private float s_SkillTimeOut;
     private float s_SkillCooldownBonus;
@@ -483,7 +484,7 @@ public class FirstPersonController : MonoBehaviour
                         {
                             ssvepReceived = tempGazeInCoreStimulus ? previousSsvepInput : false;
                         }
-                        if (ssvepReceived)
+                        if (ssvepReceived || s_AutoCommandTrigger)
                         {
 
                             if (tempGazeInCoreStimulus)
@@ -606,6 +607,7 @@ public class FirstPersonController : MonoBehaviour
                 skipPressDuration = 0f;
             }
         }
+        s_AutoCommandTrigger = false;
 
         // rotate view & scope kick
         float defaultTimeScale = GameController.defaultTimeScale;
@@ -1812,12 +1814,16 @@ public class FirstPersonController : MonoBehaviour
             s_SkillUseEffect.color = color;
             yield return null;
         }
-        s_UsingSkill = false;
-        s_CancellingSkill = false;
         if (!GameController.IsInWaveCompletedState())
         {
             Time.timeScale = GameController.defaultTimeScale;
         }
+        if (s_UsingSkill && !cantUseSkill)
+        {
+            s_AutoCommandTrigger = true;
+        }
+        s_UsingSkill = false;
+        s_CancellingSkill = false;
         StartCoroutine(ReduceSkillOverlay());
     }
 
