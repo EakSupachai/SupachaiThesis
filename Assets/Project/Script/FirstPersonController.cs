@@ -1405,7 +1405,7 @@ public class FirstPersonController : MonoBehaviour
         highlightAccTime += unscaledTimer;
         if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && !highlightOn && !highlightingStimulus)
         {
-            if (!highlightOn && !highlightingStimulus && unhighlightCountdown > 0)
+            if (!highlightOn && !highlightingStimulus && !turningOffHighlight && unhighlightCountdown > 0)
             {
                 unhighlightCountdown -= unscaledTimer;
                 return;
