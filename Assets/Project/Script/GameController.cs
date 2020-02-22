@@ -76,8 +76,8 @@ public class GameController : MonoBehaviour
     public static bool pause;
     public static bool gameOver;
     public static bool openSaveStat;
-    public static float defaultTimeScale;
-    public static float slowedTimeScale;
+    public static float defaultTimeScale = 1f;
+    public static float slowedTimeScale = 0.16f;
 
     private bool stateStarted;
     private float currentStateDuration;
@@ -179,15 +179,13 @@ public class GameController : MonoBehaviour
         gameOver = false;
         openSaveStat = false;
         LockCursor();
-        defaultTimeScale = 1f;
-        slowedTimeScale = 0.075f;
         Time.timeScale = defaultTimeScale;
 
         currentState = "START";
         startDuration = 5.9f;
         instructionDuration = 4.25f;
         waitingDuration = 10.9f;
-        waveDuration = 30.9f;
+        waveDuration = 20.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -402,7 +400,7 @@ public class GameController : MonoBehaviour
                     // currentState = "STEP1_2 INS";
                     // choose this if want to skip step 1
                     nextWave++;
-                    currentState = "STEP2_2 INS";
+                    currentState = "STEP4_2 INS";
                     ////////////////////////////////
                     player.StopSkipStimulus();
                 }
@@ -426,28 +424,40 @@ public class GameController : MonoBehaviour
                 CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP4_2 INS");
                 break;
             case "STEP4_2 INS":
-                CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus.", true);
+                CalibrationInsStepHandler("Step 1:\nLook at the enemies through the scope.\nDon't pay attention to the stimulus and try not to move the crosshair.", true);
                 break;
             case "STEP4_2":
-                CalibrationStepHandler(8, "Look at the enemies through the scope.\nDon't pay attention to the stimulus.", true, false, "", "Wait for the enemy to hit the core.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nDon't pay attention to the stimulus and\ntry not to move the crosshair.", true, false, "", "Wait for the enemy to hit the core.");
                 break;
             case "STEP5_2 INS":
-                CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
+                CalibrationInsStepHandler("Step 2:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP5_2");
                 break;
             case "STEP5_2":
-                CalibrationStepHandler(1, "Look at the core and\npay attention to the stimulus.", false, false, "STEP6_2 INS");
+                CalibrationStepHandler(1, "\nLook at the core and\npay attention to the stimulus.", false, false, "STEP6_2 INS");
                 break;
             case "STEP6_2 INS":
-                CalibrationInsStepHandler("Step 6:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP6_2");
+                CalibrationInsStepHandler("Step 3:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP6_2");
                 break;
             case "STEP6_2":
-                CalibrationStepHandler(1, "Pay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP7_2 INS");
+                CalibrationStepHandler(1, "\nPay attention to the stimulus\nat the buttom of the screen.", false, true, "STEP7_2 INS");
                 break;
             case "STEP7_2 INS":
-                CalibrationInsStepHandler("Step 7:\nLook at the enemies through the scope.\nPay attention to the stimulus.", false);
+                CalibrationInsStepHandler("Step 4:\nLook at the enemies through the scope.\nPay attention to the stimulus and try not to move the crosshair.", false);
                 break;
             case "STEP7_2":
-                CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus.");
+                CalibrationStepHandler(8, "Look at the enemies through the scope.\nPay attention to the stimulus and\ntry not to move the crosshair.");
+                break;
+            case "STEP8_2 INS":
+                CalibrationInsStepHandler("Step 5:\nLook at the core and pay attention to the stimulus.\n", false, false, "STEP8_2");
+                break;
+            case "STEP8_2":
+                CalibrationStepHandler(1, "\nLook at the core and\npay attention to the stimulus.", false, false, "STEP9_2 INS");
+                break;
+            case "STEP9_2 INS":
+                CalibrationInsStepHandler("Step 6:\nPay attention to the stimulus\nat the buttom of the screen.", false, false, "STEP9_2");
+                break;
+            case "STEP9_2":
+                CalibrationStepHandler(1, "\nPay attention to the stimulus\nat the buttom of the screen.", false, true, "FINAL STEP");
                 break;
             /*case "STEP1 INS":
                 CalibrationInsStepHandler("Step 1:\nTry to walk around without blinking\nfor " + 
@@ -657,6 +667,10 @@ public class GameController : MonoBehaviour
                         {
                             currentState = "STEP5_2 INS";
                         }
+                        else if (nextWave == 4)
+                        {
+                            currentState = "STEP8_2 INS";
+                        }
                         else
                         {
                             currentState = "FINAL STEP";
@@ -814,6 +828,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        coreAudioSource.pitch = Time.timeScale == defaultTimeScale ? Time.timeScale : Time.timeScale + 0.08f;
     }
 
     private bool timesUpFlag;
@@ -880,8 +895,7 @@ public class GameController : MonoBehaviour
         objectiveCounter = 0;
         nextWave++;
     }
-
-    private List<GameObject> enemies = new List<GameObject>();
+    
     private int lastSpawnPointIndex = 0;
     private bool ProgressEnemyWave()
     {
@@ -979,7 +993,6 @@ public class GameController : MonoBehaviour
                     enemy = Instantiate(largeEnemy, spawnPoints[randInt].position, Quaternion.LookRotation(spawnPoints[randInt].position - core.transform.position));
                     enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[randInt].position);
                 }
-                enemies.Add(enemy);
             }
             else
             {
@@ -1066,59 +1079,10 @@ public class GameController : MonoBehaviour
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
                             maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
-                            enemies.Add(enemy);
                         }
                     }
                 }
             }
-        }
-
-        List<GameObject> enemiesInSight = new List<GameObject>();
-        for (int i = enemies.Count - 1; i >= 0; i--)
-        {
-            if (enemies[i] == null)
-            {
-                enemies.RemoveAt(i);
-            }
-            else
-            {
-                EnemyBehavior eb = enemies[i].GetComponent<EnemyBehavior>();
-                eb.TurnOffLockonCanvas();
-                if (eb.IsInLockedOnVicinity())
-                {
-                    enemiesInSight.Add(enemies[i]);
-                }
-            }
-        }
-        bool lockedTarget = false;
-        int lockedTargetIndex = 0;
-        if (enemiesInSight.Count == 1)
-        {
-            lockedTarget = true;
-            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
-        }
-        else if (enemiesInSight.Count > 1)
-        {
-            lockedTarget = true;
-            float smallestAngle = enemiesInSight[0].GetComponent<EnemyBehavior>().GetAngleToCamera();
-            for (int i = 1; i < enemiesInSight.Count; i++)
-            {
-                float angle = enemiesInSight[i].GetComponent<EnemyBehavior>().GetAngleToCamera();
-                if (angle < smallestAngle)
-                {
-                    lockedTargetIndex = i;
-                }
-            }
-        }
-        if (lockedTarget)
-        {
-            EnemyBehavior eb = enemiesInSight[lockedTargetIndex].GetComponent<EnemyBehavior>();
-            eb.TurnOnLockonCanvas();
-            player.SetLockonEnemy(eb);
-        }
-        else
-        {
-            player.ClearLockonEnemy();
         }
 
         if ((timesUpFlag && enemyOnScreen <= 0) || coreHp == 0f)
@@ -1187,7 +1151,8 @@ public class GameController : MonoBehaviour
         }
         coreHp = coreHp < 0f ? 0f : coreHp;
         coreHpBar.fillAmount = coreHp / coreFullHp;
-        Instantiate(coreDamagedAudioPrefab, transform.position, Quaternion.identity);
+        GameObject coreDamagedAudio = Instantiate(coreDamagedAudioPrefab, transform.position, Quaternion.identity);
+        coreDamagedAudio.GetComponent<AudioPrefabScript>().SetAddedPitch(0.24f);
     }
 
     public void IncreaseCoreHp(float stimulusGazeDuration = -1f)
@@ -1445,7 +1410,8 @@ public class GameController : MonoBehaviour
 
     public bool CanActivateLaserFence()
     {
-        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf)
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") 
+            && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf && Time.timeScale != defaultTimeScale)
         {
             if (waveDuration - currentStateDuration > 1.5f)
             {
@@ -1478,7 +1444,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-        else if ((currentState == "STEP3" || currentState == "STEP6" || currentState == "STEP2_2" || currentState == "STEP5_2") && stateStarted)
+        else if ((currentState == "STEP3" || currentState == "STEP6" || currentState == "STEP2_2" || currentState == "STEP5_2" || currentState == "STEP8_2") && stateStarted)
         {
             return true;
         }
@@ -1492,6 +1458,15 @@ public class GameController : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    public bool CanUseSkill()
+    {
+        if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3" || currentState == "STEP1_2" || currentState == "STEP4_2" || currentState == "STEP7_2") && stateStarted)
+        {
+            return true;
+        }
+        return false;
     }
 
     public Vector3 GetPlayerCameraPosition()

@@ -10,7 +10,6 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private int score = 100;
     [SerializeField] private float fullHp  = 15;
     [SerializeField] private float speed = 5;
-    [SerializeField] private float freezeTime = 7f;
     [SerializeField] private float explosionScale = 1f;
     [SerializeField] private bool isRedType;
     [SerializeField] private Material redTypeMaterial;
@@ -23,30 +22,20 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private GameObject scoreCanvas;
     [SerializeField] private Canvas hpCanvas;
     [SerializeField] private Image hpBar;
-    [SerializeField] private Image freezeBar;
-    [SerializeField] private Canvas lockonCanvas;
     [SerializeField] private Sprite redHpBar;
     [SerializeField] private Sprite yellowHpBar;
 
     private bool flickering;
     private bool materialFlag;
     private bool forceFlag;
-    private bool freezing;
-    private bool fadeInFreezing;
-    private bool fadeInOuterFreezing;
-    private bool fadeOutOuterFreezing;
-    private bool fadeOutFreezing;
     private bool passedDecelerationPoint;
     private int frameCount;
     private int defaultLayer;
     private int eyeLayer;
     private float hp;
     private float fadeOutTime;
-    private float freezeStartTime;
-    private float freezeEffectFadeInTime;
-    private float freezeEffectFadeOutTime;
     private float forceMagnitude;
-    private float spawnTime;
+    private float accTravelTime;
     private float distanceToDestination;
     private float distanceToDeceleration;
     private GameController gameController;
@@ -54,13 +43,9 @@ public class EnemyBehavior : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 destinationPosition;
     private Vector3 decelerationPosition;
-    private GameObject freezeEffect;
-    private GameObject outerFreezeEffect;
     private Transform frontImpactPoint;
     private Transform backImpactPoint;
     private Transform scoreSpawnPoint;
-    private ParticleSystem freezeEffectParticle;
-    private ParticleSystem outerFreezeEffectParticle;
     private Vector3 forceDirection;
     private Vector3 forcePosition;
     private MeshRenderer bodyMeshRenderer;
@@ -77,25 +62,15 @@ public class EnemyBehavior : MonoBehaviour
         eyeLayer = LayerMask.NameToLayer("PostProcessing");
         hp = fullHp;
         fadeOutTime = 0.5f;
-        freezeEffectFadeInTime = 0.034f;
-        freezeEffectFadeOutTime = 0.6f;
         forceMagnitude = 100f;
-        spawnTime = Time.time;
         startPosition = transform.position;
         destinationPosition = new Vector3(0f, 15f, 0f);
-        freezeEffect = transform.Find("FreezeEffect").gameObject;
-        freezeEffect.SetActive(false);
-        freezeEffectParticle = freezeEffect.GetComponent<ParticleSystem>();
-        outerFreezeEffect = transform.Find("OuterFreezeEffect").gameObject;
-        outerFreezeEffect.SetActive(false);
-        outerFreezeEffectParticle = outerFreezeEffect.GetComponent<ParticleSystem>();
         frontImpactPoint = transform.Find("FrontImpactPoint");
         backImpactPoint = transform.Find("BackImpactPoint");
         scoreSpawnPoint = transform.Find("ScoreSpawnPoint");
         meshRenderers = new List<MeshRenderer>();
         defaultMaterials = new List<Material>();
         thrusts = new List<ParticleSystemRenderer>();
-        lockonCanvas.gameObject.SetActive(false);
 
         foreach (Transform child in transform)
         {
@@ -137,61 +112,29 @@ public class EnemyBehavior : MonoBehaviour
         {
             audioSource.UnPause();
         }
-        audioSource.pitch = Time.timeScale == 1f ? 1f : Time.timeScale + 0.15f;
+        audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? Time.timeScale : Time.timeScale + 0.08f;
+        accTravelTime += Time.timeScale == GameController.defaultTimeScale ? Time.deltaTime : (Time.deltaTime * 6f / 10f);
 
         // Rotate canvas
         Vector3 canvasDirection = transform.position - gameController.GetPlayerCameraPosition();
         canvasDirection.y = 0f;
         hpCanvas.transform.rotation = Quaternion.LookRotation(canvasDirection);
-        if (lockonCanvas.gameObject.activeSelf)
-        {
-            lockonCanvas.transform.rotation = Quaternion.LookRotation(canvasDirection);
-        }
         hpBar.fillAmount = hp / fullHp;
-        if (freezing)
-        {
-            float remainingFreezeTime = freezeTime - (Time.time - freezeStartTime);
-            freezeBar.fillAmount = remainingFreezeTime / freezeTime;
-        }
-        else
-        {
-            freezeBar.fillAmount = 0f;
-        }
-
 
         if (!IsDestroyed() && decelerationPosition != Vector3.zero)
         {
-            float timePassed = Time.time - spawnTime;
             float distanceRatio = 0f;
             if (passedDecelerationPoint)
             {
-                distanceRatio = (speed * timePassed) / distanceToDestination;
+                distanceRatio = (speed * accTravelTime) / distanceToDestination;
                 distanceRatio = distanceRatio > 1f ? 1 : distanceRatio;
-                if (!freezing)
-                {
-                    transform.position = Vector3.Lerp(decelerationPosition, destinationPosition, distanceRatio);
-                }
-                else
-                {
-                    decelerationPosition = transform.position;
-                    distanceToDestination = Vector3.Distance(decelerationPosition, destinationPosition);
-                    spawnTime = Time.time;
-                }
+                transform.position = Vector3.Lerp(decelerationPosition, destinationPosition, distanceRatio);
             }
             else
             {
-                distanceRatio = (speed * timePassed * 10f) / distanceToDeceleration;
+                distanceRatio = (speed * accTravelTime * 10f) / distanceToDeceleration;
                 distanceRatio = distanceRatio > 1f ? 1 : distanceRatio;
-                if (!freezing)
-                {
-                    transform.position = Vector3.Lerp(startPosition, decelerationPosition, distanceRatio);
-                }
-                else
-                {
-                    startPosition = transform.position;
-                    distanceToDeceleration = Vector3.Distance(startPosition, decelerationPosition);
-                    spawnTime = Time.time;
-                }
+                transform.position = Vector3.Lerp(startPosition, decelerationPosition, distanceRatio);
             }
         }
         if (flickering)
@@ -227,74 +170,6 @@ public class EnemyBehavior : MonoBehaviour
             }
             frameCount++;
         }
-        if ((freezing && Time.time - freezeStartTime > freezeTime) || IsDestroyed())
-        {
-            if (IsDestroyed())
-            {
-                freezeEffect.SetActive(false);
-                outerFreezeEffect.SetActive(false);
-            }
-            else
-            {
-                freezing = false;
-                fadeInFreezing = false;
-                fadeOutFreezing = true;
-                freezeStartTime = Time.time;
-            }
-        }
-        else if ((freezing && fadeInFreezing) || (!freezing && fadeOutFreezing))
-        {
-            var mm = freezeEffectParticle.main;
-            var omm = outerFreezeEffectParticle.main;
-            float alpha = 0f;
-            Color color;
-            if (fadeInFreezing && !fadeOutFreezing)
-            {
-                if (fadeInOuterFreezing)
-                {
-                    alpha = (Time.time - freezeStartTime) / freezeEffectFadeInTime;
-                    if (alpha >= 1f)
-                    {
-                        alpha = 1f;
-                        fadeInOuterFreezing = false;
-                        fadeOutOuterFreezing = true;
-                        freezeStartTime = Time.time;
-                    }
-                    color = new Color(0.7843137f, 1f, 1f, alpha);
-                    omm.startColor = new ParticleSystem.MinMaxGradient(color);
-                    color = new Color(0.2078431f, 0.9686275f, 1f, alpha);
-                    mm.startColor = new ParticleSystem.MinMaxGradient(color);
-                }
-                else if (fadeOutOuterFreezing)
-                {
-                    alpha = 1f - ((Time.time - freezeStartTime) / freezeEffectFadeOutTime);
-                    if (alpha <= 0f)
-                    {
-                        alpha = 0f;
-                        fadeInFreezing = false;
-                        fadeOutOuterFreezing = false;
-                    }
-                    color = new Color(0.7843137f, 1f, 1f, alpha);
-                    omm.startColor = new ParticleSystem.MinMaxGradient(color);
-                    if (alpha <= 0f)
-                    {
-                        outerFreezeEffect.SetActive(false);
-                    }
-                }
-            }
-            else if (!fadeInFreezing && fadeOutFreezing)
-            {
-                alpha = 1f - ((Time.time - freezeStartTime) / freezeEffectFadeOutTime);
-                if (alpha <= 0f)
-                {
-                    alpha = 0f;
-                    fadeOutFreezing = false;
-                    freezeEffect.SetActive(false);
-                }
-                color = new Color(0.2078431f, 0.9686275f, 1f, alpha);
-                mm.startColor = new ParticleSystem.MinMaxGradient(color);
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -323,7 +198,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         else if (other.gameObject.tag == "Deceleration Point")
         {
-            spawnTime = Time.time;
+            accTravelTime = 0f;
             passedDecelerationPoint = true;
         }
         else if (other.gameObject.tag == "Enemy")
@@ -382,7 +257,6 @@ public class EnemyBehavior : MonoBehaviour
         StopFlickering();
         audioSource.Pause();
         hpCanvas.gameObject.SetActive(false);
-        lockonCanvas.gameObject.SetActive(false);
         gameController.RemoveEnemyOnScreen();
         if (addScore)
         {
@@ -396,6 +270,7 @@ public class EnemyBehavior : MonoBehaviour
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
         explosion.transform.localScale = new Vector3(explosionScale, explosionScale, explosionScale);
+        explosionAudio.GetComponent<AudioPrefabScript>().SetAddedPitch(0.24f);
         Destroy(explosion, 5f);
         Destroy(explosionAudio, 2f);
         body.useGravity = true;
@@ -507,24 +382,6 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    public void Freeze()
-    {
-        freezing = true;
-        fadeInFreezing = true;
-        fadeInOuterFreezing = true;
-        fadeOutFreezing = false;
-        fadeOutOuterFreezing = false;
-        freezeStartTime = Time.time;
-        freezeEffect.SetActive(true);
-        outerFreezeEffect.SetActive(true);
-        var mm = freezeEffectParticle.main;
-        Color color = new Color(0.2078431f, 0.9686275f, 1f, 0f);
-        mm.startColor = new ParticleSystem.MinMaxGradient(color);
-        var omm = outerFreezeEffectParticle.main;
-        color = new Color(0.7843137f, 1f, 1f, 0f);
-        omm.startColor = new ParticleSystem.MinMaxGradient(color);
-    }
-
     public void StartFlickering()
     {
         if (!IsDestroyed() && !flickering)
@@ -601,48 +458,8 @@ public class EnemyBehavior : MonoBehaviour
         hpBar.sprite = isRedType ? redHpBar : yellowHpBar;
     }
 
-    private float angleToCamera = 0f;
-
-    public bool IsInLockedOnVicinity()
-    {
-        if (IsDestroyed())
-        {
-            return false;
-        }
-        Vector3 playerPosition = gameController.GetPlayerCameraPosition();
-        Vector3 enemyDirection = transform.position - gameController.GetPlayerCameraPosition();
-        angleToCamera = Vector3.Angle(gameController.GetPlayerLookingDirection(), enemyDirection);
-        if (angleToCamera <= 20f)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(playerPosition, enemyDirection, out hit))
-            {
-                if (hit.transform.gameObject.tag == "Enemy")
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public float GetAngleToCamera()
-    {
-        return angleToCamera;
-    }
-
     public int GetScore()
     {
         return score;
-    }
-
-    public void TurnOnLockonCanvas()
-    {
-        lockonCanvas.gameObject.SetActive(true);
-    }
-
-    public void TurnOffLockonCanvas()
-    {
-        lockonCanvas.gameObject.SetActive(false);
     }
 }

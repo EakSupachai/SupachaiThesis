@@ -10,6 +10,7 @@ public class AudioPrefabFadeOutScript : MonoBehaviour
     private float beginFadeOutTime;
     private float originalVolumn;
     private float decreaseVolumePerFrame;
+    private float addedPitch = 0.08f;
     private bool fadeOut;
 
     // Start is called before the first frame update
@@ -38,7 +39,7 @@ public class AudioPrefabFadeOutScript : MonoBehaviour
             }
         }
 
-        audioSource.pitch = Time.timeScale;
+        audioSource.pitch = Time.timeScale == GameController.defaultTimeScale ? Time.timeScale : Time.timeScale + addedPitch;
         if (fadeOut)
         {
             float volumn = audioSource.volume - decreaseVolumePerFrame;
@@ -66,5 +67,10 @@ public class AudioPrefabFadeOutScript : MonoBehaviour
             fadeOut = true;
             beginFadeOutTime = Time.time;
         }
+    }
+
+    public void SetAddedPitch(float pitch)
+    {
+        addedPitch = pitch;
     }
 }

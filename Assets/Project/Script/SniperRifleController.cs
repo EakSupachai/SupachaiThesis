@@ -68,7 +68,7 @@ public class SniperRifleController : GunController
             if (IsScopeActive())
             {
                 EnemyBehavior enemyBehavior = hit.transform.gameObject.GetComponent<EnemyBehavior>();
-                if (enemyBehavior != null && !enemyBehavior.IsDestroyed())
+                if (enemyBehavior != null && !enemyBehavior.IsDestroyed() && Time.timeScale != GameController.defaultTimeScale)
                 {
                     StartCrosshairFlickering();
                     if (currentEnemyBehavior == null)
@@ -178,7 +178,6 @@ public class SniperRifleController : GunController
     {
         scope.gameObject.SetActive(false);
         scopeCrosshair.gameObject.SetActive(false);
-        //crosshairStimulusController.StopFlickering();
         StopCrosshairFlickering();
         ClearEnemyBehavior();
     }
