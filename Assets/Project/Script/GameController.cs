@@ -1604,14 +1604,14 @@ public class GameController : MonoBehaviour
         double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
         return "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
-            "\nMax possible score:" + maximumScore +
+            "\nMax possible score: " + maximumScore +
             "\nScore percentage: " + scorePercentage +
             "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
             "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
             "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
             "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
             "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
-            "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg shoot SSVEP command delay: " + avgSsvepShootCommandDelay +
             "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
             "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
@@ -1680,14 +1680,14 @@ public class GameController : MonoBehaviour
         double avgSsvepCoreCommandDelay = ssvepCoreCommandCount == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / ssvepCoreCommandCount, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandCount == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / ssvepShootCommandCount, 3);
         string content = "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
-            "\nMax possible score:" + maximumScore +
+            "\nMax possible score: " + maximumScore +
             "\nScore percentage: " + scorePercentage +
             "\nEnemy spawn  Small: " + smallEnemySpawn + "  Medium: " + mediumEnemySpawn + "  Large: " + largeEnemySpawn +
             "\nEnemy miss  Small: " + smallEnemyMiss + "  Medium: " + mediumEnemyMiss + "  Large: " + largeEnemyMiss +
             "\nAR  Small: " + smallEnemyTakenOutByAR + "  Medium: " + mediumEnemyTakenOutByAR + "  Large: " + largeEnemyTakenOutByAR +
             "\nSR  Small: " + smallEnemyTakenOutBySR + "  Medium: " + mediumEnemyTakenOutBySR + "  Large: " + largeEnemyTakenOutBySR +
             "\nLaser  Small: " + smallEnemyTakenOutByLaser + "  Medium: " + mediumEnemyTakenOutByLaser + "  Large: " + largeEnemyTakenOutByLaser +
-            "\nAvg shoot SSVEP command delay:" + avgSsvepShootCommandDelay +
+            "\nAvg shoot SSVEP command delay: " + avgSsvepShootCommandDelay +
             "\nAvg core SSVEP command delay: " + avgSsvepCoreCommandDelay +
             "\nAvg all SSVEP command delay: " + avgSsvepCommandDelay +
             "\nBlink inside HUD command count: " + blinkInsideHudCommandCount +
