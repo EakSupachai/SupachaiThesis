@@ -149,7 +149,8 @@ public class FirstPersonController : MonoBehaviour
     private float savedStimulusGazeDuration;
     private float stimulusNotGazeDuration;
     private float gazeShiftDuration;
-    private bool previousSsvepInput;
+    private int previousSsvepClass;
+    private bool previousSsvepReceived;
     // has 4 value: NONE, CORE, SKIP, ENEMY
     private string currentGazeZone = "NONE";
 
@@ -456,6 +457,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     if (classifying)
                     {
+                        int ssvepClass = 0;
                         bool ssvepReceived = false;
                         bool tempGazeInCoreStimulus = gazeInCoreStimulus && currentGazeZone == "CORE";
                         InputObject bciInput = InputUDP.GetNewBufferedInput();
@@ -477,17 +479,28 @@ public class FirstPersonController : MonoBehaviour
                             {
                                 InputUDP.ResetThreshold();
                             }
-                            ssvepReceived = isSSVEPdetected(bciInput);
-                            previousSsvepInput = ssvepReceived;
+                            ssvepClass = isSSVEPdetected(bciInput);
+                            ssvepReceived = ssvepClass != 0 ? true : false;
+                            previousSsvepClass = ssvepClass;
+                            previousSsvepReceived = ssvepReceived;
                         }
                         else
                         {
-                            ssvepReceived = tempGazeInCoreStimulus ? previousSsvepInput : false;
+                            if (tempGazeInCoreStimulus)
+                            {
+                                ssvepClass = previousSsvepClass;
+                                ssvepReceived = previousSsvepReceived;
+                            }
+                            else
+                            {
+                                ssvepClass = 0;
+                                ssvepReceived = false;
+                            }
                         }
                         if (ssvepReceived || s_AutoCommandTrigger)
                         {
 
-                            if (tempGazeInCoreStimulus)
+                            if (tempGazeInCoreStimulus && ssvepClass == 2)
                             {
                                 gazeToActivateCoreCommand = true;
                                 savedStimulusGazeDuration = stimulusGazeDuration;
@@ -496,12 +509,12 @@ public class FirstPersonController : MonoBehaviour
                                     gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
                                 }
                             }
-                            else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
+                            else if (gazeInSkipStimulus && currentGazeZone == "SKIP" && ssvepClass == 2)
                             {
                                 gazeToActivateSkipCommand = true;
                                 gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
                             }
-                            else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT")
+                            else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT" && ssvepClass == 1)
                             {
                                 gazeToActivateShootCommand = true;
                                 gameController.UpdateSsvepShootCommandDelay(stimulusGazeDuration);
@@ -1922,23 +1935,35 @@ public class FirstPersonController : MonoBehaviour
         return false;
     }
 
-    private bool isSSVEPdetected(InputObject inputObject)
+    private int isSSVEPdetected(InputObject inputObject)
     {
-        int ssvepCounter = 0;
+        int class1Counter = 0;
+        int class2Counter = 0;
         string input = inputObject.input;
         float grad1 = inputObject.grad1;
+        float grad2 = inputObject.grad2;
         for (int i = 0; i < input.Length; i++)
         {
             if (input[i].Equals('1'))
             {
-                ssvepCounter++;
+                class1Counter++;
+            }
+            else if (input[i].Equals('2'))
+            {
+                class2Counter++;
             }
         }
-        if (ssvepCounter >= InputUDP.GetThreshold() /*&& grad1 < 0f*/)
+        if (class1Counter >= InputUDP.GetThreshold() /*&& grad1 < 0f*/)
         {
-            return true;
+            // enemy class
+            return 1;
         }
-        return false;
+        else if (class2Counter >= InputUDP.GetThreshold() /*&& grad2 < 0f*/)
+        {
+            // core class
+            return 2;
+        }
+        return 0;
     }
     /*private bool isSSVEPdetected(string input)
     {
