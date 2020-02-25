@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,14 +19,6 @@ public class SaveStatInputManager : MonoBehaviour
         if (objectName == "FileNameInputField")
         {
             inputField.text = SaveStatInputRecorder.fileName;
-        }
-        else if (objectName == "ShootingInputField")
-        {
-            inputField.text = "" + SaveStatInputRecorder.shootFalseTrigger;
-        }
-        else if (objectName == "CoreInputField")
-        {
-            inputField.text = "" + SaveStatInputRecorder.coreFalseTrigger;
         }
         else if (objectName == "InsideHUDInputField")
         {
@@ -54,45 +44,19 @@ public class SaveStatInputManager : MonoBehaviour
                 SaveStatInputRecorder.fileName_recordValid = false;
             }
         }
-        else if (objectName == "ShootingInputField")
+        else if (objectName == "InsideHUDInputField")
         {
             if (Int32.TryParse(inputField.text, out parsedInt))
             {
                 if (parsedInt >= 0)
                 {
-                    SaveStatInputRecorder.shootFalseTrigger = parsedInt;
-                    SaveStatInputRecorder.shootFalseTrigger_recordValid = true;
+                    SaveStatInputRecorder.blinkInsideFalseTrigger = parsedInt;
+                    SaveStatInputRecorder.blinkInsideFalseTrigger_recordValid = true;
                 }
                 else
                 {
-                    SaveStatInputRecorder.shootFalseTrigger_recordValid = false;
+                    SaveStatInputRecorder.blinkInsideFalseTrigger_recordValid = false;
                 }
-            }
-            else
-            {
-                //error
-                SaveStatInputRecorder.shootFalseTrigger_recordValid = false;
-            }
-        }
-        else if (objectName == "CoreInputField")
-        {
-            if (Int32.TryParse(inputField.text, out parsedInt))
-            {
-                SaveStatInputRecorder.coreFalseTrigger = parsedInt;
-                SaveStatInputRecorder.coreFalseTrigger_recordValid = true;
-            }
-            else
-            {
-                //error
-                SaveStatInputRecorder.coreFalseTrigger_recordValid = false;
-            }
-        }
-        else if (objectName == "InsideHUDInputField")
-        {
-            if (Int32.TryParse(inputField.text, out parsedInt))
-            {
-                SaveStatInputRecorder.blinkInsideFalseTrigger = parsedInt;
-                SaveStatInputRecorder.blinkInsideFalseTrigger_recordValid = true;
             }
             else
             {
@@ -104,8 +68,15 @@ public class SaveStatInputManager : MonoBehaviour
         {
             if (Int32.TryParse(inputField.text, out parsedInt))
             {
-                SaveStatInputRecorder.blinkOutsideFalseTrigger = parsedInt;
-                SaveStatInputRecorder.blinkOutsideFalseTrigger_recordValid = true;
+                if (parsedInt >= 0)
+                {
+                    SaveStatInputRecorder.blinkOutsideFalseTrigger = parsedInt;
+                    SaveStatInputRecorder.blinkOutsideFalseTrigger_recordValid = true;
+                }
+                else
+                {
+                    SaveStatInputRecorder.blinkOutsideFalseTrigger_recordValid = false;
+                }
             }
             else
             {
@@ -113,8 +84,7 @@ public class SaveStatInputManager : MonoBehaviour
                 SaveStatInputRecorder.blinkOutsideFalseTrigger_recordValid = false;
             }
         }
-        if (!SaveStatInputRecorder.fileName_recordValid || !SaveStatInputRecorder.shootFalseTrigger_recordValid
-            || !SaveStatInputRecorder.coreFalseTrigger_recordValid || !SaveStatInputRecorder.blinkInsideFalseTrigger_recordValid
+        if (!SaveStatInputRecorder.fileName_recordValid || !SaveStatInputRecorder.blinkInsideFalseTrigger_recordValid
             || !SaveStatInputRecorder.blinkOutsideFalseTrigger_recordValid)
         {
             saveButton.interactable = false;
