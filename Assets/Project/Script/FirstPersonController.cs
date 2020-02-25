@@ -493,18 +493,18 @@ public class FirstPersonController : MonoBehaviour
                                 savedStimulusGazeDuration = stimulusGazeDuration;
                                 if (gameController.CanActivateLaserFence())
                                 {
-                                    gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
+                                    gameController.UpdateSsvepCoreCommandStat(ssvepReceived, stimulusGazeDuration);
                                 }
                             }
                             else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                             {
                                 gazeToActivateSkipCommand = true;
-                                gameController.UpdateSsvepCoreCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateSsvepCoreCommandStat(ssvepReceived, stimulusGazeDuration);
                             }
                             else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT")
                             {
                                 gazeToActivateShootCommand = true;
-                                gameController.UpdateSsvepShootCommandDelay(stimulusGazeDuration);
+                                gameController.UpdateSsvepShootCommandStat(ssvepReceived, stimulusGazeDuration);
                             }
                             stimulusGazeDuration = 0f;
                         }
@@ -607,7 +607,6 @@ public class FirstPersonController : MonoBehaviour
                 skipPressDuration = 0f;
             }
         }
-        s_AutoCommandTrigger = false;
 
         // rotate view & scope kick
         float defaultTimeScale = GameController.defaultTimeScale;
@@ -680,7 +679,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     fixingCoreAudioPrefab = Instantiate(f_FixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
                 }
-                gameController.IncreaseCoreHp(savedStimulusGazeDuration);
+                gameController.IncreaseCoreHp(savedStimulusGazeDuration, s_AutoCommandTrigger);
             }
             else
             {
@@ -724,6 +723,7 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
         }
+        s_AutoCommandTrigger = false;
 
         // change gun
         bool changeGunCommandIssued = eyeTrackerRunning ? (blinkToChangeGun && !g_Switching) : (Input.GetKeyDown(KeyCode.X) && !g_Switching);
