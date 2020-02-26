@@ -186,7 +186,7 @@ public class GameController : MonoBehaviour
         currentState = "START";
         startDuration = 5.9f;
         instructionDuration = 4.25f;
-        waitingDuration = 10.9f;
+        waitingDuration = 20.9f;
         waveDuration = 20.9f;
 
         wave1_minSpawnTime = 8f;
