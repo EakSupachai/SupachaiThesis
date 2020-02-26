@@ -1080,7 +1080,7 @@ public class GameController : MonoBehaviour
                                 enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
-                            maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
+                            maximumScore += (enemy.GetComponent<EnemyBehavior>().GetScore() + 50);
                         }
                     }
                 }
