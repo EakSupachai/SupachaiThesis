@@ -1550,18 +1550,19 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void UpdateSsvepShootCommandStat(bool success, float delay = 0f)
+    public void UpdateSsvepShootCommandStat(bool success, bool usedSkillWhenScoping, float delay = 0f)
     {
-        ssvepShootCommandCount++;
         if (success)
         {
+            ssvepShootCommandCount++;
             ssvepShootCommandSuccess++;
             lastSsvepCommandDelay = delay;
             totalSsvepCommandDelay += delay;
             totalSsvepShootCommandDelay += delay;
         }
-        else
+        else if (usedSkillWhenScoping)
         {
+            ssvepShootCommandCount++;
             lastSsvepCommandDelay = -1f;
         }
     }

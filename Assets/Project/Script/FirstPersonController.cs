@@ -117,6 +117,7 @@ public class FirstPersonController : MonoBehaviour
     private bool s_UsingSkill;
     private bool s_CancellingSkill;
     private bool s_AutoCommandTrigger;
+    private bool s_UsedSkillWhenScoping;
     private float s_SkillAvailableTime;
     private float s_SkillTimeOut;
     private float s_UseSkillFadeInTime;
@@ -503,7 +504,7 @@ public class FirstPersonController : MonoBehaviour
                             else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT")
                             {
                                 gazeToActivateShootCommand = true;
-                                gameController.UpdateSsvepShootCommandStat(ssvepReceived, stimulusGazeDuration);
+                                gameController.UpdateSsvepShootCommandStat(ssvepReceived, s_UsedSkillWhenScoping, stimulusGazeDuration);
                             }
                             stimulusGazeDuration = 0f;
                         }
@@ -651,7 +652,15 @@ public class FirstPersonController : MonoBehaviour
             else if (!s_UsingSkill && Time.time > s_SkillAvailableTime && s_SkillAvailableTime >= 0f)
             {
                 s_SkillAvailableTime = -1f;
-                skillEffectCoroutine = gameController.CanUseSkill() ? FlashSkillEffect(true) : FlashSkillEffect(true, false, true, false, false);
+                if (gameController.CanUseSkill())
+                {
+                    s_UsedSkillWhenScoping = scoping ? true : false;
+                    skillEffectCoroutine = FlashSkillEffect(true);
+                }
+                else
+                {
+                    skillEffectCoroutine = FlashSkillEffect(true, false, true, false, false);
+                }
                 StartCoroutine(skillEffectCoroutine);
             }
         }
@@ -1697,7 +1706,7 @@ public class FirstPersonController : MonoBehaviour
 
     private float savedSkillFlashAlpha;
     private GameObject savedSkillFlashAudioPrefab;
-    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false, bool cantUseSkill = false, bool mute = false, bool useFullCooldown = true)
+    private IEnumerator FlashSkillEffect(bool useSkill, bool useSavedAlpha = false, bool cantUseSkill = false, bool mute = false, bool autoTrigger = true)
     {
         s_SkillAvailableTime = -1f;
         float fadeInTime = 0f;
@@ -1802,7 +1811,7 @@ public class FirstPersonController : MonoBehaviour
         }
         s_UsingSkill = false;
         s_CancellingSkill = false;
-        StartCoroutine(ReduceSkillOverlay(useFullCooldown));
+        StartCoroutine(ReduceSkillOverlay(autoTrigger));
     }
 
     private IEnumerator ReduceSkillOverlay(bool useFullCooldown)
