@@ -186,7 +186,7 @@ public class GameController : MonoBehaviour
         currentState = "START";
         startDuration = 5.9f;
         instructionDuration = 4.25f;
-        waitingDuration = 10.9f;
+        waitingDuration = 20.9f;
         waveDuration = 20.9f;
 
         wave1_minSpawnTime = 8f;
@@ -1080,7 +1080,7 @@ public class GameController : MonoBehaviour
                                 enemy = Instantiate(largeEnemy, spawnPoints[i].position, Quaternion.LookRotation(spawnPoints[i].position - core.transform.position));
                                 enemy.GetComponent<EnemyBehavior>().GiveInstruction(this, decelerationPoints[i].position);
                             }
-                            maximumScore += enemy.GetComponent<EnemyBehavior>().GetScore();
+                            maximumScore += (enemy.GetComponent<EnemyBehavior>().GetScore() + 50);
                         }
                     }
                 }
@@ -1550,18 +1550,19 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void UpdateSsvepShootCommandStat(bool success, float delay = 0f)
+    public void UpdateSsvepShootCommandStat(bool success, bool usedSkillWhenScoping, float delay = 0f)
     {
-        ssvepShootCommandCount++;
         if (success)
         {
+            ssvepShootCommandCount++;
             ssvepShootCommandSuccess++;
             lastSsvepCommandDelay = delay;
             totalSsvepCommandDelay += delay;
             totalSsvepShootCommandDelay += delay;
         }
-        else
+        else if (usedSkillWhenScoping)
         {
+            ssvepShootCommandCount++;
             lastSsvepCommandDelay = -1f;
         }
     }

@@ -246,13 +246,13 @@ public class EnemyBehavior : MonoBehaviour
             if (!IsDestroyed())
             {
                 hp = 0f;
-                Explode(true);
+                Explode(true, -50);
                 gameController.IncreaseEnemiesTakenOutByLaser(type);
             }
         }
     }
 
-    private void Explode(bool addScore)
+    private void Explode(bool addScore, int bonusPoint = 0)
     {
         StopFlickering();
         audioSource.Pause();
@@ -263,9 +263,10 @@ public class EnemyBehavior : MonoBehaviour
             Vector3 scorePanelDirection = transform.position - gameController.GetPlayerCameraPosition();
             scorePanelDirection.y = 0f;
             GameObject scorePopUp = Instantiate(scoreCanvas, scoreSpawnPoint.position, Quaternion.LookRotation(scorePanelDirection));
-            scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + score;
+            int addedScore = score + bonusPoint;
+            scorePopUp.transform.Find("Text").GetComponent<Text>().text = "+" + addedScore;
             Destroy(scorePopUp, 2f);
-            gameController.AddScore(score);
+            gameController.AddScore(addedScore);
         }
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         GameObject explosionAudio = Instantiate(explosionAudioPrefab, transform.position, Quaternion.identity);
@@ -364,14 +365,15 @@ public class EnemyBehavior : MonoBehaviour
             if (hp <= 0)
             {
                 hp = 0f;
-                Explode(true);
                 if (ammoType == "ORANGE")
                 {
                     gameController.IncreaseEnemiesTakenOutBySR(type);
+                    Explode(true, 50);
                 }
                 else
                 {
                     gameController.IncreaseEnemiesTakenOutByAR(type);
+                    Explode(true);
                 }
             }
             else
