@@ -329,6 +329,7 @@ public class FirstPersonController : MonoBehaviour
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         Vector2 gazePoint = Vector2.zero;
         bci2000Input.color = ssvepRunning ? greenColor : redColor;
+        s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
         if (eyeTrackerRunning)
         {
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
