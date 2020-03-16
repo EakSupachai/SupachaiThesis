@@ -38797,7 +38797,7 @@ MonoBehaviour:
   g_GunbobAmountY: 0.007
   g_BackToNormalBobIn: 0.7
   g_HolsterDuration: 0.3
-  s_SkillCooldown: 2
+  s_SkillCooldown: 5
   m_IsWalking: 0
   m_WalkSpeed: 9
   m_RunSpeed: 9
