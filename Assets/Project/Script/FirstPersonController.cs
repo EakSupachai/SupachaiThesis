@@ -349,14 +349,14 @@ public class FirstPersonController : MonoBehaviour
         Vector2 gazePoint = Vector2.zero;
         bci2000Input.color = ssvepRunning ? greenColor : redColor;
         s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
-        if (/*eyeTrackerRunning*/ true)
+        if (eyeTrackerRunning /*true*/)
         {
             if (g_CurrentGun == "AR" && !g_Switching && Input.GetKey(KeyCode.E))
             {
                 openArModeMenu = true;
             }
-            //gazePoint = EyeTrackerController.GetCurrentGazePoint();
-            gazePoint = Vector2.zero;
+            gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            //gazePoint = Vector2.zero;
             gazeInEnemyArea = IsPointInArea(gazePoint, enemyAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
