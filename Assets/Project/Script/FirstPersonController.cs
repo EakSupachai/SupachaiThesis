@@ -15,6 +15,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] SSVEPStimulusController h_CoreStimulusController;
     [SerializeField] SSVEPStimulusController h_SkipStimulusController;
     [SerializeField] SSVEPStimulusController h_ShootingStimulusController;
+    [SerializeField] Image h_ArModeMenu;
     [SerializeField] Image h_EnemyArea;
     [SerializeField] Image h_CoreCommandArea;
     [SerializeField] Image h_SkipCommandArea;
@@ -143,7 +144,8 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] shootCommandStimulusAreaCorners = new Vector3[4];
     private Vector2 gunPanelPosition = new Vector2();
     private Vector2 skillPanelPosition = new Vector2();
-    private Color stimulusHighlightBlankColor; 
+    private Color stimulusHighlightBlankColor;
+    private Color arModeMenuColor;
     private float skipPressDuration;
     private float stimulusGazeDuration;
     private float savedStimulusGazeDuration;
@@ -214,6 +216,7 @@ public class FirstPersonController : MonoBehaviour
         s_SkillCooldownOverlay = s_SkillCooldownHUD.transform.Find("Overlay").gameObject.GetComponent<Image>();
         s_SkillCooldownOverlay.fillAmount = 1f;
         stimulusHighlightBlankColor = h_StimulusHighlightBlank.color;
+        arModeMenuColor = h_ArModeMenu.color;
         Color color = s_SkillCooldownOverlay.color;
         color.a = 0f;
         s_SkillCooldownOverlay.color = color;
@@ -227,6 +230,21 @@ public class FirstPersonController : MonoBehaviour
     }
 
     private IEnumerator skillEffectCoroutine;
+    private bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
+    private bool ssvepRunning = InputUDP.GetInputAvailableStatus();
+    private bool blinkToAim = false;
+    private bool blinkToChangeGun = false;
+    private bool blinkToUseSkill = false;
+    private bool blinkToChangeMode = false;
+    private bool gazeInEnemyArea = false;
+    private bool gazeInCoreStimulus = false;
+    private bool gazeInSkipStimulus = false;
+    private bool gazeInShootingStimulus = false;
+    private bool gazeToActivateCoreCommand = false;
+    private bool gazeToActivateSkipCommand = false;
+    private bool gazeToActivateShootCommand = false;
+    private bool pressToActivateSkipCommand = false;
+    private bool openArModeMenu = false;
     private void Update()
     {
         if (GameController.IsPause() || GameController.IsGameOver())
@@ -311,33 +329,39 @@ public class FirstPersonController : MonoBehaviour
         bool isCurrentEnemyNotNull = currentEnemyInCrosshair != null;
 
         // check eye tracker input
-        bool eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
-        bool ssvepRunning = InputUDP.GetInputAvailableStatus();
-        bool blinkToAim = false;
-        bool blinkToChangeGun = false;
-        bool blinkToUseSkill = false;
-        bool blinkToChangeMode = false;
-        bool gazeInEnemyArea = false;
-        bool gazeInCoreStimulus = false;
-        bool gazeInSkipStimulus = false;
-        bool gazeInShootingStimulus = false;
-        bool gazeToActivateCoreCommand = false;
-        bool gazeToActivateSkipCommand = false;
-        bool gazeToActivateShootCommand = false;
-        bool pressToActivateSkipCommand = false;
+        eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
+        ssvepRunning = InputUDP.GetInputAvailableStatus();
+        blinkToAim = false;
+        blinkToChangeGun = false;
+        blinkToUseSkill = false;
+        blinkToChangeMode = false;
+        gazeInEnemyArea = false;
+        gazeInCoreStimulus = false;
+        gazeInSkipStimulus = false;
+        gazeInShootingStimulus = false;
+        gazeToActivateCoreCommand = false;
+        gazeToActivateSkipCommand = false;
+        gazeToActivateShootCommand = false;
+        pressToActivateSkipCommand = false;
+        openArModeMenu = false;
         float unscaledDeltaTime = Time.deltaTime / Time.timeScale;
         BlinkStatus blinkStatus = EyeTrackerController.GetBlinkStatus();
         Vector2 gazePoint = Vector2.zero;
         bci2000Input.color = ssvepRunning ? greenColor : redColor;
         s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
-        if (eyeTrackerRunning)
+        if (/*eyeTrackerRunning*/ true)
         {
-            gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            if (g_CurrentGun == "AR" && !g_Switching && Input.GetKey(KeyCode.E))
+            {
+                openArModeMenu = true;
+            }
+            //gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            gazePoint = Vector2.zero;
             gazeInEnemyArea = IsPointInArea(gazePoint, enemyAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
             gazeInShootingStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
-            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus, gazeInShootingStimulus);
+            StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus, gazeInShootingStimulus, openArModeMenu);
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -1406,6 +1430,7 @@ public class FirstPersonController : MonoBehaviour
     private float unhighlightCountdown;
     private float coreStimulusStartAlpha;
     private float skipStimulusStartAlpha;
+    private float arModeMenuStartAlpha;
     private float stimulusFadeAlpha = 0.35f;
     private float highlightAccTime;
     private bool coreStimulusFadingIn;
@@ -1414,13 +1439,24 @@ public class FirstPersonController : MonoBehaviour
     private bool skipStimulusFadingOut;
     private bool shootingStimulusFadingIn;
     private bool shootingStimulusFadingOut;
-    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus, bool gazeInShootingStimulus)
+    private bool arModeMenuFadingIn;
+    private bool arModeMenuFadingOut;
+    private bool savedOpenArModeMenu = false;
+    private void StimulusHighlightHandler(bool gazeInCoreStimulus, bool gazeInSkipStimulus, bool gazeInShootingStimulus, bool openArModeMenu)
     {
         float unscaledTimer = Time.deltaTime / Time.timeScale;
         highlightAccTime += unscaledTimer;
-        if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && !highlightOn && !highlightingStimulus)
+        if (openArModeMenu)
         {
-            if (!highlightOn && !highlightingStimulus && !turningOffHighlight && unhighlightCountdown > 0)
+            savedOpenArModeMenu = openArModeMenu;
+        }
+        if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus || openArModeMenu) && !highlightOn && !highlightingStimulus)
+        {
+            if (openArModeMenu)
+            {
+                unhighlightCountdown = 0f;
+            }
+            if (!highlightOn && !highlightingStimulus && !turningOffHighlight && unhighlightCountdown > 0f)
             {
                 unhighlightCountdown -= unscaledTimer;
                 return;
@@ -1429,6 +1465,7 @@ public class FirstPersonController : MonoBehaviour
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
             skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
+            arModeMenuStartAlpha = h_ArModeMenu.color.a;
             highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
             highlightDuration = ((highlightDefaultAlpha - highlightStartAlpha) / highlightDefaultAlpha) * highlightDefaultDuration;
             postProcessingProfile.depthOfField.enabled = true;
@@ -1441,7 +1478,14 @@ public class FirstPersonController : MonoBehaviour
             skipStimulusFadingOut = true;
             shootingStimulusFadingIn = false;
             shootingStimulusFadingOut = true;
-            if (gazeInCoreStimulus)
+            arModeMenuFadingIn = false;
+            arModeMenuFadingOut = true;
+            if (openArModeMenu)
+            {
+                arModeMenuFadingIn = true;
+                arModeMenuFadingOut = false;
+            }
+            else if (gazeInCoreStimulus)
             {
                 coreStimulusFadingIn = true;
                 coreStimulusFadingOut = false;
@@ -1457,9 +1501,13 @@ public class FirstPersonController : MonoBehaviour
                 shootingStimulusFadingOut = false;
             }
         }
-        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && (highlightingStimulus || highlightOn))
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && !openArModeMenu && (highlightingStimulus || highlightOn))
         {
-            if (highlightOn && highlightCountdown > 0)
+            if (!openArModeMenu && savedOpenArModeMenu)
+            {
+                highlightCountdown = 0f;
+            }
+            if (highlightOn && highlightCountdown > 0f)
             {
                 highlightCountdown -= unscaledTimer;
                 return;
@@ -1468,6 +1516,7 @@ public class FirstPersonController : MonoBehaviour
             highlightStartAlpha = h_StimulusHighlightBlank.color.a;
             coreStimulusStartAlpha = h_CoreStimulusController.GetAlpha();
             skipStimulusStartAlpha = h_SkipStimulusController.GetAlpha();
+            arModeMenuStartAlpha = h_ArModeMenu.color.a;
             highlightStartFocus = postProcessingProfile.depthOfField.settings.focusDistance;
             highlightDuration = (highlightStartAlpha / highlightDefaultAlpha) * turnOffDefaultDuration;
             postProcessingProfile.depthOfField.enabled = true;
@@ -1481,8 +1530,10 @@ public class FirstPersonController : MonoBehaviour
             skipStimulusFadingOut = false;
             shootingStimulusFadingIn = true;
             shootingStimulusFadingOut = false;
+            arModeMenuFadingIn = false;
+            arModeMenuFadingOut = true;
         }
-        else if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus) && (highlightingStimulus || highlightOn))
+        else if ((gazeInCoreStimulus || gazeInSkipStimulus || gazeInShootingStimulus || openArModeMenu) && (highlightingStimulus || highlightOn))
         {
             highlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
             coreStimulusFadingIn = false;
@@ -1491,7 +1542,14 @@ public class FirstPersonController : MonoBehaviour
             skipStimulusFadingOut = true;
             shootingStimulusFadingIn = false;
             shootingStimulusFadingOut = true;
-            if (gazeInCoreStimulus && !coreStimulusFadingIn)
+            arModeMenuFadingIn = false;
+            arModeMenuFadingOut = true;
+            if (openArModeMenu && !arModeMenuFadingIn)
+            {
+                arModeMenuFadingIn = true;
+                arModeMenuFadingOut = false;
+            }
+            else if (gazeInCoreStimulus && !coreStimulusFadingIn)
             {
                 coreStimulusFadingIn = true;
                 coreStimulusFadingOut = false;
@@ -1507,7 +1565,7 @@ public class FirstPersonController : MonoBehaviour
                 shootingStimulusFadingOut = false;
             }
         }
-        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && !highlightingStimulus && !highlightOn)
+        else if (!gazeInCoreStimulus && !gazeInSkipStimulus && !gazeInShootingStimulus && !openArModeMenu && !highlightingStimulus && !highlightOn)
         {
             unhighlightCountdown = EyeTrackerController.GetBlinkDurationAllowed();
         }
@@ -1702,6 +1760,61 @@ public class FirstPersonController : MonoBehaviour
             {
                 h_ShootingStimulusController.SetAlpha(skipStimulusStartAlpha - aMinus);
             }
+        }
+        if (arModeMenuFadingIn && !arModeMenuFadingOut)
+        {
+            float aPlus = 0f;
+            float maxAPlus = 1f - arModeMenuStartAlpha;
+            aPlus = highlightAccTime * maxAPlus / highlightDuration;
+            bool nanCheck = float.IsNaN(aPlus) || float.IsNaN(maxAPlus);
+            if (aPlus >= maxAPlus)
+            {
+                arModeMenuFadingIn = false;
+                aPlus = maxAPlus;
+            }
+            else if (nanCheck)
+            {
+                arModeMenuFadingIn = false;
+                arModeMenuColor.a = 1f;
+                h_ArModeMenu.color = arModeMenuColor;
+                //h_CoreStimulusController.SetAlpha(1f);
+            }
+            if (!nanCheck)
+            {
+                arModeMenuColor.a = arModeMenuStartAlpha + aPlus;
+                h_ArModeMenu.color = arModeMenuColor;
+                //h_CoreStimulusController.SetAlpha(coreStimulusStartAlpha + aPlus);
+            }
+        }
+        else if (!arModeMenuFadingIn && arModeMenuFadingOut)
+        {
+            float aMinus = 0f;
+            float maxAMinus = arModeMenuStartAlpha;
+            aMinus = highlightAccTime * maxAMinus / highlightDuration;
+            bool nanCheck = float.IsNaN(aMinus) || float.IsNaN(maxAMinus);
+            if (aMinus >= maxAMinus)
+            {
+                arModeMenuFadingOut = false;
+                aMinus = maxAMinus;
+            }
+            else if (nanCheck)
+            {
+                arModeMenuFadingOut = false;
+                arModeMenuColor.a = 0f;
+                h_ArModeMenu.color = arModeMenuColor;
+                //h_CoreStimulusController.SetAlpha(0.2f);
+            }
+            if (!nanCheck)
+            {
+                arModeMenuColor.a = arModeMenuStartAlpha - aMinus;
+                h_ArModeMenu.color = arModeMenuColor;
+                //h_CoreStimulusController.SetAlpha(coreStimulusStartAlpha - aMinus);
+            }
+        }
+
+        if (!openArModeMenu && savedOpenArModeMenu)
+        {
+            savedOpenArModeMenu = openArModeMenu;
         }
     }
 
