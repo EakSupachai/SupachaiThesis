@@ -512,9 +512,8 @@ public class FirstPersonController : MonoBehaviour
                         {
                             ssvepReceived = tempGazeInCoreStimulus ? previousSsvepInput : false;
                         }
-                        if (ssvepReceived || s_AutoCommandTrigger)
+                        if ((ssvepReceived || s_AutoCommandTrigger) && !openArModeMenu)
                         {
-
                             if (tempGazeInCoreStimulus)
                             {
                                 gazeToActivateCoreCommand = true;
