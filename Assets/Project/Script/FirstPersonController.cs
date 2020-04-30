@@ -117,6 +117,7 @@ public class FirstPersonController : MonoBehaviour
     private Image s_SkillCooldownOverlay;
     private bool s_UsingSkill;
     private bool s_CancellingSkill;
+    private bool s_UsingArModeMenu;
     private bool s_AutoCommandTrigger;
     private bool s_UsedSkillWhenScoping;
     private float s_SkillAvailableTime;
@@ -351,9 +352,18 @@ public class FirstPersonController : MonoBehaviour
         s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
         if (eyeTrackerRunning /*true*/)
         {
-            if (g_CurrentGun == "AR" && !g_Switching && Input.GetKey(KeyCode.E))
+            if (g_CurrentGun == "AR" && !g_Switching)
             {
-                openArModeMenu = true;
+                if (Input.GetKey(KeyCode.E))
+                {
+                    Time.timeScale = GameController.slowedTimeScale;
+                    openArModeMenu = true;
+                    s_UsingArModeMenu = true;
+                }
+                else if (Input.GetKeyUp(KeyCode.E))
+                {
+                    Time.timeScale = GameController.supposedCurrentTimeScale;
+                }
             }
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
             //gazePoint = Vector2.zero;
@@ -372,13 +382,6 @@ public class FirstPersonController : MonoBehaviour
                 else
                 {
                     timeSinceLastBlink += unscaledDeltaTime;
-                    /*if (timeSinceLastBlink >= EyeTrackerController.GetValidDurationSinceLastBlink())
-                    {
-                        if (gameController.IncreaseObjectiveCounter("STEP1", 3))
-                        {
-                            timeSinceLastBlink = 0f;
-                        }
-                    }*/
                 }
             }
             if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -387,7 +390,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     stimulusGazeDuration = 0f;
                 }
-                if (blinkStatus.validOneEyedBlink)
+                if (blinkStatus.validOneEyedBlink && !openArModeMenu)
                 {
                     Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
                     bool blinkInChangeGunAndSkillCA = IsPointInArea(blinkPoint, gunAndSkillCommandAreaCorners);
@@ -1836,6 +1839,7 @@ public class FirstPersonController : MonoBehaviour
                 fadeInTime = s_UseSkillFadeInTime;
                 fadeOutTime = s_SkillTimeOut;
                 Time.timeScale = GameController.slowedTimeScale;
+                GameController.supposedCurrentTimeScale = GameController.slowedTimeScale;
                 if (!mute)
                 {
                     savedSkillFlashAudioPrefab = Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
@@ -1848,6 +1852,7 @@ public class FirstPersonController : MonoBehaviour
                 fadeInTime = s_CancelSkillFadeInTime;
                 fadeOutTime = s_CancelSkillFadeOutTime;
                 Time.timeScale = GameController.defaultTimeScale;
+                GameController.supposedCurrentTimeScale = GameController.defaultTimeScale;
                 if (!mute)
                 {
                     Instantiate(s_SkillMissAudioPrefab, Vector3.zero, Quaternion.identity);
@@ -1864,6 +1869,7 @@ public class FirstPersonController : MonoBehaviour
             fadeInTime = s_CancelSkillFadeInTime;
             fadeOutTime = s_CancelSkillFadeOutTime;
             Time.timeScale = GameController.defaultTimeScale;
+            GameController.supposedCurrentTimeScale = GameController.defaultTimeScale;
             Instantiate(s_SkillUseAudioPrefab, Vector3.zero, Quaternion.identity);
         }
         float alpha = 0f;
@@ -1922,6 +1928,7 @@ public class FirstPersonController : MonoBehaviour
         if (!GameController.IsInWaveCompletedState())
         {
             Time.timeScale = GameController.defaultTimeScale;
+            GameController.supposedCurrentTimeScale = GameController.defaultTimeScale;
         }
         s_UsingSkill = false;
         s_CancellingSkill = false;
@@ -2101,6 +2108,11 @@ public class FirstPersonController : MonoBehaviour
     public bool IsAiming()
     {
         return g_Aiming;
+    }
+
+    public bool IsUsingSkill()
+    {
+        return s_UsingSkill && !s_CancellingSkill;
     }
 
     public void EnablePauseDofEffect()
