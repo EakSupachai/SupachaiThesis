@@ -403,7 +403,7 @@ public class FirstPersonController : MonoBehaviour
                     timeSinceLastBlink += unscaledDeltaTime;
                 }
             }
-            if (openArModeMenu && Input.GetKeyUp(KeyCode.E))
+            if (openArModeMenu && Input.GetKeyUp(KeyCode.E) && (gazeInRedArModeArea || gazeInYellowArModeArea || gazeInOrangeArModeArea))
             {
                 blinkToChangeMode = true;
             }
@@ -883,7 +883,25 @@ public class FirstPersonController : MonoBehaviour
         bool changeModeCommandIssued = eyeTrackerRunning ? blinkToChangeMode : Input.GetKeyDown(KeyCode.R);
         if (changeModeCommandIssued)
         {
-            g_GunController.SwitchMode();
+            if (eyeTrackerRunning)
+            {
+                if (gazeInRedArModeArea)
+                {
+                    g_GunController.SwitchMode("RED");
+                }
+                else if (gazeInYellowArModeArea)
+                {
+                    g_GunController.SwitchMode("YELLOW");
+                }
+                else
+                {
+                    g_GunController.SwitchMode("ORANGE");
+                }
+            }
+            else
+            {
+                g_GunController.SwitchMode("AUTO");
+            }
         }
 
         // aim down sight

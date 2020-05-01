@@ -10,13 +10,16 @@ public class AssaultRifleController : GunController
     [SerializeField] private Image aimCrosshair;
     [SerializeField] private ParticleSystem redMuzzleFlash;
     [SerializeField] private ParticleSystem yellowMuzzleFlash;
+    [SerializeField] private ParticleSystem orangeMuzzleFlash;
     [SerializeField] private GameObject redImpactParticle;
     [SerializeField] private GameObject yellowImpactParticle;
+    [SerializeField] private GameObject orangeImpactParticle;
     [SerializeField] private GameObject shotFiredAudioPrefab;
     [SerializeField] private int rpm = 540;
     [SerializeField] private int damage = 1;
     [SerializeField] private Material redLight;
     [SerializeField] private Material yellowLight;
+    [SerializeField] private Material orangeLight;
     [SerializeField] private GameObject modeChangeAudioPrefab;
 
     private float spr;
@@ -62,13 +65,13 @@ public class AssaultRifleController : GunController
 
         crosshairAnimator = crosshair.GetComponent<Animator>();
 
-        currentMode = "RED";
+        currentMode = "ORANGE";
         typeDisplayC = transform.Find("TypeDisplayC").gameObject;
         typeDisplayL = transform.Find("TypeDisplayL").gameObject;
         typeDisplayR = transform.Find("TypeDisplayR").gameObject;
-        typeDisplayC.GetComponent<Renderer>().material = redLight;
-        typeDisplayL.GetComponent<Renderer>().material = redLight;
-        typeDisplayR.GetComponent<Renderer>().material = redLight;
+        typeDisplayC.GetComponent<Renderer>().material = orangeLight;
+        typeDisplayL.GetComponent<Renderer>().material = orangeLight;
+        typeDisplayR.GetComponent<Renderer>().material = orangeLight;
     }
 
     public override bool Shoot ()
@@ -82,10 +85,15 @@ public class AssaultRifleController : GunController
                 redMuzzleFlash.Play();
                 impactParticle = redImpactParticle;
             }
-            else
+            else if (currentMode == "YELLOW")
             {
                 yellowMuzzleFlash.Play();
                 impactParticle = yellowImpactParticle;
+            }
+            else
+            {
+                orangeMuzzleFlash.Play();
+                impactParticle = orangeImpactParticle;
             }
             float spreadRadius = 0f;
             float spreadRadiusSquare = 0f;
@@ -147,10 +155,33 @@ public class AssaultRifleController : GunController
         aimCrosshair.gameObject.SetActive(false);
     }
 
-    public override void SwitchMode()
+    public override void SwitchMode(string mode)
     {
         Instantiate(modeChangeAudioPrefab, Vector3.zero, Quaternion.identity);
-        if (currentMode == "RED")
+        if (mode == "AUTO")
+        {
+            if (currentMode == "RED")
+            {
+                mode = "ORANGE";
+            }
+            else if (currentMode == "ORANGE") 
+            {
+                mode = "YELLOW";
+            }
+            else if (currentMode == "YELLOW")
+            {
+                mode = "RED";
+            }
+        }
+        if (mode == "RED")
+        {
+            currentMode = "RED";
+            typeDisplayC.GetComponent<Renderer>().material = redLight;
+            typeDisplayL.GetComponent<Renderer>().material = redLight;
+            typeDisplayR.GetComponent<Renderer>().material = redLight;
+            return;
+        }
+        else if (mode == "YELLOW")
         {
             currentMode = "YELLOW";
             typeDisplayC.GetComponent<Renderer>().material = yellowLight;
@@ -158,10 +189,15 @@ public class AssaultRifleController : GunController
             typeDisplayR.GetComponent<Renderer>().material = yellowLight;
             return;
         }
-        currentMode = "RED";
-        typeDisplayC.GetComponent<Renderer>().material = redLight;
-        typeDisplayL.GetComponent<Renderer>().material = redLight;
-        typeDisplayR.GetComponent<Renderer>().material = redLight;
+        else if (mode == "ORANGE")
+        {
+            currentMode = "ORANGE";
+            typeDisplayC.GetComponent<Renderer>().material = orangeLight;
+            typeDisplayL.GetComponent<Renderer>().material = orangeLight;
+            typeDisplayR.GetComponent<Renderer>().material = orangeLight;
+            return;
+        }
+
     }
 
     public void EnlargeCrosshair()
