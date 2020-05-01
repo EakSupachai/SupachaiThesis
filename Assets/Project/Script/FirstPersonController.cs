@@ -376,6 +376,7 @@ public class FirstPersonController : MonoBehaviour
                 else if (Input.GetKeyUp(KeyCode.E))
                 {
                     Time.timeScale = GameController.supposedCurrentTimeScale;
+                    openArModeMenu = true;
                 }
             }
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
@@ -433,11 +434,6 @@ public class FirstPersonController : MonoBehaviour
                             blinkToUseSkill = true;
                         }
                     }
-                    /*else if ((blinkInGunModeCA && !g_Aiming) || (blinkInGunModeAimCA && g_Aiming))
-                    {
-                        blinkToChangeMode = true;
-                        gameController.IncreaseBlinkOutsideHudCommandCount();
-                    }*/
                     else
                     {
                         gameController.IncreaseBlinkOutsideHudCommandCount();

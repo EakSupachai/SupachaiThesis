@@ -32,7 +32,6 @@ public class AssaultRifleController : GunController
     private GameObject typeDisplayR;
     private Animator crosshairAnimator;
     private RectTransform crosshairRectTransform;
-    //private EnemyBehavior currentEnemyBehavior;
 
     private Camera fpcCamera;
 
@@ -157,7 +156,6 @@ public class AssaultRifleController : GunController
 
     public override void SwitchMode(string mode)
     {
-        Instantiate(modeChangeAudioPrefab, Vector3.zero, Quaternion.identity);
         if (mode == "AUTO")
         {
             if (currentMode == "RED")
@@ -173,31 +171,34 @@ public class AssaultRifleController : GunController
                 mode = "RED";
             }
         }
-        if (mode == "RED")
+        if (currentMode != mode)
         {
-            currentMode = "RED";
-            typeDisplayC.GetComponent<Renderer>().material = redLight;
-            typeDisplayL.GetComponent<Renderer>().material = redLight;
-            typeDisplayR.GetComponent<Renderer>().material = redLight;
-            return;
+            Instantiate(modeChangeAudioPrefab, Vector3.zero, Quaternion.identity);
+            if (mode == "RED")
+            {
+                currentMode = "RED";
+                typeDisplayC.GetComponent<Renderer>().material = redLight;
+                typeDisplayL.GetComponent<Renderer>().material = redLight;
+                typeDisplayR.GetComponent<Renderer>().material = redLight;
+                return;
+            }
+            else if (mode == "YELLOW")
+            {
+                currentMode = "YELLOW";
+                typeDisplayC.GetComponent<Renderer>().material = yellowLight;
+                typeDisplayL.GetComponent<Renderer>().material = yellowLight;
+                typeDisplayR.GetComponent<Renderer>().material = yellowLight;
+                return;
+            }
+            else if (mode == "ORANGE")
+            {
+                currentMode = "ORANGE";
+                typeDisplayC.GetComponent<Renderer>().material = orangeLight;
+                typeDisplayL.GetComponent<Renderer>().material = orangeLight;
+                typeDisplayR.GetComponent<Renderer>().material = orangeLight;
+                return;
+            }
         }
-        else if (mode == "YELLOW")
-        {
-            currentMode = "YELLOW";
-            typeDisplayC.GetComponent<Renderer>().material = yellowLight;
-            typeDisplayL.GetComponent<Renderer>().material = yellowLight;
-            typeDisplayR.GetComponent<Renderer>().material = yellowLight;
-            return;
-        }
-        else if (mode == "ORANGE")
-        {
-            currentMode = "ORANGE";
-            typeDisplayC.GetComponent<Renderer>().material = orangeLight;
-            typeDisplayL.GetComponent<Renderer>().material = orangeLight;
-            typeDisplayR.GetComponent<Renderer>().material = orangeLight;
-            return;
-        }
-
     }
 
     public void EnlargeCrosshair()
