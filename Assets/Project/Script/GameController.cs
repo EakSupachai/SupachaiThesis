@@ -322,7 +322,6 @@ public class GameController : MonoBehaviour
                     {
                         currentTimeScale = defaultTimeScale;
                     }
-                    //currentTimeScale = Time.timeScale;
                 }
                 pause = !pause;
                 Time.timeScale = pause ? 0 : currentTimeScale;

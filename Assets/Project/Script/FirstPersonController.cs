@@ -24,6 +24,12 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
     [SerializeField] Image h_StimulusHighlightBlank;
+    [SerializeField] Image h_RedArModeMarker;
+    [SerializeField] Image h_YellowArModeMarker;
+    [SerializeField] Image h_OrangeArModeMarker;
+    [SerializeField] Image h_RedArModeMenuArea;
+    [SerializeField] Image h_YellowArModeMenuArea;
+    [SerializeField] Image h_OrangeArModeMenuArea;
     [SerializeField] Image s_SkillUseEffect;
     [SerializeField] Image s_SkillCooldownHUD;
     [SerializeField] Image g_GunHUD;
@@ -117,7 +123,6 @@ public class FirstPersonController : MonoBehaviour
     private Image s_SkillCooldownOverlay;
     private bool s_UsingSkill;
     private bool s_CancellingSkill;
-    private bool s_UsingArModeMenu;
     private bool s_AutoCommandTrigger;
     private bool s_UsedSkillWhenScoping;
     private float s_SkillAvailableTime;
@@ -139,6 +144,9 @@ public class FirstPersonController : MonoBehaviour
     private Vector3[] gunAndSkillCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeCommandAreaCorners = new Vector3[4];
     private Vector3[] gunModeAimCommandAreaCorners = new Vector3[4];
+    private Vector3[] redArModeAreaCorners = new Vector3[4];
+    private Vector3[] yellowArModeAreaCorners = new Vector3[4];
+    private Vector3[] orangeArModeAreaCorners = new Vector3[4];
     private Vector3[] enemyAreaCorners = new Vector3[4];
     private Vector3[] coreCommandStimulusAreaCorners = new Vector3[4];
     private Vector3[] skipCommandStimulusAreaCorners = new Vector3[4];
@@ -238,6 +246,9 @@ public class FirstPersonController : MonoBehaviour
     private bool blinkToUseSkill = false;
     private bool blinkToChangeMode = false;
     private bool gazeInEnemyArea = false;
+    private bool gazeInRedArModeArea = false;
+    private bool gazeInYellowArModeArea = false;
+    private bool gazeInOrangeArModeArea = false;
     private bool gazeInCoreStimulus = false;
     private bool gazeInSkipStimulus = false;
     private bool gazeInShootingStimulus = false;
@@ -337,6 +348,9 @@ public class FirstPersonController : MonoBehaviour
         blinkToUseSkill = false;
         blinkToChangeMode = false;
         gazeInEnemyArea = false;
+        gazeInRedArModeArea = false;
+        gazeInYellowArModeArea = false;
+        gazeInOrangeArModeArea = false;
         gazeInCoreStimulus = false;
         gazeInSkipStimulus = false;
         gazeInShootingStimulus = false;
@@ -358,7 +372,6 @@ public class FirstPersonController : MonoBehaviour
                 {
                     Time.timeScale = GameController.slowedTimeScale;
                     openArModeMenu = true;
-                    s_UsingArModeMenu = true;
                 }
                 else if (Input.GetKeyUp(KeyCode.E))
                 {
@@ -368,10 +381,16 @@ public class FirstPersonController : MonoBehaviour
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
             //gazePoint = Vector2.zero;
             gazeInEnemyArea = IsPointInArea(gazePoint, enemyAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
+            gazeInRedArModeArea = IsPointInArea(gazePoint, redArModeAreaCorners) && h_ArModeMenu.color.a > 0.95f && openArModeMenu;
+            gazeInYellowArModeArea = IsPointInArea(gazePoint, yellowArModeAreaCorners) && h_ArModeMenu.color.a > 0.95f && openArModeMenu;
+            gazeInOrangeArModeArea = IsPointInArea(gazePoint, orangeArModeAreaCorners) && h_ArModeMenu.color.a > 0.95f && openArModeMenu;
             gazeInCoreStimulus = IsPointInArea(gazePoint, coreCommandStimulusAreaCorners) && h_CoreStimulusController.IsFlickering();
             gazeInSkipStimulus = IsPointInArea(gazePoint, skipCommandStimulusAreaCorners) && h_SkipStimulusController.IsFlickering();
             gazeInShootingStimulus = IsPointInArea(gazePoint, shootCommandStimulusAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             StimulusHighlightHandler(gazeInCoreStimulus, gazeInSkipStimulus, gazeInShootingStimulus, openArModeMenu);
+            h_RedArModeMarker.gameObject.SetActive(gazeInRedArModeArea);
+            h_YellowArModeMarker.gameObject.SetActive(gazeInYellowArModeArea);
+            h_OrangeArModeMarker.gameObject.SetActive(gazeInOrangeArModeArea);
             if (calibrating)
             {
                 if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
@@ -1960,6 +1979,9 @@ public class FirstPersonController : MonoBehaviour
         h_GunAndSkillCommandArea.rectTransform.GetWorldCorners(gunAndSkillCommandAreaCorners);
         h_GunModeCommandArea.rectTransform.GetWorldCorners(gunModeCommandAreaCorners);
         h_GunModeAimCommandArea.rectTransform.GetWorldCorners(gunModeAimCommandAreaCorners);
+        h_RedArModeMenuArea.rectTransform.GetWorldCorners(redArModeAreaCorners);
+        h_YellowArModeMenuArea.rectTransform.GetWorldCorners(yellowArModeAreaCorners);
+        h_OrangeArModeMenuArea.rectTransform.GetWorldCorners(orangeArModeAreaCorners);
         h_EnemyArea.rectTransform.GetWorldCorners(enemyAreaCorners);
         h_CoreCommandArea.rectTransform.GetWorldCorners(coreCommandStimulusAreaCorners);
         h_SkipCommandArea.rectTransform.GetWorldCorners(skipCommandStimulusAreaCorners);
@@ -1985,6 +2007,21 @@ public class FirstPersonController : MonoBehaviour
         gunModeAimCommandAreaCorners[1].y = windowHeight - gunModeAimCommandAreaCorners[1].y;
         gunModeAimCommandAreaCorners[2].y = windowHeight - gunModeAimCommandAreaCorners[2].y;
         gunModeAimCommandAreaCorners[3].y = windowHeight - gunModeAimCommandAreaCorners[3].y;
+
+        redArModeAreaCorners[0].y = windowHeight - redArModeAreaCorners[0].y;
+        redArModeAreaCorners[1].y = windowHeight - redArModeAreaCorners[1].y;
+        redArModeAreaCorners[2].y = windowHeight - redArModeAreaCorners[2].y;
+        redArModeAreaCorners[3].y = windowHeight - redArModeAreaCorners[3].y;
+
+        yellowArModeAreaCorners[0].y = windowHeight - yellowArModeAreaCorners[0].y;
+        yellowArModeAreaCorners[1].y = windowHeight - yellowArModeAreaCorners[1].y;
+        yellowArModeAreaCorners[2].y = windowHeight - yellowArModeAreaCorners[2].y;
+        yellowArModeAreaCorners[3].y = windowHeight - yellowArModeAreaCorners[3].y;
+
+        orangeArModeAreaCorners[0].y = windowHeight - orangeArModeAreaCorners[0].y;
+        orangeArModeAreaCorners[1].y = windowHeight - orangeArModeAreaCorners[1].y;
+        orangeArModeAreaCorners[2].y = windowHeight - orangeArModeAreaCorners[2].y;
+        orangeArModeAreaCorners[3].y = windowHeight - orangeArModeAreaCorners[3].y;
 
         enemyAreaCorners[0].y = windowHeight - enemyAreaCorners[0].y;
         enemyAreaCorners[1].y = windowHeight - enemyAreaCorners[1].y;
