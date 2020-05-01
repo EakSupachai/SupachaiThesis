@@ -354,18 +354,18 @@ public class EnemyBehavior : MonoBehaviour
         {
             if (isRedType)
             {
-                hp = ammoType == "YELLOW" ? hp - (damage * 0.6f) : hp - damage;
+                hp = ammoType == "YELLOW" ? hp - (damage * 0.5f) : hp - damage;
             }
             else
             {
-                hp = ammoType == "RED" ? hp - (damage * 0.6f) : hp - damage;
+                hp = ammoType == "RED" ? hp - (damage * 0.5f) : hp - damage;
             }
             forceDirection = (impactPosition - cameraPosition).normalized;
             forcePosition = impactPosition;
             if (hp <= 0)
             {
                 hp = 0f;
-                if (ammoType == "ORANGE")
+                if (ammoType == "SR_ORANGE")
                 {
                     gameController.IncreaseEnemiesTakenOutBySR(type);
                     Explode(true, 50);
@@ -373,7 +373,18 @@ public class EnemyBehavior : MonoBehaviour
                 else
                 {
                     gameController.IncreaseEnemiesTakenOutByAR(type);
-                    Explode(true);
+                    if (isRedType && ammoType == "RED")
+                    {
+                        Explode(true, 25);
+                    }
+                    else if (!isRedType && ammoType == "YELLOW")
+                    {
+                        Explode(true, 25);
+                    }
+                    else
+                    {
+                        Explode(true);
+                    }
                 }
             }
             else
