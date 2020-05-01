@@ -403,6 +403,10 @@ public class FirstPersonController : MonoBehaviour
                     timeSinceLastBlink += unscaledDeltaTime;
                 }
             }
+            if (openArModeMenu && Input.GetKeyUp(KeyCode.E))
+            {
+                blinkToChangeMode = true;
+            }
             if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
             {
                 if (!ssvepRunning)
@@ -429,11 +433,11 @@ public class FirstPersonController : MonoBehaviour
                             blinkToUseSkill = true;
                         }
                     }
-                    else if ((blinkInGunModeCA && !g_Aiming) || (blinkInGunModeAimCA && g_Aiming))
+                    /*else if ((blinkInGunModeCA && !g_Aiming) || (blinkInGunModeAimCA && g_Aiming))
                     {
                         blinkToChangeMode = true;
                         gameController.IncreaseBlinkOutsideHudCommandCount();
-                    }
+                    }*/
                     else
                     {
                         gameController.IncreaseBlinkOutsideHudCommandCount();
