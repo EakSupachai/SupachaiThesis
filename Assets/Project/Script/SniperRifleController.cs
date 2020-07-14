@@ -137,7 +137,7 @@ public class SniperRifleController : GunController
                 Destroy(impactEffect, 0.5f);
                 if (currentEnemyBehavior != null)
                 {
-                    currentEnemyBehavior.TakeDamage(damage, "ORANGE", fpcCamera.transform.position, impactPoint);
+                    currentEnemyBehavior.TakeDamage(damage, "SR_ORANGE", fpcCamera.transform.position, impactPoint);
                 }
             }
             Instantiate(shotFiredAudioPrefab, transform.position, Quaternion.identity);
@@ -152,7 +152,7 @@ public class SniperRifleController : GunController
 
     public override void HideCrosshair() {}
 
-    public override void SwitchMode() {}
+    public override void SwitchMode(string mode) {}
 
     public void AdjustBlankAlpha(float alpha)
     {

@@ -16,5 +16,5 @@ public abstract class GunController : MonoBehaviour
     public abstract void SwitchCrosshair();
     public abstract void SwitchToDefaultCrosshair();
     public abstract void HideCrosshair();
-    public abstract void SwitchMode();
+    public abstract void SwitchMode(string mode);
 }

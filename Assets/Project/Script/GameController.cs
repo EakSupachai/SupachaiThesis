@@ -78,6 +78,7 @@ public class GameController : MonoBehaviour
     public static bool openSaveStat;
     public static float defaultTimeScale = 1f;
     public static float slowedTimeScale = 0.16f;
+    public static float supposedCurrentTimeScale;
 
     private bool stateStarted;
     private float currentStateDuration;
@@ -182,6 +183,7 @@ public class GameController : MonoBehaviour
         openSaveStat = false;
         LockCursor();
         Time.timeScale = defaultTimeScale;
+        supposedCurrentTimeScale = defaultTimeScale;
 
         currentState = "START";
         startDuration = 5.9f;
@@ -308,7 +310,18 @@ public class GameController : MonoBehaviour
             {
                 if (!pause)
                 {
-                    currentTimeScale = Time.timeScale;
+                    if (currentState == "WAVE COMPLETED" && stateStarted)
+                    {
+                        currentTimeScale = slowedTimeScale;
+                    }
+                    else if (player.IsUsingSkill())
+                    {
+                        currentTimeScale = slowedTimeScale;
+                    }
+                    else
+                    {
+                        currentTimeScale = defaultTimeScale;
+                    }
                 }
                 pause = !pause;
                 Time.timeScale = pause ? 0 : currentTimeScale;
@@ -647,6 +660,7 @@ public class GameController : MonoBehaviour
                 if (!stateStarted)
                 {
                     Time.timeScale = slowedTimeScale;
+                    supposedCurrentTimeScale = slowedTimeScale;
                     stateStarted = true;
                     currentStateDuration = waveCompleteStateDuration;
                 }
@@ -654,6 +668,7 @@ public class GameController : MonoBehaviour
                 if (currentStateDuration <= 0f)
                 {
                     Time.timeScale = defaultTimeScale;
+                    supposedCurrentTimeScale = defaultTimeScale;
                     stateStarted = false;
                     objectiveText.text = "";
                     objectiveTargetText.text = "";
@@ -1413,7 +1428,7 @@ public class GameController : MonoBehaviour
     public bool CanActivateLaserFence()
     {
         if ((currentState == "WAVE1" || currentState == "WAVE2" || currentState == "WAVE3") 
-            && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf && Time.timeScale != defaultTimeScale)
+            && stateStarted && laserFenceAvailable > 0 && !laserFence.activeSelf && player.IsUsingSkill())
         {
             if (waveDuration - currentStateDuration > 1.5f)
             {
