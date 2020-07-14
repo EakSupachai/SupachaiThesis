@@ -23695,7 +23695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteSprite: {fileID: 21300000, guid: 1ed8c0710943d0b49927e1d288e7fd15, type: 3}
-  blackSprite: {fileID: 21300000, guid: fd1048be34d2a9f498027a27e670a313, type: 3}
+  blackSprite: {fileID: 21300000, guid: aa97c3df81250bd44aad8c9830828be5, type: 3}
 --- !u!114 &863535228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27601,7 +27601,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteSprite: {fileID: 21300000, guid: 1ed8c0710943d0b49927e1d288e7fd15, type: 3}
-  blackSprite: {fileID: 21300000, guid: fd1048be34d2a9f498027a27e670a313, type: 3}
+  blackSprite: {fileID: 21300000, guid: aa97c3df81250bd44aad8c9830828be5, type: 3}
 --- !u!114 &1170684015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39545,7 +39545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteSprite: {fileID: 21300000, guid: aaad3e5c094782d4f8aa3ab47b2a8553, type: 3}
-  blackSprite: {fileID: 21300000, guid: af73c8305ef5ce74da4a775a892fa12b, type: 3}
+  blackSprite: {fileID: 21300000, guid: 2463c3480c930c34495492c1a583d112, type: 3}
 --- !u!1 &2029712915
 GameObject:
   m_ObjectHideFlags: 0
