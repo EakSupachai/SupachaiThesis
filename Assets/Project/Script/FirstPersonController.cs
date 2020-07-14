@@ -539,13 +539,13 @@ public class FirstPersonController : MonoBehaviour
                                 savedStimulusGazeDuration = stimulusGazeDuration;
                                 if (gameController.CanActivateLaserFence())
                                 {
-                                    gameController.UpdateSsvepCoreCommandStat(ssvepReceived, stimulusGazeDuration);
+                                    gameController.UpdateLaserFenceCommandStat(ssvepReceived, stimulusGazeDuration);
                                 }
                             }
                             else if (gazeInSkipStimulus && currentGazeZone == "SKIP")
                             {
                                 gazeToActivateSkipCommand = true;
-                                gameController.UpdateSsvepCoreCommandStat(ssvepReceived, stimulusGazeDuration);
+                                gameController.UpdateSkipCommandStat(stimulusGazeDuration);
                             }
                             else if (tempGazeInShootingStimulus && currentGazeZone == "SHOOT")
                             {
@@ -733,7 +733,7 @@ public class FirstPersonController : MonoBehaviour
                 {
                     fixingCoreAudioPrefab = Instantiate(f_FixingCoreAudioPrefab, Vector3.zero, Quaternion.identity);
                 }
-                gameController.IncreaseCoreHp(savedStimulusGazeDuration, s_AutoCommandTrigger);
+                gameController.IncreaseCoreHp(savedStimulusGazeDuration);
             }
             else
             {
@@ -2167,6 +2167,11 @@ public class FirstPersonController : MonoBehaviour
     public bool IsUsingSkill()
     {
         return s_UsingSkill && !s_CancellingSkill;
+    }
+
+    public float GetSkillTimeOut()
+    {
+        return s_SkillTimeOut;
     }
 
     public void EnablePauseDofEffect()

@@ -155,14 +155,24 @@ public class GameController : MonoBehaviour
     private int largeEnemyTakenOutByLaser;
     private int blinkInsideHudCommandCount;
     private int blinkOutsideHudCommandCount;
-    private int ssvepCoreCommandCount;
+    //private int ssvepCoreCommandCount;
+    private int laserFenceCommandCount;
+    private int fixCoreCommandCount;
+    private int skipCommandCount;
     private int ssvepShootCommandCount;
-    private int ssvepCoreCommandSuccess;
+    //private int ssvepCoreCommandSuccess;
+    private int laserFenceCommandSuccess;
+    private int fixCoreCommandSuccess;
+    private int skipCommandSuccess;
     private int ssvepShootCommandSuccess;
+
     private float lastSsvepCommandDelay;
     private float totalSsvepCommandDelay;
     private float totalSsvepShootCommandDelay;
-    private float totalSsvepCoreCommandDelay;
+    //private float totalSsvepCoreCommandDelay;
+    private float totalLaserFenceCommandDelay;
+    private float totalFixCoreCommandDelay;
+    private float totalSkipCommandDelay;
     private float totalGameTime;
 
     private List<float> spawnTimeLimits = new List<float>();
@@ -1172,7 +1182,7 @@ public class GameController : MonoBehaviour
         coreDamagedAudio.GetComponent<AudioPrefabScript>().SetAddedPitch(0.24f);
     }
 
-    public void IncreaseCoreHp(float stimulusGazeDuration = -1f, bool autoCommandTrigger = false)
+    public void IncreaseCoreHp(float stimulusGazeDuration = -1f)
     {
         if (!waiting_alreadyBeginFixing)
         {
@@ -1181,7 +1191,7 @@ public class GameController : MonoBehaviour
             scoreText.text = "" + score;
             if (stimulusGazeDuration != -1f)
             {
-                UpdateSsvepCoreCommandStat(!autoCommandTrigger, stimulusGazeDuration);
+                UpdateFixCoreCommandStat(stimulusGazeDuration);
             }
         }
         if (coreHp < coreFullHp)
@@ -1582,7 +1592,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void UpdateSsvepCoreCommandStat(bool success, float delay = 0f)
+    /*public void UpdateSsvepCoreCommandStat(bool success, float delay = 0f)
     {
         ssvepCoreCommandCount++;
         if (success)
@@ -1591,6 +1601,54 @@ public class GameController : MonoBehaviour
             lastSsvepCommandDelay = delay;
             totalSsvepCommandDelay += delay;
             totalSsvepCoreCommandDelay += delay;
+        }
+        else
+        {
+            lastSsvepCommandDelay = -1f;
+        }
+    }*/
+
+    public void UpdateLaserFenceCommandStat(bool success, float delay = 0f)
+    {
+        laserFenceCommandCount++;
+        if (success)
+        {
+            laserFenceCommandSuccess++;
+            lastSsvepCommandDelay = delay;
+            totalSsvepCommandDelay += delay;
+            totalLaserFenceCommandDelay += delay;
+        }
+        else
+        {
+            lastSsvepCommandDelay = -1f;
+        }
+    }
+
+    public void UpdateFixCoreCommandStat(float delay)
+    {
+        fixCoreCommandCount++;
+        if (delay <= player.GetSkillTimeOut())
+        {
+            fixCoreCommandSuccess++;
+            lastSsvepCommandDelay = delay;
+            totalSsvepCommandDelay += delay;
+            totalFixCoreCommandDelay += delay;
+        }
+        else
+        {
+            lastSsvepCommandDelay = -1f;
+        }
+    }
+
+    public void UpdateSkipCommandStat(float delay)
+    {
+        skipCommandCount++;
+        if (delay <= player.GetSkillTimeOut())
+        {
+            skipCommandSuccess++;
+            lastSsvepCommandDelay = delay;
+            totalSsvepCommandDelay += delay;
+            totalSkipCommandDelay += delay;
         }
         else
         {
@@ -1632,14 +1690,18 @@ public class GameController : MonoBehaviour
         {
             return "";
         }
-        int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
-        int ssvepCommandSuccess = ssvepCoreCommandSuccess + ssvepShootCommandSuccess;
+        int ssvepCommandCount = laserFenceCommandCount + fixCoreCommandCount + skipCommandCount + ssvepShootCommandCount;
+        int ssvepCommandSuccess = laserFenceCommandSuccess + fixCoreCommandSuccess + skipCommandSuccess + ssvepShootCommandSuccess;
         double scorePercentage = maximumScore == 0 ? 0 : Math.Round((float)score / (float)maximumScore * 100f, 3);
         double ssvepCommandSuccessPercentage = ssvepCommandCount == 0 ? 0 : Math.Round((float)ssvepCommandSuccess / (float)ssvepCommandCount * 100f, 3);
-        double ssvepCoreCommandSuccessPercentage = ssvepCoreCommandCount == 0 ? 0 : Math.Round((float)ssvepCoreCommandSuccess / (float)ssvepCoreCommandCount * 100f, 3);
+        double laserFenceCommandSuccessPercentage = laserFenceCommandCount == 0 ? 0 : Math.Round((float)laserFenceCommandSuccess / (float)laserFenceCommandCount * 100f, 3);
+        double fixCoreCommandSuccessPercentage = fixCoreCommandCount == 0 ? 0 : Math.Round((float)fixCoreCommandSuccess / (float)fixCoreCommandCount * 100f, 3);
+        double skipCommandSuccessPercentage = skipCommandCount == 0 ? 0 : Math.Round((float)skipCommandSuccess / (float)skipCommandCount * 100f, 3);
         double ssvepShootCommandSuccessPercentage = ssvepShootCommandCount == 0 ? 0 : Math.Round((float)ssvepShootCommandSuccess / (float)ssvepShootCommandCount * 100f, 3);
         double avgSsvepCommandDelay = ssvepCommandSuccess == 0 ? 0 : Math.Round(totalSsvepCommandDelay / (float)ssvepCommandSuccess, 3);
-        double avgSsvepCoreCommandDelay = ssvepCoreCommandSuccess == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / (float)ssvepCoreCommandSuccess, 3);
+        double avgLaserFenceCommandDelay = laserFenceCommandSuccess == 0 ? 0 : Math.Round(totalLaserFenceCommandDelay / (float)laserFenceCommandSuccess, 3);
+        double avgFixCoreCommandDelay = fixCoreCommandSuccess == 0 ? 0 : Math.Round(totalFixCoreCommandDelay / (float)fixCoreCommandSuccess, 3);
+        double avgSkipCommandDelay = skipCommandSuccess == 0 ? 0 : Math.Round(totalSkipCommandDelay / (float)skipCommandSuccess, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandSuccess == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / (float)ssvepShootCommandSuccess, 3);
         return "Play time: " + ConvertSecondToTimeFormat(totalGameTime) +
             "\nMax possible score: " + maximumScore +
@@ -1653,9 +1715,15 @@ public class GameController : MonoBehaviour
             "\nShoot command trigger: " + ssvepShootCommandCount +
             "\nShoot command trigger successfully: " + ssvepShootCommandSuccess + " (" + ssvepShootCommandSuccessPercentage + "%)" +
             "\nAvg shoot command delay: " + avgSsvepShootCommandDelay +
-            "\nCore command trigger: " + ssvepCoreCommandCount +
-            "\nCore command trigger successfully: " + ssvepCoreCommandSuccess + " (" + ssvepCoreCommandSuccessPercentage + "%)" +
-            "\nAvg core command delay: " + avgSsvepCoreCommandDelay +
+            "\nLaser command trigger: " + laserFenceCommandCount +
+            "\nLaser command trigger successfully: " + laserFenceCommandSuccess + " (" + laserFenceCommandSuccessPercentage + "%)" +
+            "\nAvg laser command delay: " + avgLaserFenceCommandDelay +
+            "\nFix command trigger: " + fixCoreCommandCount +
+            "\nFix command trigger successfully: " + fixCoreCommandSuccess + " (" + fixCoreCommandSuccessPercentage + "%)" +
+            "\nAvg fix command delay: " + avgFixCoreCommandDelay +
+            "\nSkip command trigger: " + skipCommandCount +
+            "\nSkip command trigger successfully: " + skipCommandSuccess + " (" + skipCommandSuccessPercentage + "%)" +
+            "\nAvg skip command delay: " + avgSkipCommandDelay +
             "\nAll command trigger: " + ssvepCommandCount +
             "\nAll command trigger successfully: " + ssvepCommandSuccess + " (" + ssvepCommandSuccessPercentage + "%)" +
             "\nAvg all command delay: " + avgSsvepCommandDelay +
@@ -1720,16 +1788,20 @@ public class GameController : MonoBehaviour
 
     public void SaveStat()
     {
-        int ssvepCommandCount = ssvepCoreCommandCount + ssvepShootCommandCount;
-        int ssvepCommandSuccess = ssvepCoreCommandSuccess + ssvepShootCommandSuccess;
+        int ssvepCommandCount = laserFenceCommandCount + fixCoreCommandCount + skipCommandCount + ssvepShootCommandCount;
+        int ssvepCommandSuccess = laserFenceCommandSuccess + fixCoreCommandSuccess + skipCommandSuccess + ssvepShootCommandSuccess;
         int validBlinkInsideHud = blinkInsideHudCommandCount - SaveStatInputRecorder.blinkInsideFalseTrigger;
         int validBlinkOutsideHud = blinkOutsideHudCommandCount - SaveStatInputRecorder.blinkOutsideFalseTrigger;
         double scorePercentage = maximumScore == 0 ? 0 : Math.Round((float)score / (float)maximumScore * 100f, 3);
         double ssvepCommandSuccessPercentage = ssvepCommandCount == 0 ? 0 : Math.Round((float)ssvepCommandSuccess / (float)ssvepCommandCount * 100f, 3);
-        double ssvepCoreCommandSuccessPercentage = ssvepCoreCommandCount == 0 ? 0 : Math.Round((float)ssvepCoreCommandSuccess / (float)ssvepCoreCommandCount * 100f, 3);
+        double laserFenceCommandSuccessPercentage = laserFenceCommandCount == 0 ? 0 : Math.Round((float)laserFenceCommandSuccess / (float)laserFenceCommandCount * 100f, 3);
+        double fixCoreCommandSuccessPercentage = fixCoreCommandCount == 0 ? 0 : Math.Round((float)fixCoreCommandSuccess / (float)fixCoreCommandCount * 100f, 3);
+        double skipCommandSuccessPercentage = skipCommandCount == 0 ? 0 : Math.Round((float)skipCommandSuccess / (float)skipCommandCount * 100f, 3);
         double ssvepShootCommandSuccessPercentage = ssvepShootCommandCount == 0 ? 0 : Math.Round((float)ssvepShootCommandSuccess / (float)ssvepShootCommandCount * 100f, 3);
         double avgSsvepCommandDelay = ssvepCommandSuccess == 0 ? 0 : Math.Round(totalSsvepCommandDelay / (float)ssvepCommandSuccess, 3);
-        double avgSsvepCoreCommandDelay = ssvepCoreCommandSuccess == 0 ? 0 : Math.Round(totalSsvepCoreCommandDelay / (float)ssvepCoreCommandSuccess, 3);
+        double avgLaserFenceCommandDelay = laserFenceCommandSuccess == 0 ? 0 : Math.Round(totalLaserFenceCommandDelay / (float)laserFenceCommandSuccess, 3);
+        double avgFixCoreCommandDelay = fixCoreCommandSuccess == 0 ? 0 : Math.Round(totalFixCoreCommandDelay / (float)fixCoreCommandSuccess, 3);
+        double avgSkipCommandDelay = skipCommandSuccess == 0 ? 0 : Math.Round(totalSkipCommandDelay / (float)skipCommandSuccess, 3);
         double avgSsvepShootCommandDelay = ssvepShootCommandSuccess == 0 ? 0 : Math.Round(totalSsvepShootCommandDelay / (float)ssvepShootCommandSuccess, 3);
         double validBlinkInsideHudPercentage = blinkInsideHudCommandCount == 0 ? 0 : Math.Round((float)validBlinkInsideHud / (float)blinkInsideHudCommandCount * 100f, 3);
         double validBlinkOutsideHudPercentage = blinkOutsideHudCommandCount == 0 ? 0 : Math.Round((float)validBlinkOutsideHud / (float)blinkOutsideHudCommandCount * 100f, 3);
@@ -1745,9 +1817,15 @@ public class GameController : MonoBehaviour
             "\nShoot command trigger: " + ssvepShootCommandCount +
             "\nShoot command trigger successfully: " + ssvepShootCommandSuccess + " (" + ssvepShootCommandSuccessPercentage + "%)" +
             "\nAvg shoot command delay: " + avgSsvepShootCommandDelay +
-            "\nCore command trigger: " + ssvepCoreCommandCount +
-            "\nCore command trigger successfully: " + ssvepCoreCommandSuccess + " (" + ssvepCoreCommandSuccessPercentage + "%)" +
-            "\nAvg core command delay: " + avgSsvepCoreCommandDelay +
+            "\nLaser command trigger: " + laserFenceCommandCount +
+            "\nLaser command trigger successfully: " + laserFenceCommandSuccess + " (" + laserFenceCommandSuccessPercentage + "%)" +
+            "\nAvg laser command delay: " + avgLaserFenceCommandDelay +
+            "\nFix command trigger: " + fixCoreCommandCount +
+            "\nFix command trigger successfully: " + fixCoreCommandSuccess + " (" + fixCoreCommandSuccessPercentage + "%)" +
+            "\nAvg fix command delay: " + avgFixCoreCommandDelay +
+            "\nSkip command trigger: " + skipCommandCount +
+            "\nSkip command trigger successfully: " + skipCommandSuccess + " (" + skipCommandSuccessPercentage + "%)" +
+            "\nAvg skip command delay: " + avgSkipCommandDelay +
             "\nAll command trigger: " + ssvepCommandCount +
             "\nAll command trigger successfully: " + ssvepCommandSuccess + " (" + ssvepCommandSuccessPercentage + "%)" +
             "\nAvg all command delay: " + avgSsvepCommandDelay +
