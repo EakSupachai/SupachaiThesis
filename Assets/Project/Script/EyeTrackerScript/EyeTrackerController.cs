@@ -18,6 +18,7 @@ public class EyeTrackerController : MonoBehaviour
 
     private static bool deviceReady = false;
     private static bool recordBlinking = false;
+    private static int blinkStatusCount = 0;
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 8;
@@ -132,6 +133,9 @@ public class EyeTrackerController : MonoBehaviour
             if (!left && right)
             {
                 blinkStatus.oneEyedBlink = true;
+                blinkStatusCount++;
+                leftBlinkStatusCount++;
+                /*blinkStatus.oneEyedBlink = true;
                 leftBlinkStatusCount++;
                 rightBlinkStatusCount = 0;
                 if (leftBlinkStatusCount == validBlinkDuration)
@@ -140,11 +144,14 @@ public class EyeTrackerController : MonoBehaviour
                     blinkStatus.left = true;
                     blinkStatus.right = false;
                     blinkPoint = currentGazePoint;
-                }
+                }*/
             }
             else if (left && !right)
             {
                 blinkStatus.oneEyedBlink = true;
+                blinkStatusCount++;
+                rightBlinkStatusCount++;
+                /*blinkStatus.oneEyedBlink = true;
                 rightBlinkStatusCount++;
                 leftBlinkStatusCount = 0;
                 if (rightBlinkStatusCount == validBlinkDuration)
@@ -153,18 +160,44 @@ public class EyeTrackerController : MonoBehaviour
                     blinkStatus.left = false;
                     blinkStatus.right = true;
                     blinkPoint = currentGazePoint;
-                }
+                }*/
             }
             else if (!left && !right)
             {
                 blinkStatus.twoEyedBlink = true;
+                blinkStatusCount++;
+                /*blinkStatus.twoEyedBlink = true;
                 leftBlinkStatusCount = 0;
-                rightBlinkStatusCount = 0;
+                rightBlinkStatusCount = 0;*/
             }
             else
             {
+                if (blinkStatusCount >= validBlinkDuration)
+                {
+                    if (rightBlinkStatusCount > leftBlinkStatusCount)
+                    {
+                        blinkStatus.oneEyedBlink = true;
+                        blinkStatus.validOneEyedBlink = true;
+                        blinkStatus.right = true;
+                        blinkPoint = currentGazePoint;
+                    }
+                    else if (leftBlinkStatusCount > rightBlinkStatusCount)
+                    {
+                        blinkStatus.oneEyedBlink = true;
+                        blinkStatus.validOneEyedBlink = true;
+                        blinkStatus.left = true;
+                        blinkPoint = currentGazePoint;
+                    }
+                    else
+                    {
+                        blinkStatus.twoEyedBlink = true;
+                    }
+                }
+                blinkStatusCount = 0;
                 leftBlinkStatusCount = 0;
                 rightBlinkStatusCount = 0;
+                /*leftBlinkStatusCount = 0;
+                rightBlinkStatusCount = 0;*/
             }
         }
     }
