@@ -199,7 +199,7 @@ public class GameController : MonoBehaviour
         startDuration = 5.9f;
         instructionDuration = 4.25f;
         waitingDuration = 20.9f;
-        waveDuration = 20.9f;
+        waveDuration = 120.9f;
 
         wave1_minSpawnTime = 8f;
         wave1_maxSpawnTime = 20f;
@@ -237,7 +237,7 @@ public class GameController : MonoBehaviour
         coreAudioSource = core.GetComponent<AudioSource>();
 
         score = 0;
-        fixingCost = 100;
+        fixingCost = 250;
         
         oneLineText.gameObject.SetActive(true);
         twoLineText.gameObject.SetActive(true);
@@ -929,6 +929,10 @@ public class GameController : MonoBehaviour
         if (!testMode && !calibrationMode)
         {
             currentStateDuration -= Time.deltaTime;
+            if (Input.GetKeyDown(KeyCode.Backspace))
+            {
+                currentStateDuration = 0f;
+            }
             if (currentStateDuration <= 0f)
             {
                 currentStateDuration = 0f;
