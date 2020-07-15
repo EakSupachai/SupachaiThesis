@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class DropdownInputManager : MonoBehaviour
+public class ShootingStimulusDropdownInputManager : MonoBehaviour
 {
 
     private void Start()

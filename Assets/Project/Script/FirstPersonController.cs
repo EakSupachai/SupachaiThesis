@@ -437,13 +437,27 @@ public class FirstPersonController : MonoBehaviour
                     else
                     {
                         gameController.IncreaseBlinkOutsideHudCommandCount();
-                        if (blinkStatus.left)
+                        if (GameModeRecorder.primaryBlinkSide == 0)
                         {
-                            blinkToAim = true;
+                            if (blinkStatus.left)
+                            {
+                                blinkToAim = true;
+                            }
+                            else
+                            {
+                                blinkToUseSkill = true;
+                            }
                         }
                         else
                         {
-                            blinkToUseSkill = true;
+                            if (blinkStatus.right)
+                            {
+                                blinkToAim = true;
+                            }
+                            else
+                            {
+                                blinkToUseSkill = true;
+                            }
                         }
                     }
                 }
