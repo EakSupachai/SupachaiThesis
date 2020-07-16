@@ -22,9 +22,10 @@ public class EyeTrackerController : MonoBehaviour
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 8;
+    private static float validOneEyeBlinkPercentage = 0.65f;
     private static float validGazeDuration = 1.25f;
-    private static float validGazeDurationForCalibration = 6f;
-    private static float validDurationSinceLastBlink = 3f;
+    private static float validGazeDurationForCalibration = 4.5f;
+    private static float validDurationSinceLastBlink = 2.5f;
     private static float blinkDurationAllowed = 0.25f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
@@ -174,14 +175,15 @@ public class EyeTrackerController : MonoBehaviour
             {
                 if (blinkStatusCount >= validBlinkDuration)
                 {
-                    if (rightBlinkStatusCount > leftBlinkStatusCount)
+                    int threshold = (int) Math.Truncate(blinkStatusCount * validOneEyeBlinkPercentage);
+                    if (rightBlinkStatusCount >= threshold)
                     {
                         blinkStatus.oneEyedBlink = true;
                         blinkStatus.validOneEyedBlink = true;
                         blinkStatus.right = true;
                         blinkPoint = currentGazePoint;
                     }
-                    else if (leftBlinkStatusCount > rightBlinkStatusCount)
+                    else if (leftBlinkStatusCount >= threshold)
                     {
                         blinkStatus.oneEyedBlink = true;
                         blinkStatus.validOneEyedBlink = true;
