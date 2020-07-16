@@ -931,6 +931,10 @@ public class GameController : MonoBehaviour
             currentStateDuration -= Time.deltaTime;
             if (Input.GetKeyDown(KeyCode.Backspace))
             {
+                nextWave = 1;
+                AddScore(fixingCost);
+                coreHp = coreFullHp;
+                coreHpBar.fillAmount = coreHp / coreFullHp;
                 currentStateDuration = 0f;
             }
             if (currentStateDuration <= 0f)
