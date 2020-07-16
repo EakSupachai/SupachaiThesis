@@ -124,6 +124,7 @@ public class FirstPersonController : MonoBehaviour
     private bool s_UsingSkill;
     private bool s_CancellingSkill;
     private bool s_AutoCommandTrigger;
+    private bool s_AutoSkillTrigger;
     private bool s_UsedSkillWhenScoping;
     private float s_SkillAvailableTime;
     private float s_SkillTimeOut;
@@ -339,6 +340,8 @@ public class FirstPersonController : MonoBehaviour
             currentEnemyInCrosshair = null;
         }
         bool isCurrentEnemyNotNull = currentEnemyInCrosshair != null;
+        bool autoSkillTrigger = s_AutoSkillTrigger;
+        s_AutoSkillTrigger = false;
 
         // check eye tracker input
         eyeTrackerRunning = EyeTrackerController.GetDeviceStatus();
@@ -702,7 +705,7 @@ public class FirstPersonController : MonoBehaviour
 
         // use skill and cancel skill
         bool useSkillCommandIssued = eyeTrackerRunning ? blinkToUseSkill : Input.GetKeyDown(KeyCode.F);
-        if (useSkillCommandIssued)
+        if (useSkillCommandIssued || autoSkillTrigger)
         {
             if (s_UsingSkill && !s_CancellingSkill && gameController.CanUseSkill())
             {
@@ -961,6 +964,7 @@ public class FirstPersonController : MonoBehaviour
                         {
                             scopeFadingRatio = 1f;
                             g_AimInterpolating = false;
+                            s_AutoSkillTrigger = true;
                         }
                         g_SniperRifleController.AdjustBlankAlpha(1f - scopeFadingRatio);
                     }
@@ -1020,6 +1024,10 @@ public class FirstPersonController : MonoBehaviour
             g_AimingStartTime = Time.time;
             if (usingSniper)
             {
+                if (s_UsingSkill && !s_CancellingSkill)
+                {
+                    s_AutoSkillTrigger = true;
+                }
                 g_ScopeFadingStartTime = Time.time;
                 g_AimingStartFOV = m_Camera.fieldOfView;
                 g_AimingIntendedFOV = 60f;
