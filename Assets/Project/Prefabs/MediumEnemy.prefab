@@ -9985,7 +9985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 2
   score: 150
-  fullHp: 10
+  fullHp: 15
   speed: 3
   explosionScale: 1.7
   isRedType: 1
