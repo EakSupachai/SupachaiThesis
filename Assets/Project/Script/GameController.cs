@@ -155,12 +155,10 @@ public class GameController : MonoBehaviour
     private int largeEnemyTakenOutByLaser;
     private int blinkInsideHudCommandCount;
     private int blinkOutsideHudCommandCount;
-    //private int ssvepCoreCommandCount;
     private int laserFenceCommandCount;
     private int fixCoreCommandCount;
     private int skipCommandCount;
     private int ssvepShootCommandCount;
-    //private int ssvepCoreCommandSuccess;
     private int laserFenceCommandSuccess;
     private int fixCoreCommandSuccess;
     private int skipCommandSuccess;
@@ -169,7 +167,6 @@ public class GameController : MonoBehaviour
     private float lastSsvepCommandDelay;
     private float totalSsvepCommandDelay;
     private float totalSsvepShootCommandDelay;
-    //private float totalSsvepCoreCommandDelay;
     private float totalLaserFenceCommandDelay;
     private float totalFixCoreCommandDelay;
     private float totalSkipCommandDelay;
@@ -1275,6 +1272,7 @@ public class GameController : MonoBehaviour
         hudCanvas.transform.Find("CoreHpBar").gameObject.SetActive(false);
         hudCanvas.transform.Find("SkillCooldown").gameObject.SetActive(false);
         hudCanvas.transform.Find("Gun").gameObject.SetActive(false);
+        hudCanvas.transform.Find("GunAmmoType").gameObject.SetActive(false);
         hudCanvas.transform.Find("Info").gameObject.SetActive(false);
         hudCanvas.transform.Find("Score").gameObject.SetActive(false);
         temp = hudCanvas.transform.Find("LaserFenceStimulus").gameObject;
@@ -1319,6 +1317,7 @@ public class GameController : MonoBehaviour
         hudCanvas.transform.Find("CoreHpBar").gameObject.SetActive(true);
         hudCanvas.transform.Find("SkillCooldown").gameObject.SetActive(true);
         hudCanvas.transform.Find("Gun").gameObject.SetActive(true);
+        hudCanvas.transform.Find("GunAmmoType").gameObject.SetActive(true);
         hudCanvas.transform.Find("Info").gameObject.SetActive(true);
         hudCanvas.transform.Find("Score").gameObject.SetActive(true);
         if (coreStimulusSavedStatus)

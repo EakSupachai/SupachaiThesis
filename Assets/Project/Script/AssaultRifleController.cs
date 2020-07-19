@@ -8,6 +8,10 @@ public class AssaultRifleController : GunController
     // default aim position (0, -0.09f, 0.5f)
     [SerializeField] private GameObject crosshair;
     [SerializeField] private Image aimCrosshair;
+    [SerializeField] private Image modeIcon;
+    [SerializeField] private Sprite yellowModeSprite;
+    [SerializeField] private Sprite orangeModeSprite;
+    [SerializeField] private Sprite redModeSprite;
     [SerializeField] private ParticleSystem redMuzzleFlash;
     [SerializeField] private ParticleSystem yellowMuzzleFlash;
     [SerializeField] private ParticleSystem orangeMuzzleFlash;
@@ -65,6 +69,7 @@ public class AssaultRifleController : GunController
         crosshairAnimator = crosshair.GetComponent<Animator>();
 
         currentMode = "ORANGE";
+        modeIcon.sprite = orangeModeSprite;
         typeDisplayC = transform.Find("TypeDisplayC").gameObject;
         typeDisplayL = transform.Find("TypeDisplayL").gameObject;
         typeDisplayR = transform.Find("TypeDisplayR").gameObject;
@@ -161,14 +166,17 @@ public class AssaultRifleController : GunController
             if (currentMode == "RED")
             {
                 mode = "ORANGE";
+                modeIcon.sprite = orangeModeSprite;
             }
             else if (currentMode == "ORANGE") 
             {
                 mode = "YELLOW";
+                modeIcon.sprite = yellowModeSprite;
             }
             else if (currentMode == "YELLOW")
             {
                 mode = "RED";
+                modeIcon.sprite = redModeSprite;
             }
         }
         if (currentMode != mode)
@@ -177,6 +185,7 @@ public class AssaultRifleController : GunController
             if (mode == "RED")
             {
                 currentMode = "RED";
+                modeIcon.sprite = redModeSprite;
                 typeDisplayC.GetComponent<Renderer>().material = redLight;
                 typeDisplayL.GetComponent<Renderer>().material = redLight;
                 typeDisplayR.GetComponent<Renderer>().material = redLight;
@@ -185,6 +194,7 @@ public class AssaultRifleController : GunController
             else if (mode == "YELLOW")
             {
                 currentMode = "YELLOW";
+                modeIcon.sprite = yellowModeSprite;
                 typeDisplayC.GetComponent<Renderer>().material = yellowLight;
                 typeDisplayL.GetComponent<Renderer>().material = yellowLight;
                 typeDisplayR.GetComponent<Renderer>().material = yellowLight;
@@ -193,6 +203,7 @@ public class AssaultRifleController : GunController
             else if (mode == "ORANGE")
             {
                 currentMode = "ORANGE";
+                modeIcon.sprite = orangeModeSprite;
                 typeDisplayC.GetComponent<Renderer>().material = orangeLight;
                 typeDisplayL.GetComponent<Renderer>().material = orangeLight;
                 typeDisplayR.GetComponent<Renderer>().material = orangeLight;

@@ -24,6 +24,8 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] Image h_GunModeCommandArea;
     [SerializeField] Image h_GunModeAimCommandArea;
     [SerializeField] Image h_StimulusHighlightBlank;
+    [SerializeField] Image h_ChangeGunCommandHighlight;
+    [SerializeField] Image h_SkillCommandHighlight;
     [SerializeField] Image h_RedArModeMarker;
     [SerializeField] Image h_YellowArModeMarker;
     [SerializeField] Image h_OrangeArModeMarker;
@@ -185,6 +187,9 @@ public class FirstPersonController : MonoBehaviour
     {
         calibrating = GameModeRecorder.calibrationMode;
         classifying = GameModeRecorder.classifyMode;
+
+        h_ChangeGunCommandHighlight.gameObject.SetActive(false);
+        h_SkillCommandHighlight.gameObject.SetActive(false);
 
         PrepareCommandAreaCorners();
         SetUIPosition(g_GunHUD.gameObject.GetComponent<RectTransform>(), out gunPanelPosition);
@@ -368,10 +373,25 @@ public class FirstPersonController : MonoBehaviour
         Vector2 gazePoint = Vector2.zero;
         bci2000Input.color = ssvepRunning ? greenColor : redColor;
         s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
-        if (eyeTrackerRunning /*true*/)
+        if (eyeTrackerRunning)
         {
             gazePoint = EyeTrackerController.GetCurrentGazePoint();
             bool gazeInChangeGunAndSkillCA = IsPointInArea(gazePoint, gunAndSkillCommandAreaCorners);
+            float distanceToGunPanel = Vector2.Distance(gazePoint, gunPanelPosition);
+            float distanceToSkillPanel = Vector3.Distance(gazePoint, skillPanelPosition);
+            h_ChangeGunCommandHighlight.gameObject.SetActive(false);
+            h_SkillCommandHighlight.gameObject.SetActive(false);
+            if (gazeInChangeGunAndSkillCA)
+            {
+                if (distanceToGunPanel <= distanceToSkillPanel)
+                {
+                    h_ChangeGunCommandHighlight.gameObject.SetActive(true);
+                }
+                else if (distanceToSkillPanel < distanceToGunPanel)
+                {
+                    h_SkillCommandHighlight.gameObject.SetActive(true);
+                }
+            }
             if (!Input.GetKey(KeyCode.E) && !Input.GetKeyUp(KeyCode.E))
             {
                 pressToOpenArModeMenu = false;
@@ -382,14 +402,12 @@ public class FirstPersonController : MonoBehaviour
                 {
                     if (gazeInChangeGunAndSkillCA)
                     {
-                        float d1 = Vector2.Distance(gazePoint, gunPanelPosition);
-                        float d2 = Vector3.Distance(gazePoint, skillPanelPosition);
                         gameController.IncreaseBlinkInsideHudCommandCount();
-                        if (d1 <= d2)
+                        if (distanceToGunPanel <= distanceToSkillPanel)
                         {
                             blinkToChangeGun = true;
                         }
-                        else if (d2 < d1)
+                        else if (distanceToSkillPanel < distanceToGunPanel)
                         {
                             blinkToUseSkill = true;
                         }
@@ -416,14 +434,12 @@ public class FirstPersonController : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    float d1 = Vector2.Distance(gazePoint, gunPanelPosition);
-                    float d2 = Vector3.Distance(gazePoint, skillPanelPosition);
                     gameController.IncreaseBlinkInsideHudCommandCount();
-                    if (d1 <= d2)
+                    if (distanceToGunPanel <= distanceToSkillPanel)
                     {
                         blinkToChangeGun = true;
                     }
-                    else if (d2 < d1)
+                    else if (distanceToSkillPanel < distanceToGunPanel)
                     {
                         blinkToUseSkill = true;
                     }
