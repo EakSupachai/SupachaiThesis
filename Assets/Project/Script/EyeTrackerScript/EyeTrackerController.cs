@@ -21,12 +21,14 @@ public class EyeTrackerController : MonoBehaviour
     private static int blinkStatusCount = 0;
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
-    private static int validBlinkDuration = 8;
-    private static float validOneEyeBlinkPercentage = 0.65f;
+    private static int validBlinkDuration = 9;
+    private static float validOneEyeBlinkPercentage = 0.4f;
     private static float validGazeDuration = 1.25f;
     private static float validGazeDurationForCalibration = 4.5f;
     private static float validDurationSinceLastBlink = 2.5f;
     private static float blinkDurationAllowed = 0.25f;
+    private static float doubleBlinkDurationAllowed = 1f;
+    private static float doubleBlinkDurationCountUp = 10f;
     private static BlinkStatus blinkStatus = new BlinkStatus();
     private static Vector2 currentGazePoint = new Vector2(-1, -1);
     private static Vector2 blinkPoint = new Vector2(-1, -1);
@@ -127,6 +129,7 @@ public class EyeTrackerController : MonoBehaviour
 
     private void OnGazeOrigin(ref tobii_gaze_origin_t gazeOrigin)
     {
+        float unscaledTimer = Time.deltaTime / Time.timeScale;
         if (recordBlinking)
         {
             bool left = gazeOrigin.left_validity == tobii_validity_t.TOBII_VALIDITY_VALID;
@@ -173,31 +176,45 @@ public class EyeTrackerController : MonoBehaviour
             }
             else
             {
-                if (blinkStatusCount >= validBlinkDuration)
+                if (blinkStatusCount >= 30)
+                {
+                    blinkStatus.heavyBlink = true;
+                    //blinkPoint = currentGazePoint;
+                    doubleBlinkDurationCountUp = 10f;
+                }
+                else if (blinkStatusCount >= validBlinkDuration)
                 {
                     int threshold = (int) Math.Truncate(blinkStatusCount * validOneEyeBlinkPercentage);
-                    if (rightBlinkStatusCount >= threshold)
+                    if (rightBlinkStatusCount > leftBlinkStatusCount && rightBlinkStatusCount >= threshold)
                     {
                         blinkStatus.oneEyedBlink = true;
                         blinkStatus.validOneEyedBlink = true;
                         blinkStatus.right = true;
-                        blinkPoint = currentGazePoint;
+                        //blinkPoint = currentGazePoint;
+                        doubleBlinkDurationCountUp = 10f;
                     }
-                    else if (leftBlinkStatusCount >= threshold)
+                    else if (leftBlinkStatusCount > rightBlinkStatusCount && leftBlinkStatusCount >= threshold)
                     {
                         blinkStatus.oneEyedBlink = true;
                         blinkStatus.validOneEyedBlink = true;
                         blinkStatus.left = true;
-                        blinkPoint = currentGazePoint;
+                        //blinkPoint = currentGazePoint;
+                        doubleBlinkDurationCountUp = 10f;
                     }
                     else
                     {
                         blinkStatus.twoEyedBlink = true;
                     }
                 }
+                doubleBlinkDurationCountUp += unscaledTimer;
+                if (doubleBlinkDurationCountUp > doubleBlinkDurationAllowed)
+                {
+                    doubleBlinkDurationCountUp = 10f;
+                }
                 blinkStatusCount = 0;
                 leftBlinkStatusCount = 0;
                 rightBlinkStatusCount = 0;
+                blinkPoint = currentGazePoint;
                 /*leftBlinkStatusCount = 0;
                 rightBlinkStatusCount = 0;*/
             }
@@ -211,12 +228,13 @@ public class EyeTrackerController : MonoBehaviour
 
     public static BlinkStatus GetBlinkStatus()
     {
-        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.validOneEyedBlink, blinkStatus.oneEyedBlink, blinkStatus.twoEyedBlink, blinkStatus.left, blinkStatus.right);
+        BlinkStatus tempBlinkStatus = new BlinkStatus(blinkStatus.validOneEyedBlink, blinkStatus.oneEyedBlink, blinkStatus.twoEyedBlink, blinkStatus.left, blinkStatus.right, blinkStatus.heavyBlink);
         blinkStatus.validOneEyedBlink = false;
         blinkStatus.oneEyedBlink = false;
         blinkStatus.twoEyedBlink = false;
         blinkStatus.left = false;
         blinkStatus.right = false;
+        blinkStatus.heavyBlink = false;
         return tempBlinkStatus;
     }
 

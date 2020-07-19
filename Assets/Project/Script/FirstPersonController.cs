@@ -258,6 +258,7 @@ public class FirstPersonController : MonoBehaviour
     private bool gazeToActivateShootCommand = false;
     private bool pressToActivateSkipCommand = false;
     private bool openArModeMenu = false;
+    private bool pressToOpenArModeMenu = false;
     private void Update()
     {
         if (GameController.IsPause() || GameController.IsGameOver())
@@ -369,20 +370,65 @@ public class FirstPersonController : MonoBehaviour
         s_UsedSkillWhenScoping = s_UsedSkillWhenScoping ? rayHitEnemy : false;
         if (eyeTrackerRunning /*true*/)
         {
+            gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            bool gazeInChangeGunAndSkillCA = IsPointInArea(gazePoint, gunAndSkillCommandAreaCorners);
+            if (!Input.GetKey(KeyCode.E) && !Input.GetKeyUp(KeyCode.E))
+            {
+                pressToOpenArModeMenu = false;
+            }
             if (g_CurrentGun == "AR" && !g_Switching)
             {
-                if (Input.GetKey(KeyCode.E))
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    if (gazeInChangeGunAndSkillCA)
+                    {
+                        float d1 = Vector2.Distance(gazePoint, gunPanelPosition);
+                        float d2 = Vector3.Distance(gazePoint, skillPanelPosition);
+                        gameController.IncreaseBlinkInsideHudCommandCount();
+                        if (d1 <= d2)
+                        {
+                            blinkToChangeGun = true;
+                        }
+                        else if (d2 < d1)
+                        {
+                            blinkToUseSkill = true;
+                        }
+                    }
+                    else
+                    {
+                        Time.timeScale = GameController.slowedTimeScale;
+                        pressToOpenArModeMenu = true;
+                        openArModeMenu = true;
+                    }
+                }
+                else if (Input.GetKey(KeyCode.E) && pressToOpenArModeMenu)
                 {
                     Time.timeScale = GameController.slowedTimeScale;
                     openArModeMenu = true;
                 }
-                else if (Input.GetKeyUp(KeyCode.E))
+                else if (Input.GetKeyUp(KeyCode.E) && pressToOpenArModeMenu)
                 {
                     Time.timeScale = GameController.supposedCurrentTimeScale;
                     openArModeMenu = true;
                 }
             }
-            gazePoint = EyeTrackerController.GetCurrentGazePoint();
+            else if (gazeInChangeGunAndSkillCA)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    float d1 = Vector2.Distance(gazePoint, gunPanelPosition);
+                    float d2 = Vector3.Distance(gazePoint, skillPanelPosition);
+                    gameController.IncreaseBlinkInsideHudCommandCount();
+                    if (d1 <= d2)
+                    {
+                        blinkToChangeGun = true;
+                    }
+                    else if (d2 < d1)
+                    {
+                        blinkToUseSkill = true;
+                    }
+                }
+            }
             //gazePoint = Vector2.zero;
             gazeInEnemyArea = IsPointInArea(gazePoint, enemyAreaCorners) && rayHitEnemy && scoping && s_UsingSkill && !s_CancellingSkill;
             gazeInRedArModeArea = IsPointInArea(gazePoint, redArModeAreaCorners) && h_ArModeMenu.color.a > 0.95f && openArModeMenu;
@@ -411,57 +457,22 @@ public class FirstPersonController : MonoBehaviour
             {
                 blinkToChangeMode = true;
             }
-            if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink)
+            if (blinkStatus.oneEyedBlink || blinkStatus.twoEyedBlink || blinkStatus.heavyBlink)
             {
                 if (!ssvepRunning)
                 {
                     stimulusGazeDuration = 0f;
                 }
-                if (blinkStatus.validOneEyedBlink && !openArModeMenu)
+                if ((blinkStatus.validOneEyedBlink || blinkStatus.heavyBlink) && !openArModeMenu && !gazeInChangeGunAndSkillCA)
                 {
-                    Vector2 blinkPoint = EyeTrackerController.GetBlinkPoint();
-                    bool blinkInChangeGunAndSkillCA = IsPointInArea(blinkPoint, gunAndSkillCommandAreaCorners);
-                    bool blinkInGunModeCA = IsPointInArea(blinkPoint, gunModeCommandAreaCorners);
-                    bool blinkInGunModeAimCA = IsPointInArea(blinkPoint, gunModeAimCommandAreaCorners);
-                    if (blinkInChangeGunAndSkillCA)
+                    gameController.IncreaseBlinkOutsideHudCommandCount();
+                    if (blinkStatus.left || blinkStatus.right)
                     {
-                        float d1 = Vector2.Distance(blinkPoint, gunPanelPosition);
-                        float d2 = Vector3.Distance(blinkPoint, skillPanelPosition);
-                        gameController.IncreaseBlinkInsideHudCommandCount();
-                        if (d1 <= d2)
-                        {
-                            blinkToChangeGun = true;
-                        }
-                        else if (d2 < d1)
-                        {
-                            blinkToUseSkill = true;
-                        }
+                        blinkToAim = true;
                     }
-                    else
+                    else if (blinkStatus.heavyBlink)
                     {
-                        gameController.IncreaseBlinkOutsideHudCommandCount();
-                        if (GameModeRecorder.primaryBlinkSide == 0)
-                        {
-                            if (blinkStatus.left)
-                            {
-                                blinkToAim = true;
-                            }
-                            else
-                            {
-                                blinkToUseSkill = true;
-                            }
-                        }
-                        else
-                        {
-                            if (blinkStatus.right)
-                            {
-                                blinkToAim = true;
-                            }
-                            else
-                            {
-                                blinkToUseSkill = true;
-                            }
-                        }
+                        blinkToUseSkill = true;
                     }
                 }
             }
@@ -964,7 +975,10 @@ public class FirstPersonController : MonoBehaviour
                         {
                             scopeFadingRatio = 1f;
                             g_AimInterpolating = false;
-                            s_AutoSkillTrigger = true;
+                            if (!s_UsingSkill)
+                            {
+                                s_AutoSkillTrigger = true;
+                            }
                         }
                         g_SniperRifleController.AdjustBlankAlpha(1f - scopeFadingRatio);
                     }
