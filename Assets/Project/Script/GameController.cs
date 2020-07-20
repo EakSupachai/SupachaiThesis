@@ -1271,7 +1271,9 @@ public class GameController : MonoBehaviour
         hudCanvas.transform.Find("CoreHpBarBg").gameObject.SetActive(false);
         hudCanvas.transform.Find("CoreHpBar").gameObject.SetActive(false);
         hudCanvas.transform.Find("SkillCooldown").gameObject.SetActive(false);
+        hudCanvas.transform.Find("SkillCooldownHighlight").gameObject.SetActive(false);
         hudCanvas.transform.Find("Gun").gameObject.SetActive(false);
+        hudCanvas.transform.Find("GunHighlight").gameObject.SetActive(false);
         hudCanvas.transform.Find("GunAmmoType").gameObject.SetActive(false);
         hudCanvas.transform.Find("Info").gameObject.SetActive(false);
         hudCanvas.transform.Find("Score").gameObject.SetActive(false);
