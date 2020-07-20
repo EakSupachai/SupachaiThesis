@@ -22,6 +22,7 @@ public class EyeTrackerController : MonoBehaviour
     private static int leftBlinkStatusCount = 0;
     private static int rightBlinkStatusCount = 0;
     private static int validBlinkDuration = 9;
+    private static int validHeavyBlinkDuration = 30;
     private static float validOneEyeBlinkPercentage = 0.4f;
     private static float validGazeDuration = 1.25f;
     private static float validGazeDurationForCalibration = 4.5f;
@@ -176,7 +177,7 @@ public class EyeTrackerController : MonoBehaviour
             }
             else
             {
-                if (blinkStatusCount >= 30)
+                if (blinkStatusCount >= validHeavyBlinkDuration)
                 {
                     blinkStatus.heavyBlink = true;
                     //blinkPoint = currentGazePoint;
@@ -302,5 +303,35 @@ public class EyeTrackerController : MonoBehaviour
             result = Interop.tobii_device_destroy(deviceContext);
             result = Interop.tobii_api_destroy(apiContext);
         }
+    }
+
+    public static void SetValidBlinkDuration(int value)
+    {
+        validBlinkDuration = value;
+    }
+
+    public static void SetValidOneEyeBlinkPercentage(float value)
+    {
+        validOneEyeBlinkPercentage = value;
+    }
+
+    public static void SetValidHeavyBlinkDuration(int value)
+    {
+        validHeavyBlinkDuration = value;
+    }
+    
+    public static int GetValidBlinkDuration()
+    {
+        return validBlinkDuration;
+    }
+
+    public static float GetValidOneEyeBlinkPercentage()
+    {
+        return validOneEyeBlinkPercentage;
+    }
+
+    public static int GetValidHeavyBlinkDuration()
+    {
+        return validHeavyBlinkDuration;
     }
 }

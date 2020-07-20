@@ -1147,7 +1147,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.13916011, y: 0.061155178}
   m_AnchorMax: {x: 0.32357576, y: 0.22200002}
-  m_AnchoredPosition: {x: -31.1, y: 0}
+  m_AnchoredPosition: {x: -31.099976, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &105608432
@@ -44502,6 +44502,8 @@ MonoBehaviour:
   h_GunModeCommandArea: {fileID: 1480884594}
   h_GunModeAimCommandArea: {fileID: 948443816}
   h_StimulusHighlightBlank: {fileID: 2109469427}
+  h_ChangeGunCommandHighlight: {fileID: 105608432}
+  h_SkillCommandHighlight: {fileID: 376996961}
   h_RedArModeMarker: {fileID: 197712573}
   h_YellowArModeMarker: {fileID: 858294542}
   h_OrangeArModeMarker: {fileID: 212650955}
